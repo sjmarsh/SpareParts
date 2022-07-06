@@ -1,10 +1,13 @@
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Serilog;
 using SpareParts.API.Data;
 using SpareParts.API.Services;
 using SpareParts.Shared.Validators;
+using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -45,6 +48,10 @@ try
     // AutoMapper
     builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
+    // Add required services for Blazor Client (hosted by this WebAPI)
+    builder.Services.AddControllersWithViews();
+    builder.Services.AddRazorPages();
+
     // Other Services - DI Registration
     builder.Services.AddTransient<IDataService, DataService>();
 
@@ -56,13 +63,38 @@ try
     {
         app.UseSwagger();
         app.UseSwaggerUI();
+
+        // Required for Blazor WASM
+        app.UseWebAssemblyDebugging();
+    }
+    else
+    {
+        app.UseExceptionHandler("/Error");
+        // The default HSTS value is 30 days. Change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
     }
 
     app.UseHttpsRedirection();
 
+    // For Blazor
+    app.UseBlazorFrameworkFiles();
+    app.UseStaticFiles();
+   
     app.UseAuthorization();
 
+    //app.MapControllers();
+    app.MapRazorPages();
     app.MapControllers();
+    app.MapFallbackToFile("index.html");
+
+    CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-AU");
+    CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-AU");
+
+    if (!app.Environment.IsDevelopment())
+    {
+        Log.Information("Starting default browser.");
+        Process.Start(new ProcessStartInfo("http://localhost:5000") { UseShellExecute = true });
+    }
 
     app.Run();
 }
