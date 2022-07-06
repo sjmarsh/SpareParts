@@ -1,8 +1,10 @@
+using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SpareParts.API.Data;
 using SpareParts.API.Services;
+using SpareParts.Shared.Validators;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -25,6 +27,10 @@ try
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()
         )
     );
+
+    // Validation
+    builder.Services.AddMvc()
+      .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PartValidator>());
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
