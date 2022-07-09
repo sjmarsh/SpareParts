@@ -1,0 +1,110 @@
+﻿@using SpareParts.Shared.Models;
+
+@inject HttpClient Http;
+
+<h3>@_modeDescription Part</h3>
+
+@if(_part != null)
+{
+    <EditForm Model="_part" OnValidSubmit="@SubmitValidForm">
+        <FluentValidationValidator/>
+      
+        <ValidInputText Id="partName" DisplayName="Name" @bind-Value="_part.Name" />
+        <ValidInputText Id="partDescription" DisplayName="Description" @bind-Value="_part.Description" />
+        <ValidInputNumber Id="weight" DisplayName="Weight" @bind-Value="_part.Weight" @bind-Value:format="F2" />
+        <ValidInputNumber Id="price" DisplayName="Price" @bind-Value="_part.Price" @bind-Value:format="C" />
+        <ValidInputDate Id="startDate" DisplayName="Start Date" @bind-Value="_part.StartDate" />
+        <ValidInputDate Id="endDate" DisplayName="End Date" @bind-Value="_part.EndDate" />
+
+        <div class="my-3">
+            <button type="submit" class="btn btn-primary my-1" >Submit</button>
+            @if(_hasError)
+            {
+                <div class="alert alert-danger py-1">
+                    @_errorMessage
+                </div>
+            }
+            @if(_hasSubmitted && !_hasError)
+            {
+                <div class="alert alert-success py-1">
+                    Success
+                </div>
+            }
+        </div>
+
+    </EditForm>
+    
+}
+
+@code {
+
+    [Parameter]
+    public int? PartID { get; set; }
+
+    private Part? _part;
+    private bool _isEdit;
+    private bool _isLoading;
+    private bool _hasSubmitted;
+    private bool _hasError;
+    private string? _errorMessage;
+
+    private string? _modeDescription => _isEdit ? "Edit" : "Add";
+
+
+    protected async override Task OnInitializedAsync()
+    {       
+        _isEdit = PartID.HasValue && PartID > 0;
+        _isLoading = false;
+        _hasError = false;
+        _hasSubmitted = false;
+
+        if(_isEdit)
+        {
+            _isLoading = true;
+            _part = await Http.GetFromJsonAsync<Part>($"/api/Part/?id={PartID}");
+            _isLoading = false;
+        }
+        else
+        {
+            _part = new Part();
+        }
+    }
+
+    private async Task SubmitValidForm(EditContext context)
+    {
+        if (_part != null)
+        {
+            _isLoading = true;
+            _hasSubmitted = true;
+
+            HttpResponseMessage responseMessage;
+
+            if (_isEdit)
+            {
+                responseMessage = await Http.PutAsJsonAsync<Part>($"/api/Part", _part);
+            }
+            else
+            {
+                responseMessage = await Http.PostAsJsonAsync<Part>($"/api/Part", _part);
+            }
+
+            if(responseMessage.Content != null)
+            {
+                var partResponse = await responseMessage.Content.ReadFromJsonAsync<PartResponse>();
+                if(partResponse == null || partResponse.HasError)
+                {
+                    _hasError = true;
+                    _errorMessage = partResponse?.Message;
+                }
+                else
+                {
+                    _isEdit = true;
+                    _part = partResponse.Value;
+                }    
+            }
+            _isLoading = false;
+
+        }
+    }
+
+}

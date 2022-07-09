@@ -1,0 +1,25 @@
+﻿@page "/part-list"
+
+@using SpareParts.Shared.Models
+
+@inject HttpClient Http
+
+<h3>Part List</h3>
+@if(_parts != null && _parts.Any())
+{
+    foreach(var part in _parts)
+    {
+        <p>@part.Name</p>
+    }
+}
+
+
+@code {
+    private List<Part>? _parts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/Part/index");
+        _parts = partListResponse?.Items;
+    }
+}

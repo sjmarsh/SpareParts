@@ -1,7 +1,6 @@
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Serilog;
 using SpareParts.API.Data;
 using SpareParts.API.Services;

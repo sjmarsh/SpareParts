@@ -1,0 +1,21 @@
+﻿@inherits InputText
+
+<div class="form-group my-2">
+    @if(DisplayName != null)
+    {
+        <label for="@Id">@DisplayName</label>
+    }
+    <input id="@Id" type="text" class="@CssClass form-control" @attributes="AdditionalAttributes"
+       value="@BindConverter.FormatValue(CurrentValueAsString)"
+       @oninput="EventCallback.Factory.CreateBinder<string>(this, value => CurrentValueAsString = value, CurrentValueAsString ?? string.Empty)" />
+    <ValidationMessage For="@ValueExpression" />
+
+</div>
+
+
+@code {
+
+    [Parameter, EditorRequired]
+    public string? Id { get; set; }
+        
+}

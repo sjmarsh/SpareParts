@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpareParts.API", "SparePart
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpareParts.Shared", "SpareParts.Shared\SpareParts.Shared.csproj", "{42CAB0EA-6837-4699-95F4-90BDB7528D26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpareParts.Shared.Tests", "SpareParts.Shared.Tests\SpareParts.Shared.Tests.csproj", "{61CD9D49-DC31-4065-BDF0-9D55DB162FA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpareParts.Shared.Tests", "SpareParts.Shared.Tests\SpareParts.Shared.Tests.csproj", "{61CD9D49-DC31-4065-BDF0-9D55DB162FA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpareParts.Client", "SpareParts.Client\SpareParts.Client.csproj", "{38CF4158-7079-48B3-876B-7F35C02595B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpareParts.Client", "SpareParts.Client\SpareParts.Client.csproj", "{38CF4158-7079-48B3-876B-7F35C02595B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
