@@ -3,12 +3,16 @@
 @inject HttpClient Http;
 
 <h3>@_modeDescription Part</h3>
+@if (_isLoading)
+{
+    <div class="spinner-border"></div>
+}
 
 @if(_part != null)
 {
     <EditForm Model="_part" OnValidSubmit="@SubmitValidForm">
         <FluentValidationValidator/>
-      
+ 
         <ValidInputText Id="partName" DisplayName="Name" @bind-Value="_part.Name" />
         <ValidInputText Id="partDescription" DisplayName="Description" @bind-Value="_part.Description" />
         <ValidInputNumber Id="weight" DisplayName="Weight" @bind-Value="_part.Weight" @bind-Value:format="F2" />

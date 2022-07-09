@@ -5,21 +5,96 @@
 @inject HttpClient Http
 
 <h3>Part List</h3>
+@if (_isLoading)
+{
+    <div class="spinner-border"></div>
+}
+
 @if(_parts != null && _parts.Any())
 {
-    foreach(var part in _parts)
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Weight</th>
+                <th>Price</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach(var part in _parts)
+        {
+            <tr>
+                <td>@part.Name</td>
+                <td>@part.Description</td>
+                <td>@part.Weight</td>
+                <td>@part.Price</td>
+                <td>@part.StartDate</td>
+                <td>@part.EndDate</td>
+                <td><button class="btn btn-link" @onclick="() => EditPart(part.ID)">Edit</button></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    @if(_hasError)
     {
-        <p>@part.Name</p>
+        <div class="alert alert-danger py-1">
+            @_errorMessage
+        </div>
     }
+
+    @if(_isDetailModalVisible)
+    {
+        <Modal HeaderText="Part Detail" ShowModal="@_isDetailModalVisible">
+            <PartDetail PartID="_selectedPartId" />
+        </Modal>
+    }
+
 }
 
 
 @code {
+
+    private bool _isLoading;
+    private bool _hasError;
+    private bool _isDetailModalVisible;
+    private string? _errorMessage;
+    private int _selectedPartId;
     private List<Part>? _parts;
+
 
     protected override async Task OnInitializedAsync()
     {
+        _isDetailModalVisible = false;
+
+        _isLoading = true;
         var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/Part/index");
-        _parts = partListResponse?.Items;
+        if(partListResponse == null)
+        {
+            _hasError = true;
+        }
+        else
+        {
+            if (partListResponse.HasError)
+            {
+                _hasError = true;
+                _errorMessage = partListResponse.Message;
+            }
+
+            _parts = partListResponse?.Items;
+        }
+
+        _isLoading = false;
     }
+
+    private void EditPart(int partID)
+    {
+        _selectedPartId = partID;
+        _isDetailModalVisible = true;    
+    }
+
 }

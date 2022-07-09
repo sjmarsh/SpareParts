@@ -1,0 +1,48 @@
+﻿@if (ShowModal)
+{
+    <div class="modal fade show custom-modal" aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                @if(HeaderText != null)
+                {
+                    <div class="modal-header">
+                        <h4 class="modal-title">@HeaderText</h4>
+                        <button type="button" class="close" @onclick="@ModalCancel">&times;</button>
+                    </div>    
+                }
+                                
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+                                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-close" @onclick="@ModalCancel">Cancel</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public bool ShowModal { get; set; }
+
+    [Parameter]
+    public string? HeaderText { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }  //NB. this must be called ChildContent for Blazor
+
+    //private bool _showModal = false;
+
+    protected override void OnInitialized()
+    {
+        
+    }
+    
+    private void ModalCancel() => ShowModal = false;
+    
+}
