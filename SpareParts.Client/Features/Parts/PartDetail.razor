@@ -65,7 +65,21 @@
         if(_isEdit)
         {
             _isLoading = true;
-            _part = await Http.GetFromJsonAsync<Part>($"/api/Part/?id={PartID}");
+            var partResponse = await Http.GetFromJsonAsync<PartResponse>($"/api/Part/?id={PartID}");
+            if(partResponse == null)
+            {
+                _hasError = true;
+            }
+            else
+            {
+                if (partResponse.HasError)
+                {
+                    _hasError = true;
+                    _errorMessage = partResponse.Message;
+                }
+                _part = partResponse.Value;
+            }
+
             _isLoading = false;
         }
         else
