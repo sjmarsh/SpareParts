@@ -1,0 +1,39 @@
+﻿@using System.Linq.Expressions
+@using System.Diagnostics.CodeAnalysis
+@using System.Globalization
+
+<div class="form-group my-2">
+    @if(DisplayName != null)
+    {
+        <label for="@Id">@DisplayName</label>
+    }
+    <input id="@Id" class="form-control @CssClass"
+        type="string" value="@(Value.ToString(@Format))" @onchange="@(e => Value = double.Parse(e.Value.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture))" />
+
+
+    @if(ValidationFor != null)
+    {
+        <ValidationMessage For="ValidationFor" />    
+    }
+    
+</div>
+
+@code {
+
+    [Parameter, EditorRequired] 
+    public string? Id { get; set; }
+
+    [Parameter]
+    public string? DisplayName { get; set; }
+
+    [Parameter, EditorRequired]
+    public double Value { get; set; }
+
+    [Parameter]
+    public string? Format { get; set; }
+
+    [Parameter]
+    public string? CssClass { get; set; }
+
+    [Parameter, EditorRequired] public Expression<Func<double>> ValidationFor { get; set; } = default!;
+}
