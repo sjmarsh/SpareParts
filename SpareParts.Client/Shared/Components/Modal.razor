@@ -8,7 +8,7 @@
                 {
                     <div class="modal-header">
                         <h4 class="modal-title">@HeaderText</h4>
-                        <button type="button" class="close" @onclick="@ModalCancel">&times;</button>
+                        <button type="button" class="close" @onclick="@CloseModal">&times;</button>
                     </div>    
                 }
                                 
@@ -17,7 +17,7 @@
                 </div>
                                 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-link" @onclick="@ModalCancel">Cancel</button>
+                    <button type="button" class="btn btn-link" @onclick="@CloseModal">@CloseButtonText</button>
                 </div>
 
             </div>
@@ -34,15 +34,10 @@
     public string? HeaderText { get; set; }
 
     [Parameter]
+    public string CloseButtonText { get; set; } = "Close";
+
+    [Parameter]
     public RenderFragment? ChildContent { get; set; }  //NB. this must be called ChildContent for Blazor
 
-    //private bool _showModal = false;
-
-    protected override void OnInitialized()
-    {
-        
-    }
-    
-    private void ModalCancel() => ShowModal = false;
-    
+    private void CloseModal() => ShowModal = false;    
 }

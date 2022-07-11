@@ -1,9 +1,6 @@
-﻿@using System.Linq.Expressions
-@using System.Diagnostics.CodeAnalysis
-@using System.Globalization
-@using System.Reflection
-
-@typeparam TModel
+﻿@using System.Globalization
+@using System.Linq.Expressions
+@using SpareParts.Shared.Extensions
 
 <div class="form-group my-2">
 
@@ -12,7 +9,7 @@
         <label for="@Id">@DisplayName</label>
     }
     <input id="@Id" type="string" class="form-control @_validClass @CssClass" 
-        value="@_displayValue" @onchange="@(e => _displayValue = GetNumericValue(e))" @oninvalid="HandleInvalid" />
+        value="@_displayValue" @onchange="@(e => _displayValue = HandleOnChanged(e))" @oninvalid="HandleInvalid" />
 
     @if(ValueExpression != null)
     {
@@ -34,10 +31,7 @@
 
     [Parameter]
     public string? CssClass { get; set; }
-
-    [Parameter, EditorRequired]
-    public TModel Model { get; set; } = default!;
-
+       
     [Parameter, EditorRequired] 
     public Expression<Func<double>> ValueExpression { get; set; } = default!;
 
@@ -55,23 +49,22 @@
 
     private string GetDisplayValue()
     {
-        var value = GetValueFromExpression(ValueExpression);
+        var value = ValueExpression.GetValueFromExpression();
         return value.ToString(StringFormat);
     }
 
-    private string GetNumericValue(ChangeEventArgs e)
+    private string HandleOnChanged(ChangeEventArgs e)
     {
         if(e != null && e.Value != null && double.TryParse(e.Value.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var numVal))
         {
-            SetValueFromExpression<TModel, double>(Model, ValueExpression, numVal);
+            ValueExpression.SetValueToExpression(CascadedEditContext.Model, numVal);
             HandleModelValidation();
             return numVal.ToString(StringFormat);
         }
         else
         {
-            _validClass = "modified invalid";
+            _validClass = "modified invalid aria-invalid";
             return string.Empty;
-
         }
     }
 
@@ -79,16 +72,16 @@
     {
         if(CascadedEditContext != null && ValueExpression != null)
         {
-            var fieldName = GetMemberNameFromExpression(ValueExpression);
+            var fieldName = ValueExpression.GetMemberNameFromExpression();
             var field = CascadedEditContext.Field("Price"); 
             CascadedEditContext.NotifyFieldChanged(field);
             if (CascadedEditContext.GetValidationMessages(field).Any())
             {
-                _validClass = "modified invalid";
+                _validClass = "modified invalid aria-invalid";
             }
             else
             {
-                _validClass = "modified valid";
+                _validClass = "modified valid aria-valid";
             }
         }
     }
@@ -96,38 +89,6 @@
     private void HandleInvalid()
     {
         // fallback HTML validation
-        _validClass = "modified invalid";
-    }
-
-    // TODO - Move the following to external utility class
-
-    private double GetValueFromExpression(Expression<Func<double>> expression)
-    {
-        var compiled = expression.Compile();
-        return compiled();
-    }
-
-    private string GetMemberNameFromExpression<TValue>(Expression<Func<TValue>> expression)
-    {
-        return GetMemberInfoFromExpression(expression).Name;
-    }
-
-    private void SetValueFromExpression<TM, TValue>(TModel model, Expression<Func<TValue>> expression, double value)
-    {        
-        var prop = GetMemberInfoFromExpression(expression) as PropertyInfo;
-        prop?.SetValue(model, value, null);
-
-    }
-
-    private MemberInfo GetMemberInfoFromExpression<TValue>(Expression<Func<TValue>> expression)
-    {
-        MemberExpression forMember = expression.Body switch
-        {
-            MemberExpression memberExpression => memberExpression,
-            UnaryExpression { Operand: MemberExpression unaryMemberExpression } => unaryMemberExpression,
-            _ => throw new InvalidOperationException("Must be an expression terminating in a member")
-        };
-
-        return forMember.Member;
-    }
+        _validClass = "modified invalid aria-invalid";
+    }    
 }
