@@ -116,7 +116,7 @@ namespace SpareParts.API.Services
             where TEntity : class
             where TModel : ModelBase
         {
-            var existingEntity = await _dbContext.Set<TEntity>().FindAsync(id);
+            var existingEntity = await _dbContext.Set<TEntity>().FindAsync(new object?[] { id }, cancellationToken: cancellationToken);
             if (existingEntity != null)
             {
                 _dbContext.Remove(existingEntity);

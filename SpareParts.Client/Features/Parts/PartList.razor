@@ -12,7 +12,6 @@
 
 @if(_parts != null && _parts.Any())
 {
-
     <table class="table table-hover">
         <thead>
             <tr>
@@ -23,6 +22,7 @@
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -31,31 +31,38 @@
             <tr>
                 <td>@part.Name</td>
                 <td>@part.Description</td>
-                <td>@part.Weight</td>
-                <td>@part.Price</td>
+                <td>@part.Weight.ToString("F2")</td>
+                <td>@part.Price.ToString("C2")</td>
                 <td>@part.StartDate</td>
                 <td>@part.EndDate</td>
                 <td><button class="btn btn-link" @onclick="() => EditPart(part.ID)">Edit</button></td>
+                <td><button class="btn btn-link" @onclick="() => DeletePart(part.ID)">Delete</button></td>
             </tr>
         }
         </tbody>
-    </table>
-    @if(_hasError)
-    {
-        <div class="alert alert-danger py-1">
-            @_errorMessage
-        </div>
-    }
-
-    @if(_isDetailModalVisible)
-    {
-        <Modal HeaderText="Part Detail" ShowModal="@_isDetailModalVisible">
-            <PartDetail PartID="_selectedPartId" />
-        </Modal>
-    }
-
+    </table>   
 }
 
+@if(!_isLoading)
+{
+    <div>
+        <button class="btn btn-primary" @onclick="AddPart">Add Part</button>
+    </div>
+}
+
+@if(_hasError)
+{
+    <div class="alert alert-danger py-1">
+        @_errorMessage
+    </div>
+}
+
+@if(_isDetailModalVisible)
+{
+    <Modal ShowModal="@_isDetailModalVisible">
+        <PartDetail PartID="_selectedPartId" OnValidSubmit="RefreshPartsList" />
+    </Modal>
+}
 
 @code {
 
@@ -63,14 +70,18 @@
     private bool _hasError;
     private bool _isDetailModalVisible;
     private string? _errorMessage;
-    private int _selectedPartId;
+    private int? _selectedPartId;
     private List<Part>? _parts;
-
 
     protected override async Task OnInitializedAsync()
     {
         _isDetailModalVisible = false;
 
+        await RefreshPartsList();
+    }
+
+    private async Task RefreshPartsList()
+    {
         _isLoading = true;
         var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/Part/index");
         if(partListResponse == null)
@@ -91,10 +102,29 @@
         _isLoading = false;
     }
 
+    private void AddPart()
+    {
+        _selectedPartId = null;
+        _isDetailModalVisible = true;
+    }
+
     private void EditPart(int partID)
     {
         _selectedPartId = partID;
         _isDetailModalVisible = true;    
+    }
+
+    private async Task DeletePart(int partID)
+    {
+        var response = await Http.DeleteAsync($"/api/Part/?id={partID}");
+        if(response.IsSuccessStatusCode)
+        {
+            await RefreshPartsList();
+        }
+        else
+        {
+            _errorMessage = "Failed to delete part.";
+        }
     }
 
 }

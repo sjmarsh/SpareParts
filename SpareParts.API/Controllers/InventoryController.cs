@@ -32,6 +32,6 @@ namespace SpareParts.API.Controllers
         public async Task<InventoryItemResponse> Put(InventoryItem InventoryItem) => await _mediator.Send(new UpdateInventoryItemCommand(InventoryItem));
 
         [HttpDelete]
-        public async Task<InventoryItemResponse> Delete(int InventoryItemId) => await _mediator.Send(new DeleteInventoryItemCommand(InventoryItemId));
+        public async Task<InventoryItemResponse> Delete(int id) => await _mediator.Send(new DeleteInventoryItemCommand(id));
     }
 }

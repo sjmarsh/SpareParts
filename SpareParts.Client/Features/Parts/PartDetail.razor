@@ -10,17 +10,15 @@
 
 @if(_part != null)
 {
-    <EditForm Model="_part" OnValidSubmit="@SubmitValidForm">
+    <EditForm EditContext="_editContext" OnValidSubmit="@SubmitValidForm">
         <FluentValidationValidator/>
  
         <ValidInputText Id="partName" DisplayName="Name" @bind-Value="_part.Name" />
         <ValidInputText Id="partDescription" DisplayName="Description" @bind-Value="_part.Description" />
-        <ValidInputNumber Id="weight" DisplayName="Weight" @bind-Value="_part.Weight" @bind-Value:format="F2" />
-       @* <ValidInputNumber Id="price" DisplayName="Price" @bind-Value="_part.Price" @bind-Value:format="C" />*@
+        <ValidInputNumber Id="weight" DisplayName="Weight" @bind-Value="_part.Weight" />
+        <ValidInputNumberFormat Id="price" DisplayName="Price" Model="_part" ValueExpression="() => _part.Price" StringFormat="C"/> 
         <ValidInputDate Id="startDate" DisplayName="Start Date" @bind-Value="_part.StartDate" />
         <ValidInputDate Id="endDate" DisplayName="End Date" @bind-Value="_part.EndDate" />
-
-        <ValidInputNumberFormat Id="test" DisplayName="Fred" Value="_part.Price" Format="C" ValidationFor="() => _part.Price"/>
 
         <div class="my-3">
             <button type="submit" class="btn btn-primary my-1" >Submit</button>
@@ -47,6 +45,9 @@
     [Parameter]
     public int? PartID { get; set; }
 
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
     private Part? _part;
     private bool _isEdit;
     private bool _isLoading;
@@ -55,6 +56,7 @@
     private string? _errorMessage;
 
     private string? _modeDescription => _isEdit ? "Edit" : "Add";
+    private EditContext? _editContext { get; set; }
 
 
     protected async override Task OnInitializedAsync()
@@ -63,7 +65,7 @@
         _isLoading = false;
         _hasError = false;
         _hasSubmitted = false;
-
+        
         if(_isEdit)
         {
             _isLoading = true;
@@ -86,12 +88,17 @@
         }
         else
         {
-            _part = new Part();
+            _part = new Part();    
+        }
+
+        if(_part != null)
+        {
+            _editContext = new EditContext(_part);    
         }
     }
 
     private async Task SubmitValidForm(EditContext context)
-    {
+    {        
         if (_part != null)
         {
             _isLoading = true;
@@ -120,11 +127,17 @@
                 {
                     _isEdit = true;
                     _part = partResponse.Value;
+                    await OnValidSubmit.InvokeAsync();                        
                 }    
             }
             _isLoading = false;
 
         }
+    }
+
+    private void PriceChanged(double newValue)
+    {
+        _part.Price = newValue;
     }
 
 }

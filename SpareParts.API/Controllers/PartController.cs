@@ -32,6 +32,6 @@ namespace SpareParts.API.Controllers
         public async Task<PartResponse> Put(Part part) => await _mediator.Send(new UpdatePartCommand(part));
         
         [HttpDelete]
-        public async Task<PartResponse> Delete(int partId) => await _mediator.Send(new DeletePartCommand(partId));
+        public async Task<PartResponse> Delete(int id) => await _mediator.Send(new DeletePartCommand(id));
     }
 }
