@@ -1,0 +1,131 @@
+﻿@using SpareParts.Shared.Models;
+
+@inject HttpClient Http;
+
+<div>
+    @if (_isLoading)
+    {
+        <div class="spinner-border"></div>
+    }
+    else
+    {
+        <p>Enter New Stock Item</p>
+        @if (_inventoryItem != null)
+        {
+            <EditForm Model="_inventoryItem" OnValidSubmit="@SubmitValidForm">
+                <FluentValidationValidator/>
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group my-2">
+                                <label for="selectPart">Select Part</label>
+                                @if(_parts != null)
+                                {
+                                    <InputSelect id="selectPart" class="form-select" @bind-Value="_inventoryItem.PartID">
+                                    @foreach(var part in _parts)
+                                    {
+                                        <option value="@part.ID">@part.Name</option>
+                                    }
+                                    </InputSelect>       
+                                }
+                            </div>
+                        </div>
+                        <div class="col">
+                            <ValidInputNumber Id="partQty" DisplayName="Quantity" @bind-Value="_inventoryItem.Quantity" />
+                        </div>
+                    </div>
+                </div>
+                <div class="my-3">
+                    <button type="submit" class="btn btn-primary my-1" >Submit</button>
+                    @if(_hasSubmitted && !_hasError)
+                    {
+                        <div class="alert alert-success py-1">
+                            Success
+                        </div>
+                    }
+                </div>
+            </EditForm>
+        }
+    }
+    @if(_hasError)
+    {
+        <div class="alert alert-danger py-1">
+            @_errorMessage
+        </div>
+    }
+</div>
+
+@code {
+    private InventoryItem? _inventoryItem = default;
+    private List<Part>? _parts = default;
+    private bool _isLoading;
+    private bool _hasError;
+    private bool _hasSubmitted;
+    private string? _errorMessage;
+
+    protected async override Task OnInitializedAsync()
+    {
+        _isLoading = false;
+        _hasError = false;
+        _hasSubmitted = false;
+
+        _inventoryItem = new InventoryItem();
+
+        await RefreshPartsList();
+    }
+
+    private async Task RefreshPartsList()
+    {
+        // TODO: cache response - maybe use state 
+        // TODO: only display parts that are currently available
+        // TODO: maybe add batch of items (instead of entering one at a time)
+
+        _isLoading = true;
+        var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/Part/index");
+        if(partListResponse == null)
+        {
+            _hasError = true;
+        }
+        else
+        {
+            if (partListResponse.HasError)
+            {
+                _hasError = true;
+                _errorMessage = partListResponse.Message;
+            }
+
+            _parts = partListResponse?.Items;
+        }
+
+        _isLoading = false;
+    }
+
+    private async Task SubmitValidForm(EditContext context)
+    {
+        if(_inventoryItem != null)
+        {
+            _isLoading = true;
+            _hasSubmitted = true;
+
+            var response = await Http.PostAsJsonAsync<InventoryItem>($"/api/Inventory", _inventoryItem);
+
+            if(response.Content != null)
+            {
+                var inventoryResponse = await response.Content.ReadFromJsonAsync<InventoryItemResponse>();
+                if(inventoryResponse == null || inventoryResponse.HasError)
+                {
+                    _hasError = true;
+                    _errorMessage = inventoryResponse?.Message;
+                }
+                else
+                {
+                    _hasError = false;
+                    _inventoryItem = new InventoryItem();
+                    await RefreshPartsList();
+                }
+            }
+
+            _isLoading = false;
+        }
+    }
+}

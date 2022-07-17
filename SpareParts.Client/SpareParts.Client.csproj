@@ -14,10 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Inventory\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\SpareParts.Shared\SpareParts.Shared.csproj" />
   </ItemGroup>
 

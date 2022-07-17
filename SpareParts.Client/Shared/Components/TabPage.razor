@@ -1,0 +1,38 @@
+﻿@inject IJSRuntime jsRuntime;
+
+@if (Parent.ActivePage == this)
+{
+    @ChildContent
+}
+
+@code {
+    [CascadingParameter]
+    private TabControl Parent { get; set; }
+
+    [Parameter]
+    public string Text { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public string ID { get; private set; }
+
+    public async Task SetFocus()
+    {
+        IJSObjectReference module;
+        module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
+        await module.InvokeAsync<string>("selectTab", this.ID);
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Parent == null)
+        {
+            throw new ArgumentNullException(nameof(Parent), "TabPage must exist within a TabControl");
+        }
+        this.ID = $"tab-{Guid.NewGuid()}";
+
+        Parent.AddPage(this);
+        base.OnInitialized();
+    }
+}

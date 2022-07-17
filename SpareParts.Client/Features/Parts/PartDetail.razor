@@ -15,7 +15,7 @@
  
         <ValidInputText Id="partName" DisplayName="Name" @bind-Value="_part.Name" />
         <ValidInputText Id="partDescription" DisplayName="Description" @bind-Value="_part.Description" />
-        <ValidInputNumber Id="weight" DisplayName="Weight" @bind-Value="_part.Weight" />
+        <ValidInputNumber Id="weight" DisplayName="Weight (kg)" @bind-Value="_part.Weight" />
         <ValidInputNumberFormat Id="price" DisplayName="Price" ValueExpression="() => _part.Price" StringFormat="C"/> 
         <ValidInputDate Id="startDate" DisplayName="Start Date" @bind-Value="_part.StartDate" />
         <ValidInputDate Id="endDate" DisplayName="End Date" @bind-Value="_part.EndDate" />

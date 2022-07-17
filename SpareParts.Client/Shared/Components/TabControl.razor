@@ -1,0 +1,104 @@
+﻿<CascadingValue Value="this">
+    
+    <div>
+        <div class="">
+            <ul class="nav nav-tabs" role="tablist">
+                @foreach (TabPage tabPage in Pages)
+                {
+                    <li class="nav-item ">
+                        <a  id=@tabPage.ID
+                            class="nav-link @GetButtonClass(tabPage)" 
+                            role="tab"
+                            tabindex="@GetTabIndex(tabPage)"
+                            aria-current="@GetAriaCurrentClass(tabPage)"
+                            @onclick=@( () => ActivatePage(tabPage) )
+                            @onkeyup="HandleKeyUp">@tabPage.Text</a>
+                    </li>
+                }
+            </ul>
+        </div>
+        @ChildContent
+    </div>
+    
+</CascadingValue>
+
+
+@code {
+    // https://blazor-university.com/templating-components-with-renderfragements/creating-a-tabcontrol/
+    // Next line is needed so we are able to add <TabPage> components inside
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public TabPage ActivePage { get; set; }
+    List<TabPage> Pages = new List<TabPage>();
+
+    internal void AddPage(TabPage tabPage)
+    {
+
+        Pages.Add(tabPage);
+        if (Pages.Count == 1)
+            ActivePage = tabPage;
+        StateHasChanged();
+    }
+
+    string GetButtonClass(TabPage page)
+    {
+        return IsActive(page)  ? "is-selected" : "";
+    }
+
+    string GetAriaCurrentClass(TabPage page)
+    {
+        return IsActive(page) ? "page" : "";
+    }
+
+    bool IsActive(TabPage page)
+    {
+        return page == ActivePage;
+    }
+
+    async void ActivatePage(TabPage page)
+    {
+        ActivePage = page;
+        await page.SetFocus();
+    }
+
+    string GetIsSelected(TabPage page)
+    {
+        return (page == ActivePage).ToString().ToLower();
+    }
+
+    string GetTabIndex(TabPage page)
+    {
+        return page == ActivePage ? "0" : "-1";
+    }
+
+    void HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "ArrowLeft")
+        {
+            var currentIndex = Pages.IndexOf(ActivePage);
+            var newIndex = currentIndex - 1;
+            if (newIndex >= 0)
+            {
+                ActivatePage(Pages[newIndex]);
+            }
+            else
+            {
+                ActivatePage(Pages.Last());
+            }
+        }
+        if (e.Key == "ArrowRight")
+        {
+            var currentIndex = Pages.IndexOf(ActivePage);
+            var newIndex = currentIndex + 1;
+            if (newIndex < Pages.Count)
+            {
+                ActivatePage(Pages[newIndex]);
+            }
+            else
+            {
+                ActivatePage(Pages.First());
+            }
+        }
+    }
+}

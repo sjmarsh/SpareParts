@@ -1,4 +1,7 @@
-﻿@inherits InputNumber<double>
+﻿@typeparam TNumber
+@inherits InputNumber<TNumber>
+
+
 
 <div class="form-group my-2">
     @if(DisplayName != null)
@@ -7,7 +10,7 @@
     }
     <input id="@Id" type="number" step="any" class="@CssClass form-control" @attributes="AdditionalAttributes"
        value="@BindConverter.FormatValue(CurrentValue)" 
-       @oninput="EventCallback.Factory.CreateBinder<double>(this, value => CurrentValue = value, CurrentValue)" />
+       @oninput="EventCallback.Factory.CreateBinder<TNumber>(this, value => CurrentValue = value, CurrentValue)" />
     <ValidationMessage For="@ValueExpression" />
 
 </div>

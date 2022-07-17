@@ -17,7 +17,7 @@
             <tr>
                 <th>Name</th>
                 <th>Description</th>
-                <th>Weight</th>
+                <th>Weight (kg)</th>
                 <th>Price</th>
                 <th>Start Date</th>
                 <th>End Date</th>
@@ -33,8 +33,8 @@
                 <td>@part.Description</td>
                 <td>@part.Weight.ToString("F2")</td>
                 <td>@part.Price.ToString("C2")</td>
-                <td>@part.StartDate</td>
-                <td>@part.EndDate</td>
+                <td>@part.StartDate.ToString("dd/MM/yyyy")</td>
+                <td>@part.EndDate?.ToString("dd/MM/yyyy")</td>
                 <td><button class="btn btn-link" @onclick="() => EditPart(part.ID)">Edit</button></td>
                 <td><button class="btn btn-link" @onclick="() => DeletePart(part.ID)">Delete</button></td>
             </tr>
