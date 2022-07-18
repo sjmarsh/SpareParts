@@ -2,6 +2,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using SpareParts.API.Data;
 using SpareParts.Shared.Models;
 
@@ -24,10 +25,11 @@ namespace SpareParts.API.Services
             where TEntity : class
             where TModel : ModelBase;
 
-        Task<TResponse> GetList<TResponse, TEntity, TModel>(CancellationToken cancellationToken) 
+        Task<TResponse> GetList<TResponse, TEntity, TModel>(CancellationToken cancellationToken, Expression<Func<TEntity, bool>>? filter = null) 
             where TResponse : ResponseListBase<TModel>, new()
             where TEntity : class
             where TModel : ModelBase;
+
         Task<TResponse> DeleteItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken)
             where TResponse : ResponseBase<TModel>, new()
             where TEntity : class
@@ -102,13 +104,14 @@ namespace SpareParts.API.Services
             }
         }
         
-        public async Task<TResponse> GetList<TResponse, TEntity, TModel>(CancellationToken cancellationToken)
+        public async Task<TResponse> GetList<TResponse, TEntity, TModel>(CancellationToken cancellationToken, Expression<Func<TEntity, bool>>? filter = null)
             where TResponse : ResponseListBase<TModel>, new()
             where TEntity : class
             where TModel : ModelBase
         {
-                var items = await _dbContext.Set<TEntity>().ProjectTo<TModel>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
-                return new TResponse { Items = items };
+            filter ??= ((e) => true);
+            var items = await _dbContext.Set<TEntity>().Where(filter).ProjectTo<TModel>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
+            return new TResponse { Items = items };
         }
 
         public async Task<TResponse> DeleteItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken)

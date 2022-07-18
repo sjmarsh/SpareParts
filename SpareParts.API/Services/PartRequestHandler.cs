@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using SpareParts.Shared.Models;
+using System.Linq.Expressions;
 
 namespace SpareParts.API.Services
 {
@@ -35,6 +36,12 @@ namespace SpareParts.API.Services
 
     public record GetPartListRequest : IRequest<PartListResponse>
     {
+        public GetPartListRequest(bool isExcludeNonCurrent)
+        {
+            IsExcludeNonCurrent = isExcludeNonCurrent;
+        }
+
+        public bool IsExcludeNonCurrent { get; }
     }
 
     public class GetPartListRequestHandler : BaseHandler, IRequestHandler<GetPartListRequest, PartListResponse>
@@ -49,9 +56,14 @@ namespace SpareParts.API.Services
         {
             try
             {
-                return await _dataService.GetList<PartListResponse, Entities.Part, Part>(cancellationToken);
+                Expression<Func<Entities.Part, bool>>? filter = null;
+                if (request.IsExcludeNonCurrent)
+                {
+                    filter = p => p.StartDate.Date <= DateTime.Today && (!p.EndDate.HasValue || p.EndDate.Value.Date >= DateTime.Today);
+                }
+                return await _dataService.GetList<PartListResponse, Entities.Part, Part>(cancellationToken, filter);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return ReturnListAndLogException<PartListResponse, Part>("An error occurred while getting Parts.", ex);
             }

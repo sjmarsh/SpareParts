@@ -9,13 +9,12 @@
     }
     else
     {
-        <p>Enter New Stock Item</p>
         @if (_inventoryItem != null)
         {
             <EditForm Model="_inventoryItem" OnValidSubmit="@SubmitValidForm">
                 <FluentValidationValidator/>
-                <div class="container">
-                    <div class="row">
+                <div class="container-fluid">
+                    <div class="row justify-content-start">
                         <div class="col">
                             <div class="form-group my-2">
                                 <label for="selectPart">Select Part</label>
@@ -24,7 +23,7 @@
                                     <InputSelect id="selectPart" class="form-select" @bind-Value="_inventoryItem.PartID">
                                     @foreach(var part in _parts)
                                     {
-                                        <option value="@part.ID">@part.Name</option>
+                                        <option value="@part.ID">@part.Name</option> 
                                     }
                                     </InputSelect>       
                                 }
@@ -76,12 +75,11 @@
 
     private async Task RefreshPartsList()
     {
-        // TODO: cache response - maybe use state 
-        // TODO: only display parts that are currently available
+        // TODO: cache response - maybe use state OR - don't use select.  instead use auto-complete/look-ahead control
         // TODO: maybe add batch of items (instead of entering one at a time)
 
         _isLoading = true;
-        var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/Part/index");
+        var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/Part/index?isExcludeNonCurrent=true");
         if(partListResponse == null)
         {
             _hasError = true;
