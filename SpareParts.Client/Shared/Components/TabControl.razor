@@ -27,14 +27,27 @@
     // https://blazor-university.com/templating-components-with-renderfragements/creating-a-tabcontrol/
     // Next line is needed so we are able to add <TabPage> components inside
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public RenderFragment ChildContent { get; set; } = default!;
 
-    public TabPage ActivePage { get; set; }
+    [Parameter]
+    public int DefaultTabIndex { get; set; }
+
+    public TabPage? ActivePage { get; set; }
     List<TabPage> Pages = new List<TabPage>();
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if(Pages != null && Pages.Any())
+            {
+                await ActivatePage(Pages[DefaultTabIndex]);
+            }
+        }
+    }
 
     internal void AddPage(TabPage tabPage)
     {
-
         Pages.Add(tabPage);
         if (Pages.Count == 1)
             ActivePage = tabPage;
@@ -56,7 +69,7 @@
         return page == ActivePage;
     }
 
-    async void ActivatePage(TabPage page)
+    async Task ActivatePage(TabPage page)
     {
         ActivePage = page;
         await page.SetFocus();
@@ -72,19 +85,23 @@
         return page == ActivePage ? "0" : "-1";
     }
 
-    void HandleKeyUp(KeyboardEventArgs e)
+    async Task HandleKeyUp(KeyboardEventArgs e)
     {
+        if(ActivePage == null)
+        {
+            return;
+        }
         if (e.Key == "ArrowLeft")
         {
             var currentIndex = Pages.IndexOf(ActivePage);
             var newIndex = currentIndex - 1;
             if (newIndex >= 0)
             {
-                ActivatePage(Pages[newIndex]);
+                await ActivatePage(Pages[newIndex]);
             }
             else
             {
-                ActivatePage(Pages.Last());
+                await ActivatePage(Pages.Last());
             }
         }
         if (e.Key == "ArrowRight")
@@ -93,11 +110,11 @@
             var newIndex = currentIndex + 1;
             if (newIndex < Pages.Count)
             {
-                ActivatePage(Pages[newIndex]);
+                await ActivatePage(Pages[newIndex]);
             }
             else
             {
-                ActivatePage(Pages.First());
+                await ActivatePage(Pages.First());
             }
         }
     }

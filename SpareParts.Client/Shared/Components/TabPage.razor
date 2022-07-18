@@ -7,15 +7,15 @@
 
 @code {
     [CascadingParameter]
-    private TabControl Parent { get; set; }
+    private TabControl Parent { get; set; } = default!;
 
     [Parameter]
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public RenderFragment ChildContent { get; set; } = default!;
 
-    public string ID { get; private set; }
+    public string? ID { get; private set; }
 
     public async Task SetFocus()
     {
