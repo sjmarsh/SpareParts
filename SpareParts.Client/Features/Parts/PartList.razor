@@ -83,7 +83,7 @@
     private async Task RefreshPartsList()
     {
         _isLoading = true;
-        var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/Part/index");
+        var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/part/index");
         if(partListResponse == null)
         {
             _hasError = true;

@@ -1,0 +1,87 @@
+﻿@using SpareParts.Shared.Models;
+
+@inject HttpClient Http;
+
+<h3>@HeaderText</h3>
+
+@if (_isLoading)
+{
+    <div class="spinner-border"></div>
+}
+@if(_inventoryItems != null && _inventoryItems.Any())
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Part Name</th>
+                <th>Quantity</th>
+                <th>Date Recorded</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in _inventoryItems)
+            {
+                <tr>
+                    <td>@item.PartName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.DateRecorded</td>
+                </tr>
+            }
+        </tbody>
+    </table>   
+}
+@if(_hasError)
+{
+    <div class="alert alert-danger py-1">
+        @_errorMessage
+    </div>
+}
+
+
+@code {
+
+    [Parameter]
+    public string? HeaderText { get; set; }
+
+    [Parameter]
+    public bool IsCurrentOnly { get; set; }
+
+    private bool _isLoading;
+    private bool _hasError;
+    private string? _errorMessage;
+    private List<InventoryItemDetail>? _inventoryItems;
+
+    protected async override Task OnInitializedAsync()
+    {
+        _isLoading = false;
+        _hasError = false;
+        _errorMessage = string.Empty;
+
+        await RefreshInventoryItemList();
+    }
+
+    private async Task RefreshInventoryItemList()
+    {
+        _isLoading = true;
+
+        var filter = IsCurrentOnly ? "?isCurrentOnly=true" : "";
+        var response = await Http.GetFromJsonAsync<InventoryItemDetailListResponse>($"/api/inventory/index-detail{filter}");
+
+        if(response == null)
+        {
+            _hasError = true;
+        }
+        else
+        {
+            if (response.HasError)
+            {
+                _hasError = true;
+                _errorMessage = response.Message;
+            }
+
+            _inventoryItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
+        }
+        
+        _isLoading = false;
+    }
+}

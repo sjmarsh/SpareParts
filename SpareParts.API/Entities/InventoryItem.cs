@@ -7,6 +7,5 @@
         public DateTime DateRecorded { get; set; }
                         
         public int? PartID { get; set; }
-        public Part? Part { get; set; }
     }
 }

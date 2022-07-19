@@ -41,7 +41,7 @@ namespace SpareParts.API.Data
             modelBuilder.Entity<Part>()
                 .HasMany<InventoryItem>()
                 .WithOne()
-                .HasForeignKey(i => i.PartID);  // NB. This results in a 2nd column added to the db table PartID1
+                .HasForeignKey(i => i.PartID); 
         }
     }
 }

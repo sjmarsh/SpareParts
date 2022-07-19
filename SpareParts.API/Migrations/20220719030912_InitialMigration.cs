@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SpareParts.API.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -35,8 +35,7 @@ namespace SpareParts.API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     DateRecorded = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PartID = table.Column<int>(type: "int", nullable: true),
-                    PartID1 = table.Column<int>(type: "int", nullable: true)
+                    PartID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -46,22 +45,12 @@ namespace SpareParts.API.Migrations
                         column: x => x.PartID,
                         principalTable: "Parts",
                         principalColumn: "ID");
-                    table.ForeignKey(
-                        name: "FK_InventoryItems_Parts_PartID1",
-                        column: x => x.PartID1,
-                        principalTable: "Parts",
-                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_InventoryItems_PartID",
                 table: "InventoryItems",
                 column: "PartID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_InventoryItems_PartID1",
-                table: "InventoryItems",
-                column: "PartID1");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

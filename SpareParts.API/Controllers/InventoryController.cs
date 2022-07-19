@@ -25,6 +25,10 @@ namespace SpareParts.API.Controllers
         [Route("index")]
         public async Task<InventoryItemListResponse> Index() => await _mediator.Send(new GetInventoryItemListRequest());
 
+        [HttpGet]
+        [Route("index-detail")]
+        public async Task<InventoryItemDetailListResponse> IndexDetail(bool isCurrentOnly) => await _mediator.Send(new GetInventoryItemDetailListRequest(isCurrentOnly));
+
         [HttpPost]
         public async Task<InventoryItemResponse> Post(InventoryItem InventoryItem) => await _mediator.Send(new CreateInventoryItemCommand(InventoryItem));
 

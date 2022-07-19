@@ -36,12 +36,12 @@ namespace SpareParts.API.Services
 
     public record GetPartListRequest : IRequest<PartListResponse>
     {
-        public GetPartListRequest(bool isExcludeNonCurrent)
+        public GetPartListRequest(bool isCurrentOnly)
         {
-            IsExcludeNonCurrent = isExcludeNonCurrent;
+            IsCurrentOnly = isCurrentOnly;
         }
 
-        public bool IsExcludeNonCurrent { get; }
+        public bool IsCurrentOnly { get; }
     }
 
     public class GetPartListRequestHandler : BaseHandler, IRequestHandler<GetPartListRequest, PartListResponse>
@@ -57,7 +57,7 @@ namespace SpareParts.API.Services
             try
             {
                 Expression<Func<Entities.Part, bool>>? filter = null;
-                if (request.IsExcludeNonCurrent)
+                if (request.IsCurrentOnly)
                 {
                     filter = p => p.StartDate.Date <= DateTime.Today && (!p.EndDate.HasValue || p.EndDate.Value.Date >= DateTime.Today);
                 }

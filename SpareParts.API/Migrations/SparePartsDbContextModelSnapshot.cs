@@ -36,17 +36,12 @@ namespace SpareParts.API.Migrations
                     b.Property<int?>("PartID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PartID1")
-                        .HasColumnType("int");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
 
                     b.HasIndex("PartID");
-
-                    b.HasIndex("PartID1");
 
                     b.ToTable("InventoryItems");
                 });
@@ -87,17 +82,6 @@ namespace SpareParts.API.Migrations
                     b.HasOne("SpareParts.API.Entities.Part", null)
                         .WithMany()
                         .HasForeignKey("PartID");
-
-                    b.HasOne("SpareParts.API.Entities.Part", "Part")
-                        .WithMany("InventoryItems")
-                        .HasForeignKey("PartID1");
-
-                    b.Navigation("Part");
-                });
-
-            modelBuilder.Entity("SpareParts.API.Entities.Part", b =>
-                {
-                    b.Navigation("InventoryItems");
                 });
 #pragma warning restore 612, 618
         }
