@@ -1,2 +1,8 @@
-﻿body {
+﻿.tab-custom:hover {
+    cursor:pointer;
+    background-color: #ddd;
+}
+
+.tab-custom a:hover {
+    color: #808080;
 }
