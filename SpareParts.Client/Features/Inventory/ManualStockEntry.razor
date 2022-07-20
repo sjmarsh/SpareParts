@@ -93,10 +93,11 @@
             }
 
             _parts = partListResponse?.Items;
-            
-            if(_inventoryItem != null)
+            var firstPart = _parts?.FirstOrDefault();
+
+            if(_inventoryItem != null && firstPart != null)
             {
-                _inventoryItem.PartID = _parts?.FirstOrDefault()?.ID;    
+                _inventoryItem.PartID = firstPart.ID;    
             }
         }
 

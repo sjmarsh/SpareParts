@@ -11,6 +11,7 @@ namespace SpareParts.API.Mapping
 
             CreateMap<Entities.InventoryItem, Shared.Models.InventoryItem>();
             CreateMap<Shared.Models.InventoryItem, Entities.InventoryItem>().ReverseMap();
+            CreateMap<Shared.Models.InventoryItemDetail, Entities.InventoryItem>().ReverseMap();  // convert to standard item and drop the PartName
         }
     }
 }

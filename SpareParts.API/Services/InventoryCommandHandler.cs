@@ -23,13 +23,40 @@ namespace SpareParts.API.Services
         {
             try
             {
-
-
                 return await _dataService.CreateItem<InventoryItemResponse, Entities.InventoryItem, InventoryItem>(request.IventoryItem, cancellationToken);
             }
             catch(Exception ex)
             {
                 return ReturnAndLogException<InventoryItemResponse, InventoryItem>("An error occured while creating Inventory Item.", ex);
+            }
+        }
+    }
+
+    public record CreateInventoryItemListCommand : IRequest<InventoryItemListResponse>
+    {
+        public CreateInventoryItemListCommand(List<InventoryItem> inventoryItems)
+        {
+            InventoryItems = inventoryItems;
+        }
+
+        public List<InventoryItem> InventoryItems { get; }
+    }
+
+    public class CreateInventoryItemListCommandHandler : BaseHandler, IRequestHandler<CreateInventoryItemListCommand, InventoryItemListResponse>
+    {
+        public CreateInventoryItemListCommandHandler(IDataService dataService, ILogger<CreateInventoryItemListCommandHandler> logger) : base(dataService, logger)
+        {
+        }
+
+        public async Task<InventoryItemListResponse> Handle(CreateInventoryItemListCommand request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await _dataService.CreateList<InventoryItemListResponse, Entities.InventoryItem, InventoryItem>(request.InventoryItems, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return ReturnListAndLogException<InventoryItemListResponse, InventoryItem>("An error occurred while creating Inventory Item List.", ex);
             }
         }
     }

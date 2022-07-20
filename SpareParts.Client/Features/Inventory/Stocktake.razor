@@ -1,0 +1,164 @@
+﻿@using SpareParts.Shared.Models;
+@using System.Text
+
+@inject HttpClient Http;
+
+<h3>Stocktake</h3>
+
+@if (_isLoading)
+{
+    <div class="spinner-border"></div>
+}
+@if(_stocktakeModel != null && _stocktakeModel.InventoryItems != null && _stocktakeModel.InventoryItems.Any())
+{
+    <EditForm Model="_stocktakeModel.InventoryItems" OnValidSubmit="@SubmitValidForm">
+        <FluentValidationValidator/>
+        
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Part Name</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var item in _stocktakeModel.InventoryItems)
+                {
+                    <tr>
+                        <td>@item.PartName</td>
+                        <td><InputNumber @bind-Value="item.Quantity" /></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <ValidationSummary/>
+        <div class="my-3">
+            <button type="submit" class="btn btn-primary my-1" >Submit</button>
+            @if(_hasSubmitted && !_hasError)
+            {
+                <div class="alert alert-success py-1">
+                    Success
+                </div>
+            }
+        </div>
+
+    </EditForm>
+}
+@if(_hasError)
+{
+    <div class="alert alert-danger py-1">
+        @_errorMessage
+    </div>
+}
+
+
+@code {
+
+    private bool _isLoading;
+    private bool _hasError;
+    private bool _hasSubmitted;
+    private string? _errorMessage;
+    private StocktakeModel? _stocktakeModel;
+
+    protected async override Task OnInitializedAsync()
+    {
+        _isLoading = false;
+        _hasError = false;
+        _hasSubmitted = false;
+        _errorMessage = string.Empty;
+
+        await RefreshInventoryItemList();
+    }
+
+    private async Task RefreshInventoryItemList()
+    {
+        _isLoading = true;
+
+        var response = await Http.GetFromJsonAsync<InventoryItemDetailListResponse>($"/api/inventory/index-detail?isCurrentOnly=true");
+
+        if(response == null)
+        {
+            _hasError = true;
+        }
+        else
+        {
+            if (response.HasError)
+            {
+                _hasError = true;
+                _errorMessage = response.Message;
+            }
+
+            var currentItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
+            var stocktakeItems = new List<InventoryItemDetail>();
+
+            if(currentItems != null && currentItems.Any())
+            {
+                foreach(var item in currentItems)
+                {
+                    stocktakeItems.Add(new InventoryItemDetail(0, item.PartID, item.PartName, 0, DateTime.Now));
+                }
+                _stocktakeModel = new StocktakeModel { InventoryItems = stocktakeItems };
+            }
+        }
+
+        _isLoading = false;
+    }
+
+    private async Task SubmitValidForm(EditContext context)
+    {           
+        if(_stocktakeModel != null && _stocktakeModel.InventoryItems != null && _stocktakeModel.InventoryItems.Any())
+        {
+            // WORK-AROUND for blazored fluent validation bug with collections https://github.com/Blazored/FluentValidation/issues/148
+            var validator = new SpareParts.Shared.Validators.StocktakeValidator();
+            var validationResult = validator.Validate(_stocktakeModel);
+            if(!validationResult.IsValid)
+            {
+                _hasError = true;
+                var sb = new StringBuilder();
+                for (int i = 0; i < validationResult.Errors.Count; i++)
+                {
+                    var error = validationResult.Errors[i];
+                    sb.AppendLine($"Row {i} is invalid. {error.ErrorMessage}");
+                }
+                _errorMessage = sb.ToString();
+                return;
+            }
+
+
+            _isLoading = true;
+            _hasSubmitted = true;
+
+            var _baseItems = new List<InventoryItem>();
+            foreach(var item in _stocktakeModel.InventoryItems)
+            {
+                _baseItems.Add(new InventoryItem { PartID = item.PartID, Quantity = item.Quantity, DateRecorded = DateTime.Now });
+            }
+
+            var response = await Http.PostAsJsonAsync<List<InventoryItem>>($"/api/Inventory/post-list", _baseItems);
+
+            if(!response.IsSuccessStatusCode)
+            {
+                _hasError = true;
+                _errorMessage = "Error occurred saving Stocktake items.";
+            }
+
+            if(response.IsSuccessStatusCode && response.Content != null)
+            {
+                var inventoryResponse = await response.Content.ReadFromJsonAsync<InventoryItemListResponse>();
+                if(inventoryResponse == null || inventoryResponse.HasError)
+                {
+                    _hasError = true;
+                    _errorMessage = inventoryResponse?.Message;
+                }
+                else
+                {
+                    _hasError = false;
+                    await RefreshInventoryItemList();
+                }
+            }
+
+            _isLoading = false;
+        }
+    }
+        
+}

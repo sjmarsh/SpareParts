@@ -15,6 +15,11 @@ namespace SpareParts.API.Services
             where TEntity : class
             where TModel : ModelBase;
 
+        Task<TResponse> CreateList<TResponse, TEntity, TModel>(List<TModel>? modelList, CancellationToken cancellationToken)
+            where TResponse : ResponseListBase<TModel>, new()
+            where TEntity : class
+            where TModel : ModelBase;
+
         Task<TResponse> UpdateItem<TResponse, TEntity, TModel>(TModel? model, CancellationToken cancellationToken)
            where TResponse : ResponseBase<TModel>, new()
            where TEntity : class
@@ -64,6 +69,25 @@ namespace SpareParts.API.Services
             _dbContext.Set<TEntity>().Add(entity);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return new TResponse { Value = _mapper.Map<TModel>(entity) };
+        }
+
+        public async Task<TResponse> CreateList<TResponse, TEntity, TModel>(List<TModel>? modelList, CancellationToken cancellationToken)
+            where TResponse : ResponseListBase<TModel>, new()
+            where TEntity : class
+            where TModel : ModelBase
+        {
+            if (modelList == null)
+            {
+                return new TResponse { HasError = true, Message = $"{typeof(TModel).Name} list must be provided." };
+            }
+            var entities = modelList.AsQueryable().ProjectTo<TEntity>(_mapper.ConfigurationProvider);
+            foreach(var entity in entities)
+            {
+                _dbContext.Set<TEntity>().Add(entity);
+            }
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            var items = entities.ProjectTo<TModel>(_mapper.ConfigurationProvider).ToList();
+            return new TResponse { Items = items };
         }
 
         public async Task<TResponse> UpdateItem<TResponse, TEntity, TModel>(TModel? model, CancellationToken cancellationToken)

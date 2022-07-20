@@ -32,6 +32,10 @@ namespace SpareParts.API.Controllers
         [HttpPost]
         public async Task<InventoryItemResponse> Post(InventoryItem InventoryItem) => await _mediator.Send(new CreateInventoryItemCommand(InventoryItem));
 
+        [HttpPost]
+        [Route("post-list")]
+        public async Task<InventoryItemListResponse> Post(List<InventoryItem> inventoryItems) => await _mediator.Send(new CreateInventoryItemListCommand(inventoryItems));
+
         [HttpPut]
         public async Task<InventoryItemResponse> Put(InventoryItem InventoryItem) => await _mediator.Send(new UpdateInventoryItemCommand(InventoryItem));
 
