@@ -1,0 +1,72 @@
+﻿@typeparam T
+
+@if (_pages != null)
+{
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item">
+                <a id="FirstPage" class="page-link" aria-label="First" @onclick="() => HandlePageSelect(_pages.First())">&laquo;</a>
+            </li>
+            @foreach (var pg in _pages)
+            {
+                <li class="page-item @GetActiveClass(pg)">
+                    <a id="@($"Page{pg}")" @onclick="() => HandlePageSelect(pg)" class="page-link">@pg</a>
+                </li>
+            }
+            <li class="page-item">
+                <a id="LastPage" class="page-link" aria-label="Last" @onclick="() => HandlePageSelect(_pages.Last())">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public List<T>? For { get; set; }
+
+    [Parameter]
+    public int? PageSize { get; set; } = 10;
+
+    [Parameter]
+    public EventCallback<int> OnPageChanged { get; set; }
+
+    private List<int>? _pages;
+    private int _currentPage;
+
+    protected override void OnInitialized()
+    {
+        _currentPage = 1;
+        BuildPageList();
+    }
+
+    private void BuildPageList()
+    {
+        if(For != null && PageSize.HasValue)
+        {
+            var pageCount = GetPageCount(For.Count, PageSize.Value);
+
+            _pages = new List<int>();
+            for (int i = 1; i <= pageCount; i++)
+            {
+                _pages.Add(i);
+            }    
+        }
+    }
+
+    private int GetPageCount(decimal recordCount, decimal pageSize)
+    {
+        var size = recordCount / pageSize;
+        return Convert.ToInt32(Math.Ceiling(size));
+    }
+
+    private async Task HandlePageSelect(int pageNumber)
+    {
+        _currentPage = pageNumber;
+        await OnPageChanged.InvokeAsync(pageNumber);
+    }
+
+    private string GetActiveClass(int pageNumber)
+    {
+        return _currentPage == pageNumber ? "active" : "";
+    }
+}

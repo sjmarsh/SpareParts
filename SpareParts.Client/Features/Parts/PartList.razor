@@ -10,7 +10,7 @@
     <div class="spinner-border"></div>
 }
 
-@if(_parts != null && _parts.Any())
+@if(_partsDisplay != null && _partsDisplay.Any())
 {
     <table class="table table-hover">
         <thead>
@@ -26,7 +26,7 @@
             </tr>
         </thead>
         <tbody>
-        @foreach(var part in _parts)
+        @foreach(var part in _partsDisplay)
         {
             <tr>
                 <td>@part.Name</td>
@@ -41,6 +41,7 @@
         }
         </tbody>
     </table>   
+    <Pager For="_parts" OnPageChanged="HandlePageChanged"/>
 }
 
 @if(!_isLoading)
@@ -71,17 +72,23 @@
     private bool _isDetailModalVisible;
     private string? _errorMessage;
     private int? _selectedPartId;
+
     private List<Part>? _parts;
+    private List<Part>? _partsDisplay;
+
+    private int _currentPage;
+    private const int PageSize = 10;
 
     protected override async Task OnInitializedAsync()
     {
         _isDetailModalVisible = false;
+        _currentPage = 1;
 
         await RefreshPartsList();
     }
 
     private async Task RefreshPartsList()
-    {
+    {        
         _isLoading = true;
         var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/part/index");
         if(partListResponse == null)
@@ -97,9 +104,23 @@
             }
 
             _parts = partListResponse?.Items;
+            DisplayParts();
         }
 
+
         _isLoading = false;
+    }
+
+    private void DisplayParts()
+    {
+        // TODO: Server-side paging
+        _partsDisplay = _parts?.Skip((_currentPage -1) * PageSize).Take(PageSize).ToList();
+    }
+
+    private void HandlePageChanged(int page)
+    {
+        _currentPage = page;
+        DisplayParts();
     }
 
     private void AddPart()
