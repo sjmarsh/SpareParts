@@ -1,6 +1,4 @@
-﻿@typeparam T
-
-@if (_pages != null)
+﻿@if (_pages != null)
 {
     <nav aria-label="Page navigation">
         <ul class="pagination">
@@ -21,11 +19,12 @@
 }
 
 @code {
-    [Parameter, EditorRequired]
-    public List<T>? For { get; set; }
 
     [Parameter]
-    public int? PageSize { get; set; } = 10;
+    public int? TotalItemCount { get; set; }
+
+    [Parameter]
+    public int? PageSize { get; set; }
 
     [Parameter]
     public EventCallback<int> OnPageChanged { get; set; }
@@ -41,10 +40,16 @@
 
     private void BuildPageList()
     {
-        if(For != null && PageSize.HasValue)
+        var pageCount = 1;
+        PageSize ??= 10;
+                
+        if(TotalItemCount.HasValue)
         {
-            var pageCount = GetPageCount(For.Count, PageSize.Value);
-
+            pageCount = GetPageCount(TotalItemCount.Value, PageSize.Value);
+        }
+        
+        if(PageSize.HasValue)
+        {
             _pages = new List<int>();
             for (int i = 1; i <= pageCount; i++)
             {

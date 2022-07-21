@@ -10,6 +10,7 @@
     public class ResponseListBase<T> where T : ModelBase
     {
         public List<T>? Items { get; set; }
+        public int TotalItemCount { get; set; }
         public bool HasError { get; set; }
         public string? Message { get; set; }
     }

@@ -34,14 +34,11 @@ namespace SpareParts.API.Services
         }
     }
 
-    public record GetPartListRequest : IRequest<PartListResponse>
+    public class GetPartListRequest : IRequest<PartListResponse>
     {
-        public GetPartListRequest(bool isCurrentOnly)
-        {
-            IsCurrentOnly = isCurrentOnly;
-        }
-
-        public bool IsCurrentOnly { get; }
+        public bool IsCurrentOnly { get; set; }
+        public int Skip { get; set; }
+        public int? Take { get; set; }
     }
 
     public class GetPartListRequestHandler : BaseHandler, IRequestHandler<GetPartListRequest, PartListResponse>
@@ -61,7 +58,7 @@ namespace SpareParts.API.Services
                 {
                     filter = p => p.StartDate.Date <= DateTime.Today && (!p.EndDate.HasValue || p.EndDate.Value.Date >= DateTime.Today);
                 }
-                return await _dataService.GetList<PartListResponse, Entities.Part, Part>(cancellationToken, filter);
+                return await _dataService.GetList<PartListResponse, Entities.Part, Part>(cancellationToken, filter, request.Skip, request.Take);
             }
             catch (Exception ex)
             {

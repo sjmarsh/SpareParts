@@ -41,7 +41,7 @@
         }
         </tbody>
     </table>   
-    <Pager For="_parts" OnPageChanged="HandlePageChanged"/>
+    <Pager TotalItemCount="_totalItemCount" PageSize="PageSize" OnPageChanged="HandlePageChanged"/>
 }
 
 @if(!_isLoading)
@@ -77,6 +77,7 @@
     private List<Part>? _partsDisplay;
 
     private int _currentPage;
+    private int _totalItemCount;
     private const int PageSize = 10;
 
     protected override async Task OnInitializedAsync()
@@ -90,7 +91,8 @@
     private async Task RefreshPartsList()
     {        
         _isLoading = true;
-        var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/part/index");
+        var skip = (_currentPage - 1) * PageSize;
+        var partListResponse = await Http.GetFromJsonAsync<PartListResponse>($"/api/part/index?skip={skip}&take={PageSize}");
         if(partListResponse == null)
         {
             _hasError = true;
@@ -103,24 +105,18 @@
                 _errorMessage = partListResponse.Message;
             }
 
-            _parts = partListResponse?.Items;
-            DisplayParts();
+            _parts = partListResponse.Items;
+            _totalItemCount = partListResponse.TotalItemCount;
+            _partsDisplay = _parts;
         }
-
 
         _isLoading = false;
     }
-
-    private void DisplayParts()
-    {
-        // TODO: Server-side paging
-        _partsDisplay = _parts?.Skip((_currentPage -1) * PageSize).Take(PageSize).ToList();
-    }
-
-    private void HandlePageChanged(int page)
+    
+    private async Task HandlePageChanged(int page)
     {
         _currentPage = page;
-        DisplayParts();
+        await RefreshPartsList();
     }
 
     private void AddPart()

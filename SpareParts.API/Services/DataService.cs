@@ -30,7 +30,7 @@ namespace SpareParts.API.Services
             where TEntity : class
             where TModel : ModelBase;
 
-        Task<TResponse> GetList<TResponse, TEntity, TModel>(CancellationToken cancellationToken, Expression<Func<TEntity, bool>>? filter = null) 
+        Task<TResponse> GetList<TResponse, TEntity, TModel>(CancellationToken cancellationToken, Expression<Func<TEntity, bool>>? filter = null, int skip = 0, int? take = null) 
             where TResponse : ResponseListBase<TModel>, new()
             where TEntity : class
             where TModel : ModelBase;
@@ -128,14 +128,17 @@ namespace SpareParts.API.Services
             }
         }
         
-        public async Task<TResponse> GetList<TResponse, TEntity, TModel>(CancellationToken cancellationToken, Expression<Func<TEntity, bool>>? filter = null)
+        public async Task<TResponse> GetList<TResponse, TEntity, TModel>(CancellationToken cancellationToken, Expression<Func<TEntity, bool>>? filter = null, int skip = 0, int? take = null)
             where TResponse : ResponseListBase<TModel>, new()
             where TEntity : class
             where TModel : ModelBase
         {
             filter ??= ((e) => true);
-            var items = await _dbContext.Set<TEntity>().Where(filter).ProjectTo<TModel>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
-            return new TResponse { Items = items };
+            var qry = _dbContext.Set<TEntity>().Where(filter);
+            var totalCount = qry.Count();
+            take ??= totalCount;
+            var items = await qry.Skip(skip).Take(take.Value).ProjectTo<TModel>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
+            return new TResponse { Items = items, TotalItemCount =  totalCount };
         }
 
         public async Task<TResponse> DeleteItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken)

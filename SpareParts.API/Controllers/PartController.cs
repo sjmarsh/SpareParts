@@ -23,7 +23,7 @@ namespace SpareParts.API.Controllers
         
         [HttpGet]
         [Route("index")]
-        public async Task<PartListResponse> Index(bool isCurrentOnly) => await _mediator.Send(new GetPartListRequest(isCurrentOnly));
+        public async Task<PartListResponse> Index([FromQuery]GetPartListRequest request) => await _mediator.Send(request);
         
         [HttpPost]
         public async Task<PartResponse> Post(Part part) => await _mediator.Send(new CreatePartCommand(part));
