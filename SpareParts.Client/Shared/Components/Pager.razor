@@ -3,16 +3,16 @@
     <nav aria-label="Page navigation">
         <ul class="pagination">
             <li class="page-item">
-                <a id="FirstPage" class="page-link" aria-label="First" @onclick="() => HandlePageSelect(_pages.First())">&laquo;</a>
+                <a id="FirstPage" class="page-link pager-custom" aria-label="First" @onclick="() => HandlePageSelect(_pages.First())"><span class="oi oi-media-step-backward"></span></a>
             </li>
             @foreach (var pg in _pages)
             {
-                <li class="page-item @GetActiveClass(pg)">
+                <li class="page-item pager-custom @GetActiveClass(pg)">
                     <a id="@($"Page{pg}")" @onclick="() => HandlePageSelect(pg)" class="page-link">@pg</a>
                 </li>
             }
             <li class="page-item">
-                <a id="LastPage" class="page-link" aria-label="Last" @onclick="() => HandlePageSelect(_pages.Last())">&raquo;</a>
+                <a id="LastPage" class="page-link pager-custom" aria-label="Last" @onclick="() => HandlePageSelect(_pages.Last())"><span class="oi oi-media-step-forward"></span></a>
             </li>
         </ul>
     </nav>
@@ -42,12 +42,12 @@
     {
         var pageCount = 1;
         PageSize ??= 10;
-                
+
         if(TotalItemCount.HasValue)
         {
             pageCount = GetPageCount(TotalItemCount.Value, PageSize.Value);
         }
-        
+
         if(PageSize.HasValue)
         {
             _pages = new List<int>();
@@ -66,6 +66,10 @@
 
     private async Task HandlePageSelect(int pageNumber)
     {
+        if(_currentPage == pageNumber)
+        {
+            return;
+        }
         _currentPage = pageNumber;
         await OnPageChanged.InvokeAsync(pageNumber);
     }
