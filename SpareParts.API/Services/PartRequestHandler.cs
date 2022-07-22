@@ -34,7 +34,7 @@ namespace SpareParts.API.Services
         }
     }
 
-    public class GetPartListRequest : IRequest<PartListResponse>
+    public record GetPartListRequest : IRequest<PartListResponse>
     {
         public bool IsCurrentOnly { get; set; }
         public int Skip { get; set; }

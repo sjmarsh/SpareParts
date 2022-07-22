@@ -59,12 +59,9 @@ namespace SpareParts.API.Services
 
     public record GetInventoryItemDetailListRequest : IRequest<InventoryItemDetailListResponse>
     {
-        public GetInventoryItemDetailListRequest(bool isCurrentOnly)
-        {
-            IsCurrentOnly = isCurrentOnly;
-        }
-
-        public bool IsCurrentOnly { get; }
+        public bool IsCurrentOnly { get; set; }
+        public int Skip { get; set; }
+        public int? Take { get; set; }
     }
 
     public class GetInventoryItemDetailListRequestHandler : BaseHandler, IRequestHandler<GetInventoryItemDetailListRequest, InventoryItemDetailListResponse>
@@ -81,23 +78,28 @@ namespace SpareParts.API.Services
             try
             {
                 var parts = _dbContext.Parts.AsQueryable();
+                
                 if(request.IsCurrentOnly)
                 {
                     parts = parts.Where(p => p.StartDate.Date <= DateTime.Today && (!p.EndDate.HasValue || p.EndDate.Value.Date >= DateTime.Today));
                 }
 
                 var inventoryItems = _dbContext.InventoryItems.AsQueryable();
-                if(request.IsCurrentOnly)
+                
+                if (request.IsCurrentOnly)
                 {
                     var recentItems = inventoryItems.GroupBy(i => i.PartID).Select(g => new { PartID = g.Key, DateRecorded = g.Max(x => x.DateRecorded) });
                     inventoryItems = inventoryItems.Where(i => recentItems.FirstOrDefault(r => r.PartID == i.PartID && r.DateRecorded == i.DateRecorded) != null);
                 }
+
                 var query = inventoryItems.Join(parts, i => i.PartID, p => p.ID, (i, p) => new InventoryItemDetail(i.ID, p.ID, p.Name, i.Quantity, i.DateRecorded));
-                               
-                var detailItems = await query.ToListAsync();
                 
-                
-                return new InventoryItemDetailListResponse { Items = detailItems };
+                var totalCount = query.Count();
+                var take = request.Take ?? totalCount;
+
+                var detailItems = await query.Skip(request.Skip).Take(take).ToListAsync();
+                                
+                return new InventoryItemDetailListResponse { Items = detailItems, TotalItemCount = totalCount };
             }
             catch(Exception ex)
             {

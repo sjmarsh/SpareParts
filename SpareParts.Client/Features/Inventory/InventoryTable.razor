@@ -28,7 +28,8 @@
                 </tr>
             }
         </tbody>
-    </table>   
+    </table>
+    <Pager TotalItemCount="_totalItemCount" PageSize="PageSize" OnPageChanged="HandlePageChanged"/>
 }
 @if(_hasError)
 {
@@ -51,11 +52,16 @@
     private string? _errorMessage;
     private List<InventoryItemDetail>? _inventoryItems;
 
+    private int _currentPage;
+    private int _totalItemCount;
+    private const int PageSize = 10;
+
     protected async override Task OnInitializedAsync()
     {
         _isLoading = false;
         _hasError = false;
         _errorMessage = string.Empty;
+        _currentPage = 1;
 
         await RefreshInventoryItemList();
     }
@@ -64,8 +70,9 @@
     {
         _isLoading = true;
 
-        var filter = IsCurrentOnly ? "?isCurrentOnly=true" : "";
-        var response = await Http.GetFromJsonAsync<InventoryItemDetailListResponse>($"/api/inventory/index-detail{filter}");
+        var filter = IsCurrentOnly ? "isCurrentOnly=true" : "";
+        var skip = (_currentPage - 1) * PageSize;
+        var response = await Http.GetFromJsonAsync<InventoryItemDetailListResponse>($"/api/inventory/index-detail?{filter}&skip={skip}&take={PageSize}");
 
         if(response == null)
         {
@@ -80,8 +87,15 @@
             }
 
             _inventoryItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
+            _totalItemCount = response.TotalItemCount;
         }
         
         _isLoading = false;
+    }
+
+    private async Task HandlePageChanged(int page)
+    {
+        _currentPage = page;
+        await RefreshInventoryItemList();
     }
 }
