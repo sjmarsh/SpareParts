@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using SpareParts.API.Data;
 using SpareParts.Shared.Models;
@@ -28,32 +31,44 @@ namespace SpareParts.API.Int.Tests
             _dbContext = new SparePartsDbContext(options);
             _dbContext.Database.Migrate();
 
-            var application = new WebApplicationFactory<Program>()
+            var application = new CustomWebApplicationFactory<Program>()
                                     .WithWebHostBuilder(builder =>
                                     {
                                         // ... Configure test services
                                         builder.ConfigureServices(services =>
-                                        {
-                                            services.AddDbContext<SparePartsDbContext>(options => options.UseSqlServer($"Server=SJM-ULTRABOOK;Database={_databaseName};Trusted_Connection=True"));
-                                        });                                        
+                                        {   
+                                            
+                                            //services.AddDbContext<SparePartsDbContext>(options => options.UseSqlServer($"Server=SJM-ULTRABOOK;Database={_databaseName};Trusted_Connection=True"));
+                                        });
+                                        
                                     });
 
             _client = application.CreateClient();
+
+            
         }
 
         public void Dispose()
         {
             _dbContext.Database.EnsureDeleted();
             _dbContext.Database.CloseConnection();
+            _client.Dispose();
         }
 
         [Fact]
         public async void Post_Should_CreatePartRecord()
         {
             var part = new Part { Name = "Part 1", Description = "One", Weight = 1.1, Price = 2.2, StartDate = DateTime.Today.AddYears(-1) };
-            var result = await PostRequest<Part, PartResponse>("/part", part);
+            var result = await PostRequest<Part, PartResponse>("/api/part", part);
             Assert.NotNull(result);
             Assert.NotNull(result.Value);
+            var partId = result.Value.ID;
+            Assert.True(partId > 0);
+            var savedPart = _dbContext.Parts.Find(partId);
+            Assert.NotNull(savedPart);
+            Assert.Equal(part.Name, savedPart.Name);
+            Assert.Equal(part.Description, savedPart.Description);
+
 
         }
 
@@ -79,6 +94,7 @@ namespace SpareParts.API.Int.Tests
             }
             catch (Exception ex)
             {
+                Assert.Fail(ex.ToString());
                 Console.WriteLine(ex.ToString());
             }
 
@@ -86,5 +102,19 @@ namespace SpareParts.API.Int.Tests
             
         }
 
+    }
+
+
+    // ref: Issue with not picking up custom app settings for tests
+    // https://github.com/dotnet/aspnetcore/issues/38435
+    public class CustomWebApplicationFactory<TProgram>
+    : WebApplicationFactory<TProgram> where TProgram : class
+    {
+        protected override IHost CreateHost(IHostBuilder builder)
+        {
+            builder.UseEnvironment("IntegrationTest");
+
+            return base.CreateHost(builder);
+        }
     }
 }
