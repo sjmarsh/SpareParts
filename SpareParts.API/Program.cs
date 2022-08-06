@@ -96,7 +96,7 @@ try
     CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-AU");
     CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-AU");
 
-    if (!app.Environment.IsDevelopment())
+    if (!app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("IntegrationTest"))
     {
         Log.Information("Starting default browser.");
         Process.Start(new ProcessStartInfo("http://localhost:5000") { UseShellExecute = true });
