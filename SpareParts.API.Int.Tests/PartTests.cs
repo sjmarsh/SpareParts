@@ -6,10 +6,12 @@ namespace SpareParts.API.Int.Tests
     public class PartTests 
     {
         private readonly SparePartsTestFixture _testFixture;
+        private readonly DataHelper _dataHelper;
 
         public PartTests(SparePartsTestFixture testFixture)
         {
             _testFixture = testFixture;
+            _dataHelper = new DataHelper(_testFixture.DbContext);
 
             // clear parts table between tests
             _testFixture.DbContext.Parts.RemoveRange(_testFixture.DbContext.Parts);
@@ -17,9 +19,9 @@ namespace SpareParts.API.Int.Tests
         }
 
         [Fact]
-        public async void Get_Should_ReturnRequiredPartRecord()
+        public async Task Get_Should_ReturnRequiredPartRecord()
         {
-            var savedPart = await CreatePartInDatabase();
+            var savedPart = await _dataHelper.CreatePartInDatabase();
             savedPart?.ID.Should().BeGreaterThan(0);
 
             var result = await _testFixture.GetRequest<PartResponse>($"/api/part/?id={savedPart.ID}");
@@ -30,9 +32,9 @@ namespace SpareParts.API.Int.Tests
         }
 
         [Fact]
-        public async void GetIndex_Should_ReturnListOfParts()
+        public async Task GetIndex_Should_ReturnListOfParts()
         {
-            var parts = await CreateListInDatabase(5);
+            var parts = await _dataHelper.CreatePartListInDatabase(5);
                         
             var result = await _testFixture.GetRequest<PartListResponse>($"/api/part/index");
 
@@ -43,9 +45,9 @@ namespace SpareParts.API.Int.Tests
         }
 
         [Fact]
-        public async void GetIndex_Should_ReturnListOfPartsWithRequiredPaging()
+        public async Task GetIndex_Should_ReturnListOfPartsWithRequiredPaging()
         {
-            await CreateListInDatabase(5);
+            await _dataHelper.CreatePartListInDatabase(5);
 
             var result = await _testFixture.GetRequest<PartListResponse>($"/api/part/index?skip=2&take=2");
 
@@ -55,9 +57,9 @@ namespace SpareParts.API.Int.Tests
         }
 
         [Fact]
-        public async void GetIndex_Should_ReturnListOfCurrentParts()
+        public async Task GetIndex_Should_ReturnListOfCurrentParts()
         {
-            var parts = GetPartsFakerConfig().Generate(3);
+            var parts = _dataHelper.GetPartsFakerConfig().Generate(3);
             parts[0].StartDate = DateTime.Today.AddYears(-1); // current
             parts[0].EndDate = null;
             parts[1].StartDate = DateTime.Today.AddYears(-1); // not current
@@ -81,7 +83,7 @@ namespace SpareParts.API.Int.Tests
 
 
         [Fact]
-        public async void Post_Should_CreatePartRecord()
+        public async Task Post_Should_CreatePartRecord()
         {
             var part = new Part { Name = "Part 1", Description = "One", Weight = 1.1, Price = 2.2, StartDate = DateTime.Today.AddYears(-1) };
                         
@@ -99,9 +101,9 @@ namespace SpareParts.API.Int.Tests
         }
 
         [Fact]
-        public async void Put_Should_UpdatePartRecord()
+        public async Task Put_Should_UpdatePartRecord()
         {
-            var savedPart = await CreatePartInDatabase();
+            var savedPart = await _dataHelper.CreatePartInDatabase();
             savedPart?.ID.Should().BeGreaterThan(0);
             var partModel = new Part { ID = savedPart.ID, Name = "Other Name", Description = "Other Descritpion", Weight = savedPart.Weight, Price = savedPart.Price.Value, StartDate = savedPart.StartDate };
             _testFixture.DbContext.ChangeTracker.Clear();
@@ -120,9 +122,9 @@ namespace SpareParts.API.Int.Tests
         }
 
         [Fact]
-        public async void Delete_Should_DeletePartRecord()
+        public async Task Delete_Should_DeletePartRecord()
         {
-            var savedPart = await CreatePartInDatabase();
+            var savedPart = await _dataHelper.CreatePartInDatabase();
             savedPart?.ID.Should().BeGreaterThan(0);
             _testFixture.DbContext.ChangeTracker.Clear();
 
@@ -132,36 +134,6 @@ namespace SpareParts.API.Int.Tests
             result.HasError.Should().BeFalse();
             var deletedPart = await _testFixture.DbContext.Parts.FindAsync(savedPart.ID);
             deletedPart.Should().BeNull();
-        }
-
-        private async Task<Entities.Part> CreatePartInDatabase()
-        {
-            var partEntity = GetPartsFakerConfig().Generate(1).First();
-            _testFixture.DbContext.Parts.Add(partEntity);
-            await _testFixture.DbContext.SaveChangesAsync();
-            var savedPart = await _testFixture.DbContext.Parts.FindAsync(partEntity.ID);
-            return savedPart;
-        }
-
-        private async Task<List<Entities.Part>> CreateListInDatabase(int howMany)
-        {
-            var parts = GetPartsFakerConfig().Generate(howMany);
-            foreach (var part in parts)
-            {
-                _testFixture.DbContext.Parts.Add(part);
-            }
-            await _testFixture.DbContext.SaveChangesAsync();
-
-            return parts;
-        }
-
-        private static Faker<Entities.Part> GetPartsFakerConfig()
-        {
-            return new Faker<Entities.Part>()
-                        .RuleFor(p => p.ID, 0)
-                        .RuleFor(p => p.Weight, f => f.Random.Number(0, 20))
-                        .RuleFor(p => p.Price, f => f.Random.Number(0, 20))
-                        .RuleFor(p => p.StartDate, f => f.Date.Between(new DateTime(2000, 1, 1), DateTime.Today));
         }
     }
 }
