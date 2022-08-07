@@ -1,4 +1,5 @@
 ﻿using SpareParts.Shared.Models;
+using SpareParts.Test.Helpers;
 
 namespace SpareParts.API.Int.Tests
 {

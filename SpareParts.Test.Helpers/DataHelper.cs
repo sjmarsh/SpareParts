@@ -1,6 +1,7 @@
-﻿using SpareParts.API.Data;
+﻿using Bogus;
+using SpareParts.API.Data;
 
-namespace SpareParts.API.Int.Tests
+namespace SpareParts.Test.Helpers
 {
     public class DataHelper
     {
@@ -12,7 +13,7 @@ namespace SpareParts.API.Int.Tests
             _dbContext = dbContext;
         }
 
-        public async Task<Entities.Part> CreatePartInDatabase()
+        public async Task<API.Entities.Part> CreatePartInDatabase()
         {
             var partEntity = GetPartsFakerConfig().Generate(1).First();
             _dbContext.Parts.Add(partEntity);
@@ -20,7 +21,7 @@ namespace SpareParts.API.Int.Tests
             return partEntity;
         }
 
-        public async Task<List<Entities.Part>> CreatePartListInDatabase(int howMany)
+        public async Task<List<API.Entities.Part>> CreatePartListInDatabase(int howMany)
         {
             var parts = GetPartsFakerConfig().Generate(howMany);
             foreach (var part in parts)
@@ -31,10 +32,10 @@ namespace SpareParts.API.Int.Tests
 
             return parts;
         }
-               
-        public Faker<Entities.Part> GetPartsFakerConfig()
+
+        public Faker<API.Entities.Part> GetPartsFakerConfig()
         {
-            return new Faker<Entities.Part>()
+            return new Faker<API.Entities.Part>()
                         .RuleFor(p => p.ID, 0)
                         .RuleFor(p => p.Name, f => f.Name.JobTitle())
                         .RuleFor(p => p.Description, f => f.Name.JobDescriptor())
@@ -43,7 +44,7 @@ namespace SpareParts.API.Int.Tests
                         .RuleFor(p => p.StartDate, f => f.Date.Between(new DateTime(2000, 1, 1), DateTime.Today));
         }
 
-        public async Task<Entities.InventoryItem> CreateInventoryItemInDatabase()
+        public async Task<API.Entities.InventoryItem> CreateInventoryItemInDatabase()
         {
             await AddPartsIfNeeded();
             var inventoryItemEntity = GetInventoryItemFakerConfig().Generate(1).First();
@@ -52,7 +53,7 @@ namespace SpareParts.API.Int.Tests
             return inventoryItemEntity;
         }
 
-        public async Task<List<Entities.InventoryItem>> CreateInventoryItemListInDatabase(int howMany)
+        public async Task<List<API.Entities.InventoryItem>> CreateInventoryItemListInDatabase(int howMany)
         {
             await AddPartsIfNeeded();
             var items = GetInventoryItemFakerConfig().Generate(howMany);
@@ -64,17 +65,17 @@ namespace SpareParts.API.Int.Tests
             return items;
         }
 
-        public Faker<Entities.InventoryItem> GetInventoryItemFakerConfig()
+        public Faker<API.Entities.InventoryItem> GetInventoryItemFakerConfig()
         {
-            return new Faker<Entities.InventoryItem>()
+            return new Faker<API.Entities.InventoryItem>()
                     .RuleFor(i => i.ID, 0)
                     .RuleFor(i => i.PartID, f => f.Random.Number(1, NumberOfPartsForInventory))
                     .RuleFor(i => i.Quantity, f => f.Random.Number(0, 100))
                     .RuleFor(i => i.DateRecorded, f => f.Date.Between(DateTime.Today.AddDays(-30), DateTime.Today));
         }
 
-        public async Task<List<Entities.Part>> AddPartsIfNeeded()
-        { 
+        public async Task<List<API.Entities.Part>> AddPartsIfNeeded()
+        {
             // Inventory Items have a dependency on parts
             var parts = _dbContext.Parts;
             if (parts.Count() == 0)
