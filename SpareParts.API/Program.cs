@@ -1,8 +1,10 @@
 using FluentValidation.AspNetCore;
 using MediatR;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SpareParts.API.Data;
+using SpareParts.API.Extensions;
 using SpareParts.API.Services;
 using SpareParts.Shared.Validators;
 using System.Diagnostics;
@@ -19,7 +21,14 @@ Log.Information("Starting up");
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+   
     builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json");
+
+    // This is needed to address issue with Custom Environments https://github.com/dotnet/aspnetcore/issues/38212
+    if(builder.Environment.IsIntegrationTest())
+    {
+        StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
+    }
 
     builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
@@ -60,7 +69,7 @@ try
         
     
     // Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment() || app.Environment.IsIntegrationTest())
     {
         app.UseCors(builder => builder
          .AllowAnyOrigin()
@@ -96,7 +105,7 @@ try
     CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-AU");
     CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-AU");
 
-    if (!app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("IntegrationTest"))
+    if (!app.Environment.IsDevelopment() && !app.Environment.IsIntegrationTest())
     {
         Log.Information("Starting default browser.");
         Process.Start(new ProcessStartInfo("http://localhost:5000") { UseShellExecute = true });

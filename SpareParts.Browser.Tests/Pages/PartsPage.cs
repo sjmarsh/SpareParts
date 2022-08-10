@@ -27,6 +27,14 @@
             return await h3.InnerTextAsync();
         }
 
+        public async Task<bool> PartListHasItems()
+        {
+            await EnsureOnPartsPage();
+            await _page.WaitForSelectorAsync("tbody >> tr");
+            var rows = await _page.QuerySelectorAllAsync("tbody >> tr");
+            return rows.Count() > 0;
+        }
+
         public async Task<int> PartListItemCount()
         {
             await EnsureOnPartsPage();
@@ -45,12 +53,12 @@
         public async Task ClickAddButton()
         {
             await EnsureOnPartsPage();
-            var addButton = _page.Locator(".btn-primary >> text=Add");
+            var addButton = _page.Locator("text=Add");
             addButton.Should().NotBeNull();
             await addButton.ClickAsync();
         }
 
-        public async Task<PartModal> GetAddPartModal()
+        public async Task<PartModal> GetPartModal()
         {
             await EnsureOnPartsPage();
             var modal = _page.Locator(".modal-dialog");
@@ -58,7 +66,6 @@
            // (modal.IsVisibleAsync()).Should().Be(true);
             return new PartModal(_page);
         }
-
     }
 
     public class PartModal
@@ -70,13 +77,15 @@
             _page = page;
         }
 
-        public async Task EnterName(string partName)
+        public async Task EnterName(string? partName)
         {
+            if (partName == null) return;
             await EnterValue(nameof(partName), partName);
         }
 
-        public async Task EnterDescription(string partDescription)
+        public async Task EnterDescription(string? partDescription)
         {
+            if (partDescription == null) return;
             await EnterValue(nameof(partDescription), partDescription);
         }
 
@@ -95,9 +104,10 @@
             await EnterValue(nameof(startDate), startDate.ToString("yyyy-MM-dd"));
         }
 
-        public async Task EnterEndDate(DateTime endDate)
+        public async Task EnterEndDate(DateTime? endDate)
         {
-            await EnterValue(nameof(endDate), endDate.ToString("yyyy-MM-dd"));
+            if (endDate == null) return;
+            await EnterValue(nameof(endDate), endDate.Value.ToString("yyyy-MM-dd"));
         }
 
         private async Task EnterValue(string id, string value)
@@ -107,17 +117,18 @@
 
         public async Task Submit()
         {
-            var submitBtn = _page.Locator("btn-primary >> text=Submit");
+            var submitBtn = _page.Locator("text=Submit");
             await submitBtn.ClickAsync();
+            await _page.WaitForSelectorAsync(".alert");
         }
 
         public async Task Close()
         {
-            var closeBtn = _page.Locator("btn-link >> text=Close");
+            var closeBtn = _page.Locator("text=Close");
             await closeBtn.ClickAsync();
             var modal = _page.Locator(".modal-dialog");
-            modal.Should().BeNull();
-            //(modal.IsVisibleAsync()).Should().Be(false);
+            var isModalVisible = await modal.IsVisibleAsync();
+            isModalVisible.Should().BeFalse();
         }
     }
 }

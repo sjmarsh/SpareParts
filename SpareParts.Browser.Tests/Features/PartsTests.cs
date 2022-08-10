@@ -40,19 +40,25 @@ namespace SpareParts.Browser.Tests.Features
         {
             var part = new Shared.Models.Part { Name = "Part 1", Description = "The first one", Weight = 2.2, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2) };
             await _partsPage.ClickAddButton();
-            var addPartModal = await _partsPage.GetAddPartModal();
-            await addPartModal.EnterName(part.Name);
-            await addPartModal.EnterDescription(part.Description);
-            await addPartModal.EnterWeight(part.Weight);
-            await addPartModal.EnterPrice(part.Price);
-            await addPartModal.EnterStartDate(part.StartDate);
-            await addPartModal.EnterEndDate(part.EndDate.Value);
-
-            await addPartModal.Submit();
-            await addPartModal.Close();
-
+            await EnterPart(part);
+            var hasParts = await _partsPage.PartListHasItems();
+            hasParts.Should().BeTrue();
             var itemCount = await _partsPage.PartListItemCount();
             itemCount.Should().Be(1);
+        }
+
+        private async Task EnterPart(Shared.Models.Part part)
+        {
+            var partModal = await _partsPage.GetPartModal();
+            await partModal.EnterName(part.Name);
+            await partModal.EnterDescription(part.Description);
+            await partModal.EnterWeight(part.Weight);
+            await partModal.EnterPrice(part.Price);
+            await partModal.EnterStartDate(part.StartDate);
+            await partModal.EnterEndDate(part.EndDate);
+
+            await partModal.Submit();
+            await partModal.Close();
         }
 
     }

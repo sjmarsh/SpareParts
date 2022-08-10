@@ -8,9 +8,10 @@
         {
             _page = page;
         }
-
+               
         public async Task<string> GetPageTitle()
         {
+            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
             return await _page.TitleAsync();
         }
 
@@ -21,6 +22,7 @@
 
         public async Task<List<string>> GetNavItemTitles()
         {
+            await _page.WaitForSelectorAsync(".nav-link");
             var links = await _page.QuerySelectorAllAsync(".nav-link");
             links.Should().NotBeNullOrEmpty();
             var titles = new List<string>();
@@ -47,7 +49,6 @@
         {
             var partsNav = _page.Locator(".nav-link >> text=Inventory");
             await partsNav.ClickAsync();
-        }
-
+        }        
     }
 }

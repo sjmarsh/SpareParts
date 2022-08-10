@@ -42,9 +42,13 @@ namespace SpareParts.Browser.Tests
         {
             DbContext = await SetupDbContextAsync();
             Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-            var opts = new BrowserTypeLaunchOptions { Headless = false };
+            var opts = new BrowserTypeLaunchOptions
+            {
+                Headless = false,
+                Timeout = 1000
+            };
             Browser = await Playwright.Chromium.LaunchAsync(opts);
-
+            
             var page = await Browser.NewPageAsync();
             await page.GotoAsync(BaseUrl);
             Pages = new PageModels(page);
@@ -61,8 +65,10 @@ namespace SpareParts.Browser.Tests
             var options = new DbContextOptionsBuilder<SparePartsDbContext>()
                                 .UseSqlServer(config["ConnectionStrings:SparePartsDbConnection"])
                                 .Options;
+            
             var dbContext = new SparePartsDbContext(options);
             await dbContext.Database.MigrateAsync();
+            
             dbContext.Database.EnsureCreated();
             return dbContext;
         }
@@ -74,6 +80,7 @@ namespace SpareParts.Browser.Tests
                 HostUrl = BaseUrl
             };
             factory.CreateDefaultClient();
+                       
             return factory;
         }
 
@@ -106,11 +113,11 @@ namespace SpareParts.Browser.Tests
     public class WebApplicationFactoryFixture<TEntryPoint> : WebApplicationFactory<TEntryPoint>
     where TEntryPoint : class
     {
-        public string HostUrl { get; set; } = "https://localhost:5001"; // we can use any free port
+        public string HostUrl { get; set; }// = "https://localhost:5001"; // we can use any free port
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            //builder.UseEnvironment("IntegrationTest");
+            builder.UseEnvironment("IntegrationTest");
             builder.UseUrls(HostUrl);
         }
 
@@ -118,7 +125,7 @@ namespace SpareParts.Browser.Tests
         {
             var dummyHost = builder.Build();
             
-            //builder.UseEnvironment("IntegrationTest");
+            builder.UseEnvironment("IntegrationTest");
             builder.ConfigureWebHost(webHostBuilder => webHostBuilder.UseKestrel());
 
             var host = builder.Build();
