@@ -65,6 +65,32 @@ namespace SpareParts.Test.Helpers
             return items;
         }
 
+        public async Task<List<Shared.Models.InventoryItemDetail>> CreateInventoryItemDetailListInDatabase(int howMany)
+        {
+            var parts = await AddPartsIfNeeded();
+            var items = GetInventoryItemFakerConfig().Generate(howMany);
+            foreach (var item in items)
+            {
+                _dbContext.InventoryItems.Add(item);
+            }
+            await _dbContext.SaveChangesAsync();
+
+            var itemDetails = new List<Shared.Models.InventoryItemDetail>();
+            foreach(var item in items)
+            {
+                itemDetails.Add(new()
+                {
+                    ID = item.ID,
+                    PartID = item.PartID.Value,
+                    PartName = parts.First(p => p.ID == item.PartID.Value).Name,
+                    Quantity = item.Quantity,
+                    DateRecorded = item.DateRecorded
+                });
+            }
+            _dbContext.ChangeTracker.Clear();
+            return itemDetails;
+        }
+
         public Faker<API.Entities.InventoryItem> GetInventoryItemFakerConfig()
         {
             return new Faker<API.Entities.InventoryItem>()

@@ -1,4 +1,6 @@
-﻿namespace SpareParts.Browser.Tests.Pages
+﻿using System.Text.RegularExpressions;
+
+namespace SpareParts.Browser.Tests.Pages
 {
     public class PartsPage
     {
@@ -71,11 +73,17 @@
             {
                 Name = await cells.Nth(0).InnerTextAsync(),
                 Description = await cells.Nth(1).InnerTextAsync(),
-                Weight = Convert.ToDouble(await cells.Nth(2).InnerTextAsync()),
-                Price = Convert.ToDouble((await cells.Nth(3).InnerTextAsync()).Replace("$", "")),
+                Weight = GetDouble(await cells.Nth(2).InnerTextAsync()),
+                Price = GetDouble((await cells.Nth(3).InnerTextAsync()).Replace("$", "")),
                 StartDate = GetDate(await cells.Nth(4).InnerTextAsync()).Value.Date,
                 EndDate = GetDate(await cells.Nth(5).InnerTextAsync())
             };
+        }
+
+        private double GetDouble(string doubleString)
+        {
+            var cleanString = Regex.Replace(doubleString, "[^0-9.]", "");
+            return double.Parse(cleanString);
         }
 
         private DateTime? GetDate(string dateString)

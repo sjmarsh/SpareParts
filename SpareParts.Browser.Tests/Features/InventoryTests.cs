@@ -1,5 +1,6 @@
 ﻿using SpareParts.API.Data;
 using SpareParts.Browser.Tests.Pages;
+using SpareParts.Shared.Models;
 using SpareParts.Test.Helpers;
 
 namespace SpareParts.Browser.Tests.Features
@@ -20,8 +21,9 @@ namespace SpareParts.Browser.Tests.Features
 
         public async Task InitializeAsync()
         {
-            _dbContext.Parts.RemoveRange(_dbContext.Parts);
             _dbContext.InventoryItems.RemoveRange(_dbContext.InventoryItems);
+            await _dbContext.SaveChangesAsync();
+            _dbContext.Parts.RemoveRange(_dbContext.Parts);
             await _dbContext.SaveChangesAsync();
             await _inventoryPage.InitializePage();
         }
@@ -94,29 +96,21 @@ namespace SpareParts.Browser.Tests.Features
         [Fact]
         public async Task Should_DisplayCurrentStock()
         {
-            var inventoryItems = await _dataHelper.CreateInventoryItemListInDatabase(3);  // creates all current records by default
+            var inventoryItems = (await _dataHelper.CreateInventoryItemDetailListInDatabase(3)).OrderBy(i => i.PartName).ToList();  // creates all current records by default
 
             await _inventoryPage.SelectTabNumber(2);
             var currentStock = _inventoryPage.CurrentStock;
 
-            var item1 = await currentStock.GetItemForRow(0);
-            item1.Should().BeEquivalentTo(inventoryItems[0], opt => opt
-                    .Excluding(i => i.ID)
-                    .Excluding(i => i.PartID)
-                    .Using<DateTime>(ctx => ctx.Subject.Date.Should().Be(ctx.Expectation.Date))
-                    .WhenTypeIs<DateTime>());
-            var item2 = await currentStock.GetItemForRow(1);
-            item2.Should().BeEquivalentTo(inventoryItems[1], opt => opt
-                    .Excluding(i => i.ID)
-                    .Excluding(i => i.PartID)
-                    .Using<DateTime>(ctx => ctx.Subject.Date.Should().Be(ctx.Expectation.Date))
-                    .WhenTypeIs<DateTime>());
-            var item3 = await currentStock.GetItemForRow(2);
-            item3.Should().BeEquivalentTo(inventoryItems[2], opt => opt
-                    .Excluding(i => i.ID)
-                    .Excluding(i => i.PartID)
-                    .Using<DateTime>(ctx => ctx.Subject.Date.Should().Be(ctx.Expectation.Date))
-                    .WhenTypeIs<DateTime>());
+            ItemsShouldBeEquivalent(inventoryItems[0], await currentStock.GetItemForRow(0));
+            ItemsShouldBeEquivalent(inventoryItems[1], await currentStock.GetItemForRow(1));
+            ItemsShouldBeEquivalent(inventoryItems[2], await currentStock.GetItemForRow(2));
+        }
+
+        private void ItemsShouldBeEquivalent(InventoryItemDetail actual, InventoryItemDetail expected)
+        {
+            actual.PartName.Should().Be(expected.PartName);
+            actual.Quantity.Should().Be(expected.Quantity);
+            actual.DateRecorded.Date.Should().Be(expected.DateRecorded.Date);
         }
     }
 }

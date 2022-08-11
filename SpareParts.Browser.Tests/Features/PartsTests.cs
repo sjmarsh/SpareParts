@@ -21,6 +21,8 @@ namespace SpareParts.Browser.Tests.Features
         public async Task InitializeAsync() // runs before each test
         {
             // clear parts table between tests
+            _dbContext.InventoryItems.RemoveRange(_dbContext.InventoryItems);
+            await _dbContext.SaveChangesAsync();
             _dbContext.Parts.RemoveRange(_dbContext.Parts);
             await _dbContext.SaveChangesAsync();
             await _partsPage.InitializePage();

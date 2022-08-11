@@ -44,11 +44,12 @@ namespace SpareParts.Browser.Tests
             Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
             var opts = new BrowserTypeLaunchOptions
             {
-                Headless = false
+                Headless = false,
+                
             };
             Browser = await Playwright.Chromium.LaunchAsync(opts);
-            
-            var page = await Browser.NewPageAsync();
+            var browserOpts = new BrowserNewPageOptions { Locale = "en-AU" };
+            var page = await Browser.NewPageAsync(browserOpts);
             await page.GotoAsync(BaseUrl);
             Pages = new PageModels(page, BaseUrl);
         }              

@@ -22,8 +22,9 @@
 
         public async Task<List<string>> GetNavItemTitles()
         {
-            await _page.WaitForSelectorAsync(".nav-link");
-            var links = await _page.QuerySelectorAllAsync(".nav-link");
+            await _page.WaitForSelectorAsync(".sidebar");
+            var sideBar = await _page.QuerySelectorAsync(".sidebar");
+            var links = await sideBar.QuerySelectorAllAsync(".nav-link");
             links.Should().NotBeNullOrEmpty();
             var titles = new List<string>();
             foreach (var link in links) 
