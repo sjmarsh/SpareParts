@@ -1,5 +1,6 @@
 ﻿using SpareParts.API.Data;
 using SpareParts.Browser.Tests.Pages;
+using SpareParts.Test.Helpers;
 
 namespace SpareParts.Browser.Tests.Features
 {
@@ -8,19 +9,20 @@ namespace SpareParts.Browser.Tests.Features
     {
         private readonly PartsPage _partsPage;
         private readonly SparePartsDbContext _dbContext;
+        private readonly DataHelper _dataHelper;
 
         public PartsTests(SparePartsBrowserTestFixture fixture)
         {
             _partsPage = fixture.Pages.Parts;
             _dbContext = fixture.DbContext;
-
-            // clear parts table between tests
-            _dbContext.Parts.RemoveRange(_dbContext.Parts);
-            _dbContext.SaveChanges();
+            _dataHelper = new DataHelper(_dbContext);
         }
 
         public async Task InitializeAsync() // runs before each test
         {
+            // clear parts table between tests
+            _dbContext.Parts.RemoveRange(_dbContext.Parts);
+            await _dbContext.SaveChangesAsync();
             await _partsPage.InitializePage();
         }
 
@@ -57,9 +59,7 @@ namespace SpareParts.Browser.Tests.Features
         [Fact]
         public async Task EditPart_Should_UpdatePartInList()
         {
-            var part = new API.Entities.Part { Name = "Part 1", Description = "The first one", Weight = 2.2, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2) };
-            _dbContext.Parts.Add(part);
-            await _dbContext.SaveChangesAsync();
+            await _dataHelper.CreatePartInDatabase();
             await _partsPage.InitializePage();
             (await _partsPage.IsPartTableVisible()).Should().BeTrue();
             (await _partsPage.PartListItemCount()).Should().Be(1);
@@ -78,11 +78,7 @@ namespace SpareParts.Browser.Tests.Features
         [Fact]
         public async Task DeletePart_Should_RemovePartFromList()
         {
-            var part1 = new API.Entities.Part { Name = "Part 1", Description = "The first one", Weight = 1.1, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2) };
-            var part2 = new API.Entities.Part { Name = "Part 2", Description = "The second one", Weight = 2.2, Price = 5.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2) };
-            _dbContext.Parts.Add(part1);
-            _dbContext.Parts.Add(part2);
-            await _dbContext.SaveChangesAsync();
+            var parts = await _dataHelper.CreatePartListInDatabase(2);
             await _partsPage.InitializePage();
             (await _partsPage.IsPartTableVisible()).Should().BeTrue();
             (await _partsPage.PartListItemCount()).Should().Be(2);
@@ -92,7 +88,10 @@ namespace SpareParts.Browser.Tests.Features
             (await _partsPage.PartListItemCount()).Should().Be(1);
             var rowPart = await _partsPage.GetPartFromRow(0);  
             rowPart.Should().NotBeNull();
-            rowPart.Should().BeEquivalentTo(part2, opt => opt.Excluding(p => p.ID));
+            rowPart.Should().BeEquivalentTo(parts[1], opt => opt
+                    .Excluding(p => p.ID)
+                    .Using<DateTime>(ctx => ctx.Subject.Date.Should().Be(ctx.Expectation.Date))
+                    .WhenTypeIs<DateTime>());
         }
 
         private async Task EnterPart(Shared.Models.Part part)

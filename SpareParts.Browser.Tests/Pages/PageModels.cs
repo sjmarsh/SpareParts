@@ -14,5 +14,7 @@
         public NavBar NavBar => new(_page);
 
         public PartsPage Parts => new(_page, _baseUrl);
+
+        public InventoryPage Inventory => new(_page, _baseUrl);
     }
 }

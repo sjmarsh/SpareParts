@@ -73,10 +73,18 @@
                 Description = await cells.Nth(1).InnerTextAsync(),
                 Weight = Convert.ToDouble(await cells.Nth(2).InnerTextAsync()),
                 Price = Convert.ToDouble((await cells.Nth(3).InnerTextAsync()).Replace("$", "")),
-                StartDate = Convert.ToDateTime(await cells.Nth(4).InnerTextAsync()),
-                EndDate = Convert.ToDateTime(await cells.Nth(5).InnerTextAsync()),
+                StartDate = GetDate(await cells.Nth(4).InnerTextAsync()).Value.Date,
+                EndDate = GetDate(await cells.Nth(5).InnerTextAsync())
             };
         }
+
+        private DateTime? GetDate(string dateString)
+        {
+            if (string.IsNullOrWhiteSpace(dateString)) return null;
+
+            return Convert.ToDateTime(dateString);
+        }
+
 
         public async Task<PartModal> GetPartModal()
         {
