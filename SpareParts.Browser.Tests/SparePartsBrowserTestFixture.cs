@@ -44,14 +44,13 @@ namespace SpareParts.Browser.Tests
             Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
             var opts = new BrowserTypeLaunchOptions
             {
-                Headless = false,
-                Timeout = 1000
+                Headless = false
             };
             Browser = await Playwright.Chromium.LaunchAsync(opts);
             
             var page = await Browser.NewPageAsync();
             await page.GotoAsync(BaseUrl);
-            Pages = new PageModels(page);
+            Pages = new PageModels(page, BaseUrl);
         }              
 
         private async Task<SparePartsDbContext> SetupDbContextAsync()

@@ -3,14 +3,16 @@
     public class PageModels
     {
         private IPage _page;
-
-        public PageModels(IPage page)
+        private string _baseUrl;
+                
+        public PageModels(IPage page, string baseUrl) 
         {
             _page = page;
+            _baseUrl = baseUrl;
         }
-                
+
         public NavBar NavBar => new(_page);
 
-        public PartsPage Parts => new(_page);
+        public PartsPage Parts => new(_page, _baseUrl);
     }
 }

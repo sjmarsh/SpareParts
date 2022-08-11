@@ -4,66 +4,68 @@
     {
         public const string UrlPath = "part-list";
         private readonly IPage _page;
+        private string _baseUrl;
 
-        public PartsPage(IPage page)
+        public PartsPage(IPage page, string baseUrl)
         {
             _page = page;
+            _baseUrl = baseUrl;
         }
 
-        private async Task EnsureOnPartsPage()
+        public async Task InitializePage()
         {
-            if (_page.Url.Contains(UrlPath))
-            {
-                return;
-            }
-
-            await new NavBar(_page).ClickPartsNav();
+            await _page.GotoAsync($"{_baseUrl}/{UrlPath}");
+            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await _page.WaitForSelectorAsync("h3 >> text=Part List");
         }
 
         public async Task<string> PageHeader()
         {
-            await EnsureOnPartsPage();
             var h3 = _page.Locator("h3");
             return await h3.InnerTextAsync();
         }
 
-        public async Task<bool> PartListHasItems()
+        public async Task<int> PartListItemCount(bool waitForList = true)
         {
-            await EnsureOnPartsPage();
-            await _page.WaitForSelectorAsync("tbody >> tr");
-            var rows = await _page.QuerySelectorAllAsync("tbody >> tr");
-            return rows.Count() > 0;
-        }
-
-        public async Task<int> PartListItemCount()
-        {
-            await EnsureOnPartsPage();
+            if (waitForList)
+            {
+                await _page.WaitForSelectorAsync("#partList");
+            }
             var rows = await _page.QuerySelectorAllAsync("tbody >> tr");
             return rows.Count();
         }
 
         public async Task ClickEditButtonForRow(int row)
         {
-            await EnsureOnPartsPage();
-            var editButtons = await _page.QuerySelectorAllAsync(".btn-link >> text=Edit");
+            var editButtons = await _page.QuerySelectorAllAsync("text=Edit");
             editButtons.Should().NotBeNullOrEmpty();
             await editButtons[row].ClickAsync();
+            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         }
 
         public async Task ClickAddButton()
         {
-            await EnsureOnPartsPage();
             var addButton = _page.Locator("text=Add");
             addButton.Should().NotBeNull();
             await addButton.ClickAsync();
         }
 
+        public async Task<Shared.Models.Part> GetPartFromRow(int row)
+        {
+            var cells = _page.Locator("tr").Nth(row).Locator("td");
+            
+            return new Shared.Models.Part
+            {
+                Name = await cells.Nth(0).InnerTextAsync(),
+                Description = await cells.Nth(1).InnerTextAsync(),
+            };
+        }
+
         public async Task<PartModal> GetPartModal()
         {
-            await EnsureOnPartsPage();
             var modal = _page.Locator(".modal-dialog");
             modal.Should().NotBeNull();
-           // (modal.IsVisibleAsync()).Should().Be(true);
+            
             return new PartModal(_page);
         }
     }
@@ -119,7 +121,7 @@
         {
             var submitBtn = _page.Locator("text=Submit");
             await submitBtn.ClickAsync();
-            await _page.WaitForSelectorAsync(".alert");
+            await _page.WaitForSelectorAsync(".alert-success");
         }
 
         public async Task Close()
