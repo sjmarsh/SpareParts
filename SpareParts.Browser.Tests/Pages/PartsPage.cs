@@ -25,12 +25,15 @@
             return await h3.InnerTextAsync();
         }
 
-        public async Task<int> PartListItemCount(bool waitForList = true)
+        public async Task<bool> IsPartTableVisible()
         {
-            if (waitForList)
-            {
-                await _page.WaitForSelectorAsync("#partList");
-            }
+            var partTableCount = await _page.Locator("#partTable").CountAsync();
+            return partTableCount == 1;
+        }
+
+        public async Task<int> PartListItemCount()
+        {
+            await _page.WaitForSelectorAsync("#partTable");
             var rows = await _page.QuerySelectorAllAsync("tbody >> tr");
             return rows.Count();
         }
@@ -43,6 +46,15 @@
             await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         }
 
+        public async Task ClickDeleteButtonForRow(int row)
+        {
+            var deleteButtons = await _page.QuerySelectorAllAsync("text=Delete");
+            deleteButtons.Should().NotBeNullOrEmpty();
+            await deleteButtons[row].FocusAsync();
+            await deleteButtons[row].ClickAsync(new ElementHandleClickOptions { ClickCount = 1, Delay = 200 });
+            await _page.WaitForResponseAsync(r => r.Status == 200);    
+        }
+
         public async Task ClickAddButton()
         {
             var addButton = _page.Locator("text=Add");
@@ -52,12 +64,17 @@
 
         public async Task<Shared.Models.Part> GetPartFromRow(int row)
         {
-            var cells = _page.Locator("tr").Nth(row).Locator("td");
-            
+            var tableRow = _page.Locator("tr").Nth(row + 1);  // zero is header
+            var cells = tableRow.Locator("td");
+                        
             return new Shared.Models.Part
             {
                 Name = await cells.Nth(0).InnerTextAsync(),
                 Description = await cells.Nth(1).InnerTextAsync(),
+                Weight = Convert.ToDouble(await cells.Nth(2).InnerTextAsync()),
+                Price = Convert.ToDouble((await cells.Nth(3).InnerTextAsync()).Replace("$", "")),
+                StartDate = Convert.ToDateTime(await cells.Nth(4).InnerTextAsync()),
+                EndDate = Convert.ToDateTime(await cells.Nth(5).InnerTextAsync()),
             };
         }
 
@@ -126,11 +143,12 @@
 
         public async Task Close()
         {
-            var closeBtn = _page.Locator("text=Close");
+            var closeBtn = _page.Locator("#closeModal");
             await closeBtn.ClickAsync();
+            
             var modal = _page.Locator(".modal-dialog");
             var isModalVisible = await modal.IsVisibleAsync();
-            isModalVisible.Should().BeFalse();
+            isModalVisible.Should().BeFalse();            
         }
     }
 }

@@ -39,40 +39,60 @@ namespace SpareParts.Browser.Tests.Features
         [Fact]
         public async Task Should_HaveEmptyPartList()
         {
-            var itemCount = await _partsPage.PartListItemCount();
-
-            itemCount.Should().Be(0); 
+            (await _partsPage.IsPartTableVisible()).Should().BeFalse();
         }
 
         [Fact]
         public async Task AddPart_Should_AddPartToList()
         {
-            (await _partsPage.PartListItemCount(false)).Should().Be(0);
+            (await _partsPage.IsPartTableVisible()).Should().BeFalse();
             var part = new Shared.Models.Part { Name = "Part 1", Description = "The first one", Weight = 2.2, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2) };
             await _partsPage.ClickAddButton();
             
             await EnterPart(part);
-
+                        
             (await _partsPage.PartListItemCount()).Should().Be(1);
         }
 
         [Fact]
         public async Task EditPart_Should_UpdatePartInList()
         {
-            var part = new Shared.Models.Part { Name = "Part 1", Description = "The first one", Weight = 2.2, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2) };
-            await _partsPage.ClickAddButton();
-            await EnterPart(part);
+            var part = new API.Entities.Part { Name = "Part 1", Description = "The first one", Weight = 2.2, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2) };
+            _dbContext.Parts.Add(part);
+            await _dbContext.SaveChangesAsync();
+            await _partsPage.InitializePage();
+            (await _partsPage.IsPartTableVisible()).Should().BeTrue();
             (await _partsPage.PartListItemCount()).Should().Be(1);
             
             await _partsPage.ClickEditButtonForRow(0);
             var updatedPart = new Shared.Models.Part { Name = "Part 1", Description = "This is one part", Weight = 1.2, Price = 1.33, StartDate = DateTime.Today.AddYears(-3), EndDate = DateTime.Today.AddYears(3) };
-
             await EnterPart(updatedPart);
 
+            (await _partsPage.IsPartTableVisible()).Should().BeTrue();
             (await _partsPage.PartListItemCount()).Should().Be(1);
-            var rowPart = _partsPage.GetPartFromRow(0);
+            var rowPart = await _partsPage.GetPartFromRow(0); 
             rowPart.Should().NotBeNull();
             rowPart.Should().BeEquivalentTo(updatedPart);
+        }
+
+        [Fact]
+        public async Task DeletePart_Should_RemovePartFromList()
+        {
+            var part1 = new API.Entities.Part { Name = "Part 1", Description = "The first one", Weight = 1.1, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2) };
+            var part2 = new API.Entities.Part { Name = "Part 2", Description = "The second one", Weight = 2.2, Price = 5.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2) };
+            _dbContext.Parts.Add(part1);
+            _dbContext.Parts.Add(part2);
+            await _dbContext.SaveChangesAsync();
+            await _partsPage.InitializePage();
+            (await _partsPage.IsPartTableVisible()).Should().BeTrue();
+            (await _partsPage.PartListItemCount()).Should().Be(2);
+
+            await _partsPage.ClickDeleteButtonForRow(0);  // delete part1
+                        
+            (await _partsPage.PartListItemCount()).Should().Be(1);
+            var rowPart = await _partsPage.GetPartFromRow(0);  
+            rowPart.Should().NotBeNull();
+            rowPart.Should().BeEquivalentTo(part2, opt => opt.Excluding(p => p.ID));
         }
 
         private async Task EnterPart(Shared.Models.Part part)
