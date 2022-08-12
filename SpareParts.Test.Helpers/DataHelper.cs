@@ -55,11 +55,15 @@ namespace SpareParts.Test.Helpers
 
         public async Task<List<API.Entities.InventoryItem>> CreateInventoryItemListInDatabase(int howMany)
         {
-            await AddPartsIfNeeded();
+            var parts = await AddPartsIfNeeded();
             var items = GetInventoryItemFakerConfig().Generate(howMany);
             foreach (var item in items)
             {
                 _dbContext.InventoryItems.Add(item);
+            }
+            for (int i = 0; i < howMany; i++)
+            {
+                items[i].PartID = parts[i].ID;
             }
             await _dbContext.SaveChangesAsync();
             return items;
@@ -72,6 +76,10 @@ namespace SpareParts.Test.Helpers
             foreach (var item in items)
             {
                 _dbContext.InventoryItems.Add(item);
+            }
+            for (int i = 0; i < howMany; i++)
+            {
+                items[i].PartID = parts[i].ID;
             }
             await _dbContext.SaveChangesAsync();
 

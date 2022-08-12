@@ -106,6 +106,56 @@ namespace SpareParts.Browser.Tests.Features
             ItemsShouldBeEquivalent(inventoryItems[2], await currentStock.GetItemForRow(2));
         }
 
+        [Fact]
+        public async Task Should_DisplayInventoryHistory()
+        {
+            var parts = (await _dataHelper.CreatePartListInDatabase(3)).OrderBy(p => p.Name).ToList();
+            var quantities = new[] { 1, 2, 3, 4, 5, 6 };
+            await _inventoryPage.InitializePage();
+            await _inventoryPage.SelectTabNumber(0);
+            var manualStockEntry = _inventoryPage.ManualStockEntry;           
+            var partIndex = 0;
+            for (int i = 0; i < quantities.Length; i++)
+            {               
+                if(partIndex == 3)
+                {
+                    partIndex = 0;
+                }
+                await manualStockEntry.SelectPart(parts[partIndex].Name);
+                await manualStockEntry.EnterQuantity(quantities[i]);
+                await manualStockEntry.SaveManualStock();
+                partIndex++;
+            }
+
+            await _inventoryPage.SelectTabNumber(3);
+            var history = _inventoryPage.History;
+
+            // order by part name then, time recorded descending
+            var historyRow0 = await history.GetItemForRow(0);
+            historyRow0.PartName.Should().Be(parts[0].Name);
+            historyRow0.Quantity.Should().Be(quantities[3]);
+
+            var historyRow1 = await history.GetItemForRow(1);
+            historyRow1.PartName.Should().Be(parts[0].Name);
+            historyRow1.Quantity.Should().Be(quantities[0]);
+
+            var historyRow2 = await history.GetItemForRow(2);
+            historyRow2.PartName.Should().Be(parts[1].Name);
+            historyRow2.Quantity.Should().Be(quantities[4]);
+
+            var historyRow3 = await history.GetItemForRow(3);
+            historyRow3.PartName.Should().Be(parts[1].Name);
+            historyRow3.Quantity.Should().Be(quantities[1]);
+
+            var historyRow4 = await history.GetItemForRow(4);
+            historyRow4.PartName.Should().Be(parts[2].Name);
+            historyRow4.Quantity.Should().Be(quantities[5]);
+
+            var historyRow5 = await history.GetItemForRow(5);
+            historyRow5.PartName.Should().Be(parts[2].Name);
+            historyRow5.Quantity.Should().Be(quantities[2]);
+        }
+
         private void ItemsShouldBeEquivalent(InventoryItemDetail actual, InventoryItemDetail expected)
         {
             actual.PartName.Should().Be(expected.PartName);
