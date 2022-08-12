@@ -41,15 +41,10 @@ namespace SpareParts.Browser.Tests
         public async Task InitializeAsync()
         {
             DbContext = await SetupDbContextAsync();
+
             Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-            var opts = new BrowserTypeLaunchOptions
-            {
-                Headless = false,
-                
-            };
-            Browser = await Playwright.Chromium.LaunchAsync(opts);
-            var browserOpts = new BrowserNewPageOptions { Locale = "en-AU" };
-            var page = await Browser.NewPageAsync(browserOpts);
+            Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false });
+            var page = await Browser.NewPageAsync(new BrowserNewPageOptions { Locale = "en-AU" });
             await page.GotoAsync(BaseUrl);
             Pages = new PageModels(page, BaseUrl);
         }              
