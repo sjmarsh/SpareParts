@@ -71,7 +71,10 @@
             return;
         }
         _currentPage = pageNumber;
-        await OnPageChanged.InvokeAsync(pageNumber);
+        if (OnPageChanged.HasDelegate)
+        {
+            await OnPageChanged.InvokeAsync(pageNumber);    
+        }
     }
 
     private string GetActiveClass(int pageNumber)

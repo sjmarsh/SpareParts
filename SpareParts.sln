@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpareParts.API.Int.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpareParts.Browser.Tests", "SpareParts.Browser.Tests\SpareParts.Browser.Tests.csproj", "{BE210B5C-DBE6-4C75-A415-942811F2B0D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpareParts.Test.Helpers", "SpareParts.Test.Helpers\SpareParts.Test.Helpers.csproj", "{468A35DE-F447-4A1B-95AC-65D84C54BB04}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpareParts.Test.Helpers", "SpareParts.Test.Helpers\SpareParts.Test.Helpers.csproj", "{468A35DE-F447-4A1B-95AC-65D84C54BB04}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpareParts.Client.Tests", "SpareParts.Client.Tests\SpareParts.Client.Tests.csproj", "{F0BB8B2E-A544-4F4B-9149-3DA01D91D96C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{468A35DE-F447-4A1B-95AC-65D84C54BB04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{468A35DE-F447-4A1B-95AC-65D84C54BB04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{468A35DE-F447-4A1B-95AC-65D84C54BB04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0BB8B2E-A544-4F4B-9149-3DA01D91D96C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0BB8B2E-A544-4F4B-9149-3DA01D91D96C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0BB8B2E-A544-4F4B-9149-3DA01D91D96C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0BB8B2E-A544-4F4B-9149-3DA01D91D96C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
