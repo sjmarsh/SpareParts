@@ -17,6 +17,7 @@ namespace SpareParts.API.Int.Tests
             // clear parts table between tests
             _testFixture.DbContext.Parts.RemoveRange(_testFixture.DbContext.Parts);
             _testFixture.DbContext.SaveChanges();
+            _testFixture.DbContext.ChangeTracker.Clear();
         }
 
         [Fact]

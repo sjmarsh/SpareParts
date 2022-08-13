@@ -17,6 +17,7 @@ namespace SpareParts.API.Int.Tests
             // clear inventory tables between tests
             _testFixture.DbContext.InventoryItems.RemoveRange(_testFixture.DbContext.InventoryItems);
             _testFixture.DbContext.SaveChanges();
+            _testFixture.DbContext.ChangeTracker.Clear();
         }
 
         [Fact]
