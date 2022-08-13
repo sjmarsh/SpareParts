@@ -73,7 +73,7 @@
         if(CascadedEditContext != null && ValueExpression != null)
         {
             var fieldName = ValueExpression.GetMemberNameFromExpression();
-            var field = CascadedEditContext.Field("Price"); 
+            var field = CascadedEditContext.Field(fieldName); 
             CascadedEditContext.NotifyFieldChanged(field);
             if (CascadedEditContext.GetValidationMessages(field).Any())
             {

@@ -1,0 +1,28 @@
+﻿@using Blazored.FluentValidation
+@using Microsoft.AspNetCore.Components.Forms
+@using SpareParts.Client.Shared.Components
+
+<EditForm EditContext="_editContext">
+    <FluentValidationValidator/>
+    <ValidInputText Id="@Id" DisplayName="@DisplayName" @bind-Value="@TestModel.TextVal"  />
+</EditForm>
+
+
+@code {
+
+    [Parameter, EditorRequired]
+    public string? Id { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? DisplayName { get; set; }
+
+    [Parameter, EditorRequired]
+    public TestModel? TestModel { get; set; }
+
+    private EditContext? _editContext;
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(TestModel);
+    }
+}

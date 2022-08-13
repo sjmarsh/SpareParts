@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpareParts.Browser.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpareParts.Test.Helpers", "SpareParts.Test.Helpers\SpareParts.Test.Helpers.csproj", "{468A35DE-F447-4A1B-95AC-65D84C54BB04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpareParts.Client.Tests", "SpareParts.Client.Tests\SpareParts.Client.Tests.csproj", "{F0BB8B2E-A544-4F4B-9149-3DA01D91D96C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpareParts.Client.Tests", "SpareParts.Client.Tests\SpareParts.Client.Tests.csproj", "{F0BB8B2E-A544-4F4B-9149-3DA01D91D96C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
