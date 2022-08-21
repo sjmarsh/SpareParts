@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SpareParts.API.Data;
 using SpareParts.Shared.Models;
 
 namespace SpareParts.API.Services
@@ -84,9 +85,17 @@ namespace SpareParts.API.Services
                 return await _dataService.DeleteItem<PartResponse, Entities.Part, Part>(request.PartID, cancellationToken);
             }
             catch(Exception ex)
-            {                
-                return ReturnAndLogException<PartResponse, Part>("An error occurred while deleting Part.", ex);
+            {
+                var relatedMessaged = CheckForRelatedInventoryItems(request.PartID);
+                return ReturnAndLogException<PartResponse, Part>($"An error occurred while deleting Part.{relatedMessaged}", ex);
             }            
+        }
+
+        private string CheckForRelatedInventoryItems(int partId)
+        {
+            // TODO: would be better not to expose dbcontext on dataservice and just have something to determine if part has related entities.
+            var hasRelatedItems = _dataService.DbContext.InventoryItems.Any(i => i.PartID == partId);
+            return hasRelatedItems ? " Part has associated Inventory Items and cannot be deleted." : "";
         }
     }
 }

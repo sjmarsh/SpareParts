@@ -39,11 +39,12 @@ namespace SpareParts.API.Services
             where TResponse : ResponseBase<TModel>, new()
             where TEntity : class
             where TModel : ModelBase;
+
+        SparePartsDbContext DbContext { get; }
     }
 
     public class DataService : IDataService
     {
-        private readonly SparePartsDbContext _dbContext;
         private readonly IMapper _mapper;
 
         public DataService(SparePartsDbContext dbContext, IMapper mapper)
@@ -51,9 +52,11 @@ namespace SpareParts.API.Services
             Guard.Against.Null(dbContext);
             Guard.Against.Null(mapper);
 
-            _dbContext = dbContext;
+            DbContext = dbContext;
             _mapper = mapper;
         }
+
+        public SparePartsDbContext DbContext { get; private set; }
 
         public async Task<TResponse> CreateItem<TResponse, TEntity, TModel>(TModel? model, CancellationToken cancellationToken)
             where TResponse : ResponseBase<TModel>, new()
@@ -66,8 +69,8 @@ namespace SpareParts.API.Services
             }
 
             var entity = _mapper.Map<TEntity>(model);
-            _dbContext.Set<TEntity>().Add(entity);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            DbContext.Set<TEntity>().Add(entity);
+            await DbContext.SaveChangesAsync(cancellationToken);
             return new TResponse { Value = _mapper.Map<TModel>(entity) };
         }
 
@@ -83,9 +86,9 @@ namespace SpareParts.API.Services
             var entities = modelList.AsQueryable().ProjectTo<TEntity>(_mapper.ConfigurationProvider);
             foreach(var entity in entities)
             {
-                _dbContext.Set<TEntity>().Add(entity);
+                DbContext.Set<TEntity>().Add(entity);
             }
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await DbContext.SaveChangesAsync(cancellationToken);
             var items = entities.ProjectTo<TModel>(_mapper.ConfigurationProvider).ToList();
             return new TResponse { Items = items };
         }
@@ -100,14 +103,14 @@ namespace SpareParts.API.Services
                 return new TResponse { HasError = true, Message = $"{typeof(TModel).Name} must be provided." };
             }
 
-            var existingEntity = await _dbContext.Set<TEntity>().FindAsync(new object?[] { model.ID }, cancellationToken);
+            var existingEntity = await DbContext.Set<TEntity>().FindAsync(new object?[] { model.ID }, cancellationToken);
             if(existingEntity == null)
             {
                 return new TResponse { HasError = true, Message = $"Unable to find existing {typeof(TModel).Name} record to be updated." };
             }
-            _dbContext.Entry(existingEntity).State = EntityState.Modified;
+            DbContext.Entry(existingEntity).State = EntityState.Modified;
             _mapper.Map(model, existingEntity);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await DbContext.SaveChangesAsync(cancellationToken);
             return new TResponse { Value = model };
         }
 
@@ -116,7 +119,7 @@ namespace SpareParts.API.Services
             where TEntity : class
             where TModel : ModelBase
         {
-            var entity = await _dbContext.Set<TEntity>().FindAsync(new object?[] { id }, cancellationToken);
+            var entity = await DbContext.Set<TEntity>().FindAsync(new object?[] { id }, cancellationToken);
             if (entity == null)
             {
                 return new TResponse { HasError = true, Message = $"Unable to find {typeof(TModel).Name} with ID {id}." };
@@ -134,7 +137,7 @@ namespace SpareParts.API.Services
             where TModel : ModelBase
         {
             filter ??= ((e) => true);
-            var qry = _dbContext.Set<TEntity>().Where(filter);
+            var qry = DbContext.Set<TEntity>().Where(filter);
             var totalCount = qry.Count();
             take ??= totalCount;
             var items = await qry.Skip(skip).Take(take.Value).ProjectTo<TModel>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
@@ -146,11 +149,11 @@ namespace SpareParts.API.Services
             where TEntity : class
             where TModel : ModelBase
         {
-            var existingEntity = await _dbContext.Set<TEntity>().FindAsync(new object?[] { id }, cancellationToken: cancellationToken);
+            var existingEntity = await DbContext.Set<TEntity>().FindAsync(new object?[] { id }, cancellationToken: cancellationToken);
             if (existingEntity != null)
             {
-                _dbContext.Remove(existingEntity);
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                DbContext.Remove(existingEntity);
+                await DbContext.SaveChangesAsync(cancellationToken);
                 return new TResponse();
             }
             else

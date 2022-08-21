@@ -57,6 +57,12 @@
         @_errorMessage
     </div>
 }
+@if (_hasDeleted)
+{
+    <div class="alert alert-success py-1">
+        Success
+    </div>
+}
 
 @if(_isDetailModalVisible)
 {
@@ -68,11 +74,12 @@
 @code {
 
     private bool _isLoading;
+    private bool _hasDeleted;
     private bool _hasError;
     private bool _isDetailModalVisible;
     private string? _errorMessage;
     private int? _selectedPartId;
-        
+
     private List<Part>? _parts;
 
     private int _currentPage;
@@ -83,6 +90,9 @@
     {
         _isDetailModalVisible = false;
         _currentPage = 1;
+        _hasDeleted = false;
+        _hasError = false;
+        _errorMessage = "";
 
         await RefreshPartsList();
     }
@@ -110,7 +120,7 @@
 
         _isLoading = false;
     }
-    
+
     private async Task HandlePageChanged(int page)
     {
         _currentPage = page;
@@ -131,9 +141,23 @@
 
     private async Task DeletePart(int partID)
     {
+        _hasDeleted = false;
+        _hasError = false;
+        _errorMessage = "";
         var response = await Http.DeleteAsync($"/api/Part/?id={partID}");
         if(response.IsSuccessStatusCode)
         {
+            var partResponse = await response.Content.ReadFromJsonAsync<PartResponse>();
+            if(partResponse != null && partResponse.HasError)
+            {
+                _hasError = true;
+                _errorMessage = partResponse.Message;
+            }
+            else
+            {
+                _hasDeleted = true;
+            }
+
             await RefreshPartsList();
         }
         else
