@@ -93,8 +93,7 @@ namespace SpareParts.API.Services
 
         private string CheckForRelatedInventoryItems(int partId)
         {
-            // TODO: would be better not to expose dbcontext on dataservice and just have something to determine if part has related entities.
-            var hasRelatedItems = _dataService.DbContext.InventoryItems.Any(i => i.PartID == partId);
+            var hasRelatedItems = _dataService.HasRelatedItems<Entities.InventoryItem>(i => i.PartID == partId);
             return hasRelatedItems ? " Part has associated Inventory Items and cannot be deleted." : "";
         }
     }

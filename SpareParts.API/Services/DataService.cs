@@ -40,7 +40,7 @@ namespace SpareParts.API.Services
             where TEntity : class
             where TModel : ModelBase;
 
-        SparePartsDbContext DbContext { get; }
+        bool HasRelatedItems<T>(Expression<Func<T, bool>> matchPredicate) where T : class;
     }
 
     public class DataService : IDataService
@@ -160,6 +160,11 @@ namespace SpareParts.API.Services
             {
                 return new TResponse { HasError = true, Message = $"Unable to find existing {typeof(TModel).Name} record to delete." };
             }
+        }
+
+        public bool HasRelatedItems<T>(Expression<Func<T, bool>> matchPredicate) where T : class
+        {
+            return DbContext.Set<T>().Any(matchPredicate);
         }
     }
 }
