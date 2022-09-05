@@ -6,6 +6,7 @@ using Serilog;
 using SpareParts.API.Data;
 using SpareParts.API.Extensions;
 using SpareParts.API.Services;
+using SpareParts.API.Services.Reports;
 using SpareParts.Shared.Validators;
 using System.Diagnostics;
 using System.Globalization;
@@ -63,6 +64,7 @@ try
 
     // Other Services - DI Registration
     builder.Services.AddTransient<IDataService, DataService>();
+    builder.Services.AddTransient<IPartReportService, PartReportService>();
 
 
     var app = builder.Build();
