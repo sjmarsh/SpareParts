@@ -43,7 +43,6 @@ namespace SpareParts.API.Services
 
     public class GetPartListRequestHandler : BaseHandler, IRequestHandler<GetPartListRequest, PartListResponse>
     {
-        
         public GetPartListRequestHandler(IDataService dataService, ILogger<GetPartListRequestHandler> logger) 
             : base(dataService, logger)
         {    

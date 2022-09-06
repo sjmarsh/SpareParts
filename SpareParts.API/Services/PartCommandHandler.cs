@@ -96,5 +96,5 @@ namespace SpareParts.API.Services
             var hasRelatedItems = _dataService.HasRelatedItems<Entities.InventoryItem>(i => i.PartID == partId);
             return hasRelatedItems ? " Part has associated Inventory Items and cannot be deleted." : "";
         }
-    }
+    }    
 }

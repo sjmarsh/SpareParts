@@ -6,7 +6,6 @@ using Serilog;
 using SpareParts.API.Data;
 using SpareParts.API.Extensions;
 using SpareParts.API.Services;
-using SpareParts.API.Services.Reports;
 using SpareParts.Shared.Validators;
 using System.Diagnostics;
 using System.Globalization;
@@ -41,6 +40,8 @@ try
         )
     );
 
+    builder.Services.AddHttpContextAccessor();
+
     // Validation
     builder.Services.AddMvc()
       .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PartValidator>());
@@ -64,8 +65,7 @@ try
 
     // Other Services - DI Registration
     builder.Services.AddTransient<IDataService, DataService>();
-    builder.Services.AddTransient<IPartReportService, PartReportService>();
-
+    builder.Services.AddTransient<IReportService, ReportService>();
 
     var app = builder.Build();
         

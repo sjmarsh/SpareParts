@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SpareParts.API.Services;
-using SpareParts.API.Services.Reports;
 using SpareParts.Shared.Models;
 
 namespace SpareParts.API.Controllers
@@ -12,13 +11,11 @@ namespace SpareParts.API.Controllers
     public class PartController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IPartReportService _partReportService;
-
-        public PartController(IMediator mediator, IPartReportService partReportService)
+        
+        public PartController(IMediator mediator)
         {
             Guard.Against.Null(mediator);
             _mediator = mediator;
-            _partReportService = partReportService;
         }
 
         [HttpGet]
@@ -30,10 +27,11 @@ namespace SpareParts.API.Controllers
 
         [HttpGet]
         [Route("report")]
-        public async Task<string> Report()
+        public async Task<IActionResult> Report()
         {
-            return await _partReportService.GetPartListReport(HttpContext, cancellationToken: default);
-        }
+            var report = await _mediator.Send(new CreateReportCommand { ReportName = ReportName.PartsListReport });
+            return new FileContentResult(report, "application/pdf");
+        }  
 
         [HttpPost]
         public async Task<PartResponse> Post(Part part) => await _mediator.Send(new CreatePartCommand(part));
