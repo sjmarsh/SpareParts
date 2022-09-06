@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using Humanizer;
 using MediatR;
 using OpenHtmlToPdf;
 using SpareParts.Shared.Models;
@@ -33,13 +34,14 @@ namespace SpareParts.API.Services
         {
             var model = await GetReportModelFor(request.ReportName, cancellationToken);
             var reportHtmlString = await _reportService.RenderToHtmlStringAsync($"/Reports/{request.ReportName}.cshtml", model);
-
+            
             // TODO - incorporate this into report service
             // ref: https://github.com/vilppu/OpenHtmlToPdf
             var pdf = Pdf.From(reportHtmlString)
-                .WithTitle(request.ReportName.ToString())
+                .WithTitle(request.ReportName.ToString().Humanize(LetterCasing.Title))
                 .OfSize(PaperSize.A4)
                 .Portrait()
+                .WithObjectSetting("web.userStyleSheet", "./Reports/reports.css")
                 .Comressed()
                 .Content();
 

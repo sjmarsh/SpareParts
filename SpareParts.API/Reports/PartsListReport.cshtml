@@ -2,30 +2,42 @@
 @{
     ViewBag.Title = "Part List Report";
 
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Weight (kg)</th>
-                <th>Price</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach(var part in Model.Items)
+    <head>
+        <title>@ViewBag.Title</title>
+    </head>
+    <body>
+        <h1>@ViewBag.Title</h1>
+        @if (Model.Items == null)
         {
-            <tr>
-                <td>@part.Name</td>
-                <td>@part.Description</td>
-                <td>@part.Weight.ToString("F2")</td>
-                <td>@part.Price.ToString("C2")</td>
-                <td>@part.StartDate.ToString("dd/MM/yyyy")</td>
-                <td>@part.EndDate?.ToString("dd/MM/yyyy")</td>
-            </tr>
+            <p>No records.</p>
         }
-        </tbody>
-    
-    </table>
+        else
+        {
+            <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Weight (kg)</th>
+                    <th>Price</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach(var part in Model.Items)
+            {
+                <tr>
+                    <td>@part.Name</td>
+                    <td>@part.Description</td>
+                    <td>@part.Weight.ToString("F2")</td>
+                    <td>@part.Price.ToString("C2")</td>
+                    <td>@part.StartDate.ToString("dd/MM/yyyy")</td>
+                    <td>@part.EndDate?.ToString("dd/MM/yyyy")</td>
+                </tr>
+            }
+            </tbody>
+        </table>    
+        }
+    </body>
 }
