@@ -51,7 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Reports\PartsListReport.cshtml">
+    <Content Update="Reports\PartListReport.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -7,8 +7,12 @@ table {
     width: 100%;
 }
 
-th {
+/*Need to use important to fix issue with padding.*/
+/*https://github.com/wkhtmltopdf/wkhtmltopdf/issues/3567*/
+th, td {
     text-align: left;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
 }
 
 tr {

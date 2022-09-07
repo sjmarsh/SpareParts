@@ -29,7 +29,7 @@ namespace SpareParts.API.Controllers
         [Route("report")]
         public async Task<IActionResult> Report()
         {
-            var report = await _mediator.Send(new CreateReportCommand { ReportName = ReportName.PartsListReport });
+            var report = await _mediator.Send(new CreateReportCommand { ReportName = ReportName.PartListReport });
             return new FileContentResult(report, "application/pdf");
         }  
 

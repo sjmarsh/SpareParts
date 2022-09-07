@@ -1,4 +1,6 @@
 ﻿using Ardalis.GuardClauses;
+using Humanizer;
+using OpenHtmlToPdf;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -10,7 +12,7 @@ namespace SpareParts.API.Services
 {
     public interface IReportService
     {
-        Task<string> RenderToHtmlStringAsync(string viewName, object model);
+        Task<byte[]> GenerateReport(ReportName reportName, object model);
     }
 
     public class ReportService : IReportService
@@ -33,7 +35,13 @@ namespace SpareParts.API.Services
             _logger = logger;
         }
 
-        public async Task<string> RenderToHtmlStringAsync(string razorViewName, object model)
+        public async Task<byte[]> GenerateReport(ReportName reportName, object model)
+        {
+            var htmlString = await RenderToHtmlStringAsync($"/Reports/{reportName}.cshtml", model);
+            return GeneratePdfFromHtmlString(reportName, htmlString);
+        }
+
+        private async Task<string> RenderToHtmlStringAsync(string razorViewName, object model)
         {
             if(_httpContextAccessor == null || _httpContextAccessor.HttpContext == null)
             {
@@ -65,6 +73,25 @@ namespace SpareParts.API.Services
 
             await razorView.View.RenderAsync(viewContext);
             return stringWriter.ToString();
+        }
+
+        private static byte[] GeneratePdfFromHtmlString(ReportName reportName, string html)
+        {
+            var reportNameTitle = reportName.ToString().Humanize(LetterCasing.Title);
+            // ref: https://github.com/vilppu/OpenHtmlToPdf
+            // ref: https://wkhtmltopdf.org/usage/wkhtmltopdf.txt
+            var pdf = Pdf.From(html)
+                .WithTitle(reportNameTitle)
+                .OfSize(PaperSize.A4)
+                .Portrait()
+                .WithObjectSetting("web.userStyleSheet", "./Reports/reports.css")
+                .WithObjectSetting("footer.left", "[title]")
+                .WithObjectSetting("footer.center", "[page]/[topage]")
+                .WithObjectSetting("footer.right", "[date] [time]")
+                .Comressed()
+                .Content();
+
+            return pdf;
         }
     }
 }
