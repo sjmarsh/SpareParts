@@ -10,6 +10,7 @@
 }
 @if(_inventoryItems != null && _inventoryItems.Any())
 {
+    <a href="@($"/api/inventory/report?isCurrentOnly={IsCurrentOnly}")" target="_blank"><span class="oi oi-print" title="Print" aria-hidden="true"></span></a>
     <table class="table table-hover">
         <thead>
             <tr>

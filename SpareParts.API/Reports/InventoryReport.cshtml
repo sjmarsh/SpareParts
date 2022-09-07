@@ -1,0 +1,37 @@
+﻿@model SpareParts.Shared.Models.InventoryItemDetailListResponse
+@{
+    ViewBag.Title = "Inventory Report";
+
+    <head>
+        <title>@ViewBag.Title</title>
+    </head>
+    <body>
+        <h1>@ViewBag.Title</h1>
+        @if (Model.Items == null)
+        {
+            <p>No records.</p>
+        }
+        else
+        {
+            <table>
+            <thead>
+                <tr>
+                    <th>Part Name</th>
+                    <th>Quantity</th>
+                    <th>Date Recorded</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach(var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.PartName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.DateRecorded</td>
+                </tr>
+            }
+            </tbody>
+        </table>    
+        }
+    </body>
+}

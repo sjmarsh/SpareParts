@@ -2,6 +2,7 @@
 {
     public enum ReportName
     {
-        PartListReport
+        PartListReport,
+        InventoryReport
     }
 }

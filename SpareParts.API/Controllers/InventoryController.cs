@@ -29,6 +29,14 @@ namespace SpareParts.API.Controllers
         [Route("index-detail")]
         public async Task<InventoryItemDetailListResponse> IndexDetail([FromQuery]GetInventoryItemDetailListRequest request) => await _mediator.Send(request);
 
+        [HttpGet]
+        [Route("report")]
+        public async Task<IActionResult> Report(bool isCurrentOnly)
+        {
+            var report = await _mediator.Send(new CreateReportCommand { ReportName = ReportName.InventoryReport, IsCurrentOnly = isCurrentOnly });
+            return new FileContentResult(report, "application/pdf");
+        }
+
         [HttpPost]
         public async Task<InventoryItemResponse> Post(InventoryItem InventoryItem) => await _mediator.Send(new CreateInventoryItemCommand(InventoryItem));
 
