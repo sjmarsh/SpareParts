@@ -1,6 +1,7 @@
 ﻿@using SpareParts.Shared.Models;
 
-@inject HttpClient Http;
+@inject IInventoryService InventoryService;
+@inject IPartService PartService;
 
 <div>
     @if (_isLoading)
@@ -79,26 +80,36 @@
         // TODO: maybe add batch of items (instead of entering one at a time)
 
         _isLoading = true;
-        var partListResponse = await Http.GetFromJsonAsync<PartListResponse>("/api/Part/index?isCurrentOnly=true");
-        if(partListResponse == null)
+
+        try
         {
-            _hasError = true;
-        }
-        else
-        {
-            if (partListResponse.HasError)
+            var partListResponse = await PartService.Index(true);
+            if (partListResponse == null)
             {
                 _hasError = true;
-                _errorMessage = partListResponse.Message;
             }
-
-            _parts = partListResponse?.Items;
-            var firstPart = _parts?.FirstOrDefault();
-
-            if(_inventoryItem != null && firstPart != null)
+            else
             {
-                _inventoryItem.PartID = firstPart.ID;    
+                if (partListResponse.HasError)
+                {
+                    _hasError = true;
+                    _errorMessage = partListResponse.Message;
+                }
+
+                _parts = partListResponse?.Items;
+                var firstPart = _parts?.FirstOrDefault();
+
+                if (_inventoryItem != null && firstPart != null)
+                {
+                    _inventoryItem.PartID = firstPart.ID;
+                }
             }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+            _hasError = true;
+            _errorMessage = "Error occurred retrieving parts.";
         }
 
         _isLoading = false;
@@ -112,12 +123,11 @@
             _hasSubmitted = true;
 
             _inventoryItem.DateRecorded = DateTime.Now;
-            var response = await Http.PostAsJsonAsync<InventoryItem>($"/api/Inventory", _inventoryItem);
 
-            if(response.Content != null)
+            try
             {
-                var inventoryResponse = await response.Content.ReadFromJsonAsync<InventoryItemResponse>();
-                if(inventoryResponse == null || inventoryResponse.HasError)
+                var inventoryResponse = await InventoryService.Post(_inventoryItem);
+                if (inventoryResponse == null || inventoryResponse.HasError)
                 {
                     _hasError = true;
                     _errorMessage = inventoryResponse?.Message;
@@ -127,8 +137,14 @@
                     _hasError = false;
                     _inventoryItem = new InventoryItem();
                     await RefreshPartsList();
-                    
+
                 }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+                _hasError = true;
+                _errorMessage = "Error occurred updating stock.";
             }
 
             _isLoading = false;

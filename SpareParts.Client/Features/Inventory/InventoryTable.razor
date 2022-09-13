@@ -1,6 +1,6 @@
 ﻿@using SpareParts.Shared.Models;
 
-@inject HttpClient Http;
+@inject IInventoryService InventoryService;
 
 <h3>@HeaderText</h3>
 
@@ -71,26 +71,35 @@
     {
         _isLoading = true;
 
-        var filter = IsCurrentOnly ? "isCurrentOnly=true" : "";
         var skip = (_currentPage - 1) * PageSize;
-        var response = await Http.GetFromJsonAsync<InventoryItemDetailListResponse>($"/api/inventory/index-detail?{filter}&skip={skip}&take={PageSize}");
 
-        if(response == null)
+        try
         {
-            _hasError = true;
-        }
-        else
-        {
-            if (response.HasError)
+            var response = await InventoryService.IndexDetail(IsCurrentOnly, skip, PageSize);
+
+            if (response == null)
             {
                 _hasError = true;
-                _errorMessage = response.Message;
             }
+            else
+            {
+                if (response.HasError)
+                {
+                    _hasError = true;
+                    _errorMessage = response.Message;
+                }
 
-            _inventoryItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
-            _totalItemCount = response.TotalItemCount;
+                _inventoryItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
+                _totalItemCount = response.TotalItemCount;
+            }
         }
-        
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+            _hasError = true;
+            _errorMessage = "Error occurred retrieving inventory.";
+        }
+
         _isLoading = false;
     }
 

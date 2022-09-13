@@ -37,7 +37,16 @@
     public string CloseButtonText { get; set; } = "Close";
 
     [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
     public RenderFragment? ChildContent { get; set; }  //NB. this must be called ChildContent for Blazor
 
-    private void CloseModal() => ShowModal = false;    
+    private async Task CloseModal() {
+        if (OnClose.HasDelegate)
+        {
+            await OnClose.InvokeAsync();    
+        }
+        ShowModal = false; 
+    }   
 }

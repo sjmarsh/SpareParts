@@ -1,6 +1,6 @@
 ﻿@using SpareParts.Shared.Models;
 
-@inject HttpClient Http;
+@inject IPartService PartService;
 
 <h3>@_modeDescription Part</h3>
 @if (_isLoading)
@@ -22,22 +22,21 @@
 
         <div class="my-3">
             <button type="submit" class="btn btn-primary my-1" >Submit</button>
-            @if(_hasError)
-            {
-                <div class="alert alert-danger py-1">
-                    @_errorMessage
-                </div>
-            }
-            @if(_hasSubmitted && !_hasError)
-            {
-                <div class="alert alert-success py-1">
-                    Success
-                </div>
-            }
         </div>
 
-    </EditForm>
-    
+    </EditForm>   
+}
+ @if(_hasError)
+{
+    <div class="alert alert-danger py-1">
+        @_errorMessage
+    </div>
+}
+@if(_hasSubmitted && !_hasError)
+{
+    <div class="alert alert-success py-1">
+        Success
+    </div>
 }
 
 @code {
@@ -56,30 +55,40 @@
     private string? _errorMessage;
 
     private string? _modeDescription => _isEdit ? "Edit" : "Add";
-    
+
     protected async override Task OnInitializedAsync()
     {       
         _isEdit = PartID.HasValue && PartID > 0;
         _isLoading = false;
         _hasError = false;
         _hasSubmitted = false;
-        
-        if(_isEdit)
+
+        if(_isEdit && PartID.HasValue)
         {
             _isLoading = true;
-            var partResponse = await Http.GetFromJsonAsync<PartResponse>($"/api/Part/?id={PartID}");
-            if(partResponse == null)
+
+            try
             {
-                _hasError = true;
-            }
-            else
-            {
-                if (partResponse.HasError)
+                var partResponse = await PartService.Get(PartID.Value);
+                if (partResponse == null)
                 {
                     _hasError = true;
-                    _errorMessage = partResponse.Message;
                 }
-                _part = partResponse.Value;
+                else
+                {
+                    if (partResponse.HasError)
+                    {
+                        _hasError = true;
+                        _errorMessage = partResponse.Message;
+                    }
+                    _part = partResponse.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);  // TODO add client side logging.
+                _hasError = true;
+                _errorMessage = "Error occurred retrieving part.";
             }
 
             _isLoading = false;
@@ -97,21 +106,20 @@
             _isLoading = true;
             _hasSubmitted = true;
 
-            HttpResponseMessage responseMessage;
+            PartResponse partResponse;
 
-            if (_isEdit)
+            try
             {
-                responseMessage = await Http.PutAsJsonAsync<Part>($"/api/Part", _part);
-            }
-            else
-            {
-                responseMessage = await Http.PostAsJsonAsync<Part>($"/api/Part", _part);
-            }
+                if (_isEdit)
+                {
+                    partResponse = await PartService.Put(_part);
+                }
+                else
+                {
+                    partResponse = await PartService.Post(_part);
+                }
 
-            if(responseMessage.Content != null)
-            {
-                var partResponse = await responseMessage.Content.ReadFromJsonAsync<PartResponse>();
-                if(partResponse == null || partResponse.HasError)
+                if (partResponse == null || partResponse.HasError)
                 {
                     _hasError = true;
                     _errorMessage = partResponse?.Message;
@@ -120,9 +128,16 @@
                 {
                     _isEdit = true;
                     _part = partResponse.Value;
-                    await OnValidSubmit.InvokeAsync();                        
-                }    
+                    await OnValidSubmit.InvokeAsync();
+                }
             }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);  // TODO add client side logging.
+                _hasError = true;
+                _errorMessage = "Error occurred updating part.";
+            }
+
             _isLoading = false;
 
         }

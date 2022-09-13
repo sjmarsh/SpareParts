@@ -2,7 +2,7 @@
 
 @using SpareParts.Shared.Models
 
-@inject HttpClient Http
+@inject IPartService PartService;
 
 <h3>Part List</h3>
 @if (_isLoading)
@@ -67,7 +67,7 @@
 
 @if(_isDetailModalVisible)
 {
-    <Modal ShowModal="@_isDetailModalVisible">
+    <Modal ShowModal="@_isDetailModalVisible" OnClose="OnCloseDetailModal">
         <PartDetail PartID="_selectedPartId" OnValidSubmit="RefreshPartsList" />
     </Modal>
 }
@@ -102,7 +102,8 @@
     {        
         _isLoading = true;
         var skip = (_currentPage - 1) * PageSize;
-        var partListResponse = await Http.GetFromJsonAsync<PartListResponse>($"/api/part/index?skip={skip}&take={PageSize}");
+
+        var partListResponse = await PartService.Index(false, skip, PageSize);
         if(partListResponse == null)
         {
             _hasError = true;
@@ -145,26 +146,24 @@
         _hasDeleted = false;
         _hasError = false;
         _errorMessage = "";
-        var response = await Http.DeleteAsync($"/api/Part/?id={partID}");
-        if(response.IsSuccessStatusCode)
-        {
-            var partResponse = await response.Content.ReadFromJsonAsync<PartResponse>();
-            if(partResponse != null && partResponse.HasError)
-            {
-                _hasError = true;
-                _errorMessage = partResponse.Message;
-            }
-            else
-            {
-                _hasDeleted = true;
-            }
 
-            await RefreshPartsList();
+        var partResponse = await PartService.Delete(partID);
+
+        if(partResponse != null && partResponse.HasError)
+        {
+            _hasError = true;
+            _errorMessage = partResponse.Message;
         }
         else
         {
-            _errorMessage = "Failed to delete part.";
+            _hasDeleted = true;
         }
+
+        await RefreshPartsList();
     }
 
+    private void OnCloseDetailModal()
+    {
+        _isDetailModalVisible = false;
+    }
 }

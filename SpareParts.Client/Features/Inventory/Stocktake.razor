@@ -1,7 +1,7 @@
 ﻿@using SpareParts.Shared.Models;
 @using System.Text
 
-@inject HttpClient Http;
+@inject IInventoryService InventoryService;
 
 <h3>Stocktake</h3>
 
@@ -74,31 +74,40 @@
     {
         _isLoading = true;
 
-        var response = await Http.GetFromJsonAsync<InventoryItemDetailListResponse>($"/api/inventory/index-detail?isCurrentOnly=true");
+        try
+        {
+            var response = await InventoryService.IndexDetail(true);
 
-        if(response == null)
-        {
-            _hasError = true;
-        }
-        else
-        {
-            if (response.HasError)
+            if (response == null)
             {
                 _hasError = true;
-                _errorMessage = response.Message;
             }
-
-            var currentItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
-            var stocktakeItems = new List<InventoryItemDetail>();
-
-            if(currentItems != null && currentItems.Any())
+            else
             {
-                foreach(var item in currentItems)
+                if (response.HasError)
                 {
-                    stocktakeItems.Add(new InventoryItemDetail(0, item.PartID, item.PartName, 0, DateTime.Now));
+                    _hasError = true;
+                    _errorMessage = response.Message;
                 }
-                _stocktakeModel = new StocktakeModel { InventoryItems = stocktakeItems };
+
+                var currentItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
+                var stocktakeItems = new List<InventoryItemDetail>();
+
+                if (currentItems != null && currentItems.Any())
+                {
+                    foreach (var item in currentItems)
+                    {
+                        stocktakeItems.Add(new InventoryItemDetail(0, item.PartID, item.PartName, 0, DateTime.Now));
+                    }
+                    _stocktakeModel = new StocktakeModel { InventoryItems = stocktakeItems };
+                }
             }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+            _hasError = true;
+            _errorMessage = "Error occurred retrieving inventory";
         }
 
         _isLoading = false;
@@ -134,18 +143,11 @@
                 _baseItems.Add(new InventoryItem { PartID = item.PartID, Quantity = item.Quantity, DateRecorded = DateTime.Now });
             }
 
-            var response = await Http.PostAsJsonAsync<List<InventoryItem>>($"/api/Inventory/post-list", _baseItems);
-
-            if(!response.IsSuccessStatusCode)
+            try
             {
-                _hasError = true;
-                _errorMessage = "Error occurred saving Stocktake items.";
-            }
+                var inventoryResponse = await InventoryService.PostList(_baseItems);
 
-            if(response.IsSuccessStatusCode && response.Content != null)
-            {
-                var inventoryResponse = await response.Content.ReadFromJsonAsync<InventoryItemListResponse>();
-                if(inventoryResponse == null || inventoryResponse.HasError)
+                if (inventoryResponse == null || inventoryResponse.HasError)
                 {
                     _hasError = true;
                     _errorMessage = inventoryResponse?.Message;
@@ -155,6 +157,12 @@
                     _hasError = false;
                     await RefreshInventoryItemList();
                 }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+                _hasError = true;
+                _errorMessage = "Error occurred updating stock.";
             }
 
             _isLoading = false;
