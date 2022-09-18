@@ -1,6 +1,7 @@
 ﻿using Ardalis.GuardClauses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SpareParts.API.Infrastructure;
 using SpareParts.API.Services;
 using SpareParts.Shared.Models;
 
@@ -18,6 +19,7 @@ namespace SpareParts.API.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<PartResponse> Get(int id) => await _mediator.Send(new GetPartRequest(id));  
         

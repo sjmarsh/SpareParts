@@ -6,7 +6,7 @@ namespace SpareParts.Client.Services
     public interface IPartService
     {
         [Get("/api/part")]
-        Task<PartResponse> Get(int id);
+        Task<PartResponse> Get(int id, [Authorize("Bearer")] string token);
 
         [Get("/api/part/index")]
         Task<PartListResponse> Index(bool isCurrentOnly, int skip = 0, int? take = null);

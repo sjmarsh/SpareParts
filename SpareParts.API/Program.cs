@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SpareParts.API.Data;
 using SpareParts.API.Extensions;
+using SpareParts.API.Infrastructure;
 using SpareParts.API.Services;
 using SpareParts.Shared.Validators;
 using System.Diagnostics;
@@ -33,7 +34,8 @@ try
     builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
     // Add services to the container.
-    
+    builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+
     builder.Services.AddControllers()
         .AddJsonOptions(options =>
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()
@@ -64,6 +66,7 @@ try
     builder.Services.AddRazorPages();
 
     // Other Services - DI Registration
+    builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
     builder.Services.AddTransient<IDataService, DataService>();
     builder.Services.AddTransient<IReportService, ReportService>();
 
@@ -97,9 +100,9 @@ try
     app.UseBlazorFrameworkFiles();
     app.UseStaticFiles();
 
-    app.UseAuthorization();
-
-    //app.MapControllers();
+    //app.UseAuthorization();
+    app.UseMiddleware<JwtMiddleware>();
+    
     app.MapRazorPages();
     app.MapControllers();
     app.MapFallbackToFile("index.html");

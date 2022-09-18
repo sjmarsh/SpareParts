@@ -1,6 +1,7 @@
 ﻿@using SpareParts.Shared.Models;
 
 @inject IPartService PartService;
+@inject HttpClient HttpClient;
 
 <h3>@_modeDescription Part</h3>
 @if (_isLoading)
@@ -69,7 +70,12 @@
 
             try
             {
-                var partResponse = await PartService.Get(PartID.Value);
+                // TODO: add a login screen and store authentication state
+                var authRequest = new SpareParts.Shared.Models.AuthenticationRequest("admin", "password");
+                var response = await HttpClient.PostAsJsonAsync<AuthenticationRequest>("/api/user/authenticate", authRequest);
+                var authResponse = await response.Content.ReadFromJsonAsync<AuthenticationResponse>();
+
+                var partResponse = await PartService.Get(PartID.Value, $"jwt {authResponse.Token}");
                 if (partResponse == null)
                 {
                     _hasError = true;
