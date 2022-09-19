@@ -1,0 +1,70 @@
+﻿@page "/login"
+
+@using SpareParts.Shared.Models
+
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager NavigationManager
+
+<h3>Login</h3>
+
+@if (_hasError)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@_error</p>
+    </div>
+}
+
+@if(_authRequest != null)
+{
+    <AuthorizeView Context="authContext">
+        <Authorized>
+            <p>Hello @authContext?.User?.Identity?.Name</p>
+            <div class="my-3">
+                <button class="btn btn-primary my-1" @onclick="ExecuteLogout">Logout</button>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <p>You are not logged in.  Please log in below.</p>
+            <EditForm Context="formContext" Model="_authRequest" OnValidSubmit="ExecuteLogin" class="card card-body bg-light mt-5">
+                <FluentValidationValidator/>
+
+                <ValidInputText Id="userName" DisplayName="User Name" @bind-Value="_authRequest.UserName" />
+                <ValidInputText Id="password" DisplayName="Password" @bind-Value="_authRequest.Password" />
+    
+                <div class="my-3">
+                    <button type="submit" class="btn btn-primary my-1">Login</button>
+                </div>
+            </EditForm>        
+        </NotAuthorized>
+    </AuthorizeView>
+}
+
+@code {
+    private AuthenticationRequest? _authRequest = new AuthenticationRequest();
+
+    private bool _hasError;
+    private string? _error;
+
+    private async Task ExecuteLogin()
+    {
+        _hasError = false;
+
+        var result = await AuthenticationService.Authenticate(_authRequest);
+
+        if (!result.IsAuthenticated)
+        {
+            _error = "Invalid login details.";
+            _hasError = true;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private void ExecuteLogout()
+    {
+        NavigationManager.NavigateTo("/logout");
+    }
+
+}

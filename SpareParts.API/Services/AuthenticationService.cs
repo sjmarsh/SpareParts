@@ -36,20 +36,21 @@ namespace SpareParts.API.Services
         {
             if(request.UserName == null || request.Password == null)
             {
-                _logger.LogWarning("Attempted to Authenticate with incomplete credentials.");
-                return new AuthenticationResponse(false);
+                // This should be handled by validation but just in case...
+                _logger.LogWarning("Attempted to Authenticate with incomplete credentials.");  
+                return new AuthenticationResponse(false, "Incomplete credentials.");
             }
 
             var user = GetUser(request.UserName, request.Password);
             if(user == null)
             {
                 _logger.LogWarning($"User: {request.UserName} is not a valid user or password is invalid.");
-                return new AuthenticationResponse(false);
+                return new AuthenticationResponse(false, "Invalid credentials.");
             }
 
             var token = GenerateToken(user);
 
-            return new AuthenticationResponse(user.UserName, user.DisplayName, true, token);
+            return new AuthenticationResponse(user.UserName, user.DisplayName, true, "Authentication successful.", token);
         }
 
         public UserInfo? GetUserByUserName(string userName)

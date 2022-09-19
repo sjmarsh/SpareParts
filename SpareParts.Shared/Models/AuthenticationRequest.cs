@@ -2,6 +2,10 @@
 {
     public record AuthenticationRequest
     {
+        public AuthenticationRequest() : this("", "")  // need empty constructor for serialization
+        {
+        }
+
         public AuthenticationRequest(string userName, string password)
         {
             UserName = userName;

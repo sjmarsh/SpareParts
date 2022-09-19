@@ -16,17 +16,9 @@ namespace SpareParts.API.Controllers
         }
 
         [HttpPost("authenticate")]
-        public IActionResult Authenticate(AuthenticationRequest authenticationRequest)
+        public AuthenticationResponse Authenticate(AuthenticationRequest authenticationRequest)
         {
-            var response = _authenticatinService.Authenticate(authenticationRequest);
-            if(response.IsAuthenticated)
-            {
-                return Ok(response);
-            }
-            else
-            {
-                return BadRequest(new { message = "Username or Password is incorrect." });
-            }
+            return _authenticatinService.Authenticate(authenticationRequest);
         }
     }
 }
