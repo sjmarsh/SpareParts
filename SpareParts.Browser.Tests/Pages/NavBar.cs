@@ -40,6 +40,12 @@
             await partsNav.ClickAsync();
         }
 
+        public async Task ClickLoginNav()
+        {
+            var partsNav = _page.Locator(".nav-link >> text=Login");
+            await partsNav.ClickAsync();
+        }
+
         public async Task ClickPartsNav()
         {
             var partsNav = _page.Locator(".nav-link >> text=Parts");

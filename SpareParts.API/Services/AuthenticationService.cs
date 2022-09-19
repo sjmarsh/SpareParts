@@ -19,11 +19,12 @@ namespace SpareParts.API.Services
         private readonly AppSettings _appSettings;
         private readonly ILogger<AuthenticationService> _logger;
 
+        // TODO: implement a more sophisticated user repo.
         private readonly List<UserInfo> _userRepository = new()
         {
-                new UserInfo { UserName = "admin", Password = "password", DisplayName = "Administrator" },
-                new UserInfo { UserName = "stocktake", Password = "password", DisplayName = "Stocktake User" },
-                new UserInfo { UserName = "guest", Password = "password", DisplayName = "Guest User" },
+            new UserInfo { UserName = "admin", Password = "password", DisplayName = "Administrator" },
+            new UserInfo { UserName = "stocktake", Password = "password", DisplayName = "Stocktake User" },
+            new UserInfo { UserName = "guest", Password = "password", DisplayName = "Guest User" },
         };
 
         public AuthenticationService(IOptions<AppSettings> appSettings, ILogger<AuthenticationService> logger)

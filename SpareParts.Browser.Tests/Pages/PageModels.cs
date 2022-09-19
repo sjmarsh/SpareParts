@@ -2,8 +2,8 @@
 {
     public class PageModels
     {
-        private IPage _page;
-        private string _baseUrl;
+        private readonly IPage _page;
+        private readonly string _baseUrl;
                 
         public PageModels(IPage page, string baseUrl) 
         {
@@ -12,6 +12,8 @@
         }
 
         public NavBar NavBar => new(_page);
+
+        public LoginPage Login => new(_page, _baseUrl);
 
         public PartsPage Parts => new(_page, _baseUrl);
 

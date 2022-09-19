@@ -3,9 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using SpareParts.API.Data;
 using System.Net.Http.Headers;
 using System.Text;
+using SpareParts.API.Data;
+using SpareParts.Shared.Models;
 
 namespace SpareParts.API.Int.Tests
 {
@@ -21,7 +22,7 @@ namespace SpareParts.API.Int.Tests
         // ICollectionFixture<> interfaces.
     }
 
-    public class SparePartsTestFixture : IDisposable
+    public class SparePartsTestFixture : IAsyncLifetime, IDisposable
     {
         public SparePartsTestFixture()
         {
@@ -32,7 +33,39 @@ namespace SpareParts.API.Int.Tests
         public SparePartsDbContext DbContext { get; private set; }
         public HttpClient HttpClient { get; private set; }
 
-        public async Task<TOut> GetRequest<TOut>(string uri ) where TOut : new()
+        private string? _authToken { get; set; }
+
+        public async Task InitializeAsync()
+        {
+            _authToken = await GetAuthToken();
+        }
+
+        public async Task DisposeAsync()
+        {
+            _authToken = null;
+        }
+
+        private async Task<string> GetAuthToken()
+        {
+            var authRequest = new AuthenticationRequest("admin", "password");
+            var authenticationResponse = await PostRequest<AuthenticationRequest, AuthenticationResponse>("/api/user/authenticate", authRequest);
+            authenticationResponse.Should().NotBeNull();
+            authenticationResponse.Token.Should().NotBeNullOrEmpty();
+            return authenticationResponse.Token!;
+        }
+
+        public void AddAuthHeaderToClient()
+        {
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _authToken);
+        }
+
+        public async Task<HttpResponseMessage> Get(string uri)
+        {
+            using HttpResponseMessage response = await HttpClient.GetAsync(uri);
+            return response;
+        }
+
+        public async Task<TOut> GetRequest<TOut>(string uri) where TOut : new()
         {
             try
             {

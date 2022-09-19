@@ -4,11 +4,11 @@ using SpareParts.Test.Helpers;
 namespace SpareParts.API.Int.Tests
 {
     [Collection("Spare Parts Tests")]
-    public class PartTests 
+    public class PartTests
     {
         private readonly SparePartsTestFixture _testFixture;
         private readonly DataHelper _dataHelper;
-
+        
         public PartTests(SparePartsTestFixture testFixture)
         {
             _testFixture = testFixture;
@@ -18,6 +18,23 @@ namespace SpareParts.API.Int.Tests
             _testFixture.DbContext.Parts.RemoveRange(_testFixture.DbContext.Parts);
             _testFixture.DbContext.SaveChanges();
             _testFixture.DbContext.ChangeTracker.Clear();
+
+            // ensure client has Auth Header set
+            _testFixture.AddAuthHeaderToClient();
+        }
+
+        [Fact]
+        public async Task Get_Should_ReturnUnauthorizedWhenNoTokenHeader()
+        {
+            _testFixture.HttpClient.DefaultRequestHeaders.Remove("Authorization");
+
+            var savedPart = await _dataHelper.CreatePartInDatabase();
+            savedPart?.ID.Should().BeGreaterThan(0);
+
+            var result = await _testFixture.Get($"/api/part/?id={savedPart.ID}");
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         [Fact]
@@ -136,6 +153,6 @@ namespace SpareParts.API.Int.Tests
             result.HasError.Should().BeFalse();
             var deletedPart = await _testFixture.DbContext.Parts.FindAsync(savedPart.ID);
             deletedPart.Should().BeNull();
-        }
+        }        
     }
 }
