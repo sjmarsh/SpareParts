@@ -70,12 +70,7 @@
 
             try
             {
-                // TODO: add a login screen and store authentication state
-                var authRequest = new SpareParts.Shared.Models.AuthenticationRequest("admin", "password");
-                var response = await HttpClient.PostAsJsonAsync<AuthenticationRequest>("/api/user/authenticate", authRequest);
-                var authResponse = await response.Content.ReadFromJsonAsync<AuthenticationResponse>();
-
-                var partResponse = await PartService.Get(PartID.Value, $"jwt {authResponse.Token}");
+                var partResponse = await PartService.Get(PartID.Value);
                 if (partResponse == null)
                 {
                     _hasError = true;

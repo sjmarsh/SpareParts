@@ -5,7 +5,7 @@
     {
         <label for="@Id">@DisplayName</label>
     }
-    <input id="@Id" type="text" class="@CssClass form-control" @attributes="AdditionalAttributes"
+    <input id="@Id" type="@_typeText" class="@CssClass form-control" @attributes="AdditionalAttributes"
        value="@BindConverter.FormatValue(CurrentValueAsString)"
        @oninput="EventCallback.Factory.CreateBinder<string>(this, value => CurrentValueAsString = value, CurrentValueAsString ?? string.Empty)" />
     <ValidationMessage For="@ValueExpression" />
@@ -17,5 +17,9 @@
 
     [Parameter, EditorRequired]
     public string? Id { get; set; }
-        
+
+    [Parameter]
+    public bool IsPassword { get; set; }
+
+    private string _typeText => IsPassword ? "password" : "text";
 }

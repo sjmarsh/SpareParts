@@ -100,7 +100,8 @@ try
     app.UseBlazorFrameworkFiles();
     app.UseStaticFiles();
 
-    //app.UseAuthorization();
+    app.UseAuthorization();
+    app.UseAuthentication();
     app.UseMiddleware<JwtMiddleware>();
     
     app.MapRazorPages();

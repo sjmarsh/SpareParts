@@ -13,6 +13,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<AuthHeaderHandler>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
@@ -20,6 +22,6 @@ builder.Services.AddRefitClientFor<IUserService>(builder.HostEnvironment.BaseAdd
 builder.Services.AddRefitClientFor<IPartService>(builder.HostEnvironment.BaseAddress);
 builder.Services.AddRefitClientFor<IInventoryService>(builder.HostEnvironment.BaseAddress);
 
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
 
 await builder.Build().RunAsync();

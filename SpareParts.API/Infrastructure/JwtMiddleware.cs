@@ -60,11 +60,11 @@ namespace SpareParts.API.Infrastructure
                 // attach user to context on successful jwt validation
                 context.Items["User"] = authenticationService.GetUserByUserName(userName);
             }
-            catch
+            catch(Exception ex)
             {
                 // do nothing if jwt validation fails
                 // user is not attached to context so request won't have access to secure routes
-                _logger.LogError("Failed to validate JWT token");
+                _logger.LogError("Failed to validate JWT token", ex);
             }
         }
     }

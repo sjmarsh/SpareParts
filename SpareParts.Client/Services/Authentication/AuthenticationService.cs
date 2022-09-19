@@ -33,7 +33,7 @@ namespace SpareParts.Client.Services.Authentication
             
             if (result.IsAuthenticated)
             {
-                await _localStorage.SetItemAsync("authToken", result.Token);
+                await _localStorage.SetItemAsync(AuthToken.Name, result.Token);
                 ((AuthStateProvider)_authenticationStateProvider).NotifyUserAuthentication(result.UserName);
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.Token);
             }
@@ -43,7 +43,7 @@ namespace SpareParts.Client.Services.Authentication
 
         public async Task Logout()
         {
-            await _localStorage.RemoveItemAsync("authToken");
+            await _localStorage.RemoveItemAsync(AuthToken.Name);
             ((AuthStateProvider)_authenticationStateProvider).NotifyUserLogout();
             _httpClient.DefaultRequestHeaders.Authorization = null;
         }

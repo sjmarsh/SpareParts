@@ -20,7 +20,7 @@ namespace SpareParts.Client.Services.Authentication
 
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = await _localStorage.GetItemAsync<string>("authToken");
+            var token = await _localStorage.GetItemAsync<string>(AuthToken.Name);
             if (string.IsNullOrWhiteSpace(token))
                 return _anonymous;
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);

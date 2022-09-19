@@ -1,5 +1,6 @@
 ﻿using Refit;
 using Polly;
+using SpareParts.Client.Services.Authentication;
 
 namespace SpareParts.Client
 {
@@ -13,6 +14,7 @@ namespace SpareParts.Client
             {
                 c.BaseAddress = new Uri(baseUri);
             })
+                .AddHttpMessageHandler<AuthHeaderHandler>()
                 .AddTransientHttpErrorPolicy(b => b.WaitAndRetryAsync(new[]
                 {
                     TimeSpan.FromSeconds(1),
