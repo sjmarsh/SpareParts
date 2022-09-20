@@ -21,10 +21,22 @@ namespace SpareParts.Browser.Tests.Pages
             await _page.WaitForSelectorAsync("h3 >> text=Part List");
         }
 
+        public async Task GotoPage()
+        {
+            await _page.GotoAsync($"{_baseUrl}/{UrlPath}");
+            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        }
+
         public async Task<string> PageHeader()
         {
             var h3 = _page.Locator("h3");
             return await h3.InnerTextAsync();
+        }
+
+        public bool HasNotAuthorizedMessage()
+        {
+            var message = _page.Locator("p", new PageLocatorOptions { HasTextString = "You are not authorized" });
+            return message != null;
         }
 
         public async Task<bool> IsPartTableVisible()

@@ -1,4 +1,7 @@
 ﻿@page "/inventory-home"
+@attribute [Authorize(Roles = $"{Role.Administrator}, {Role.StocktakeUser}")]
+
+@using SpareParts.Shared.Models
 
 <h3>Inventory</h3>
 

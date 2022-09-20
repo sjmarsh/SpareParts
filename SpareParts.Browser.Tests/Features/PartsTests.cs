@@ -45,6 +45,16 @@ namespace SpareParts.Browser.Tests.Features
         }
 
         [Fact]
+        public async Task Should_NotBeAbleToAccessPageIfNotLoggedIn()
+        {
+            await _loginPage.EnsureLoggedOut();
+
+            await _partsPage.GotoPage();
+
+            _partsPage.HasNotAuthorizedMessage().Should().BeTrue();
+        }
+
+        [Fact]
         public async Task Should_HaveEmptyPartList()
         {
             (await _partsPage.IsPartTableVisible()).Should().BeFalse();

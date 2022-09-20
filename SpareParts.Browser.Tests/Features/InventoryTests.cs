@@ -43,6 +43,16 @@ namespace SpareParts.Browser.Tests.Features
         }
 
         [Fact]
+        public async Task Should_NotBeAbleToAccessPageIfNotLoggedIn()
+        {
+            await _loginPage.EnsureLoggedOut();
+
+            await _inventoryPage.GotoPage();
+
+            _inventoryPage.HasNotAuthorizedMessage().Should().BeTrue();
+        }
+
+        [Fact]
         public async Task Should_DefaultToFirstTab()
         {
             (await _inventoryPage.SelectedTabIndex()).Should().Be(0);

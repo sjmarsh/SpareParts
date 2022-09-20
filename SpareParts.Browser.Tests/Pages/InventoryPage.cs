@@ -19,6 +19,12 @@
             await _page.WaitForSelectorAsync("h3 >> text=Inventory");
         }
 
+        public async Task GotoPage()
+        {
+            await _page.GotoAsync($"{_baseUrl}/{UrlPath}");
+            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        }
+
         public ManualStockEntryTab ManualStockEntry => new(_page);
 
         public StocktakeTab Stocktake => new(_page);
@@ -31,6 +37,12 @@
         {
             var header = _page.Locator("h3");
             return await header.InnerTextAsync();
+        }
+
+        public bool HasNotAuthorizedMessage()
+        {
+            var message = _page.Locator("p", new PageLocatorOptions { HasTextString = "You are not authorized" });
+            return message != null;
         }
 
         public async Task<int> SelectedTabIndex()

@@ -3,15 +3,26 @@ using SpareParts.Browser.Tests.Pages;
 namespace SpareParts.Browser.Tests.Features
 {
     [Collection("Browser Tests")]
-    public class NavigationTests
+    public class NavigationTests : IAsyncLifetime
     {        
         private readonly NavBar _navBar;
+        private readonly LoginPage _loginPage;
         private readonly SparePartsBrowserTestFixture _fixture;
 
         public NavigationTests(SparePartsBrowserTestFixture fixture)
         {
             _navBar = fixture.Pages.NavBar;
+            _loginPage = fixture.Pages.Login;
             _fixture = fixture;
+        }
+
+        public async Task InitializeAsync()
+        {
+            await _loginPage.EnsureLoggedIn();
+        }
+
+        public async Task DisposeAsync()
+        {
         }
 
         [Fact]
@@ -27,6 +38,16 @@ namespace SpareParts.Browser.Tests.Features
             var navItemTitles = await _navBar.GetNavItemTitles();
             navItemTitles.Should().HaveCount(4);
             var expectedTitles = new[] { "Home", "Login", "Parts", "Inventory" };
+            expectedTitles.Should().BeEquivalentTo(navItemTitles);
+        }
+
+        [Fact]
+        public async Task Should_HideNavItemsWhenNotLoggedIn()
+        {
+            await _loginPage.EnsureLoggedOut();
+            var navItemTitles = await _navBar.GetNavItemTitles();
+            navItemTitles.Should().HaveCount(2);
+            var expectedTitles = new[] { "Home", "Login" };
             expectedTitles.Should().BeEquivalentTo(navItemTitles);
         }
 
@@ -53,6 +74,5 @@ namespace SpareParts.Browser.Tests.Features
 
             _navBar.GetCurrentUrl().Should().Be(_fixture.BaseUrl + "/");
         }
-
     }
 }
