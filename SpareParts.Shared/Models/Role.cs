@@ -1,9 +1,9 @@
 ﻿namespace SpareParts.Shared.Models
 {
-    public enum Role
+    public static class Role
     {
-        Administrator,
-        StocktakeUser,
-        Guest
+        public const string Administrator = "Administrator";
+        public const string StocktakeUser = "StocktakeUser";
+        public const string Guest = "Guest";
     }
 }

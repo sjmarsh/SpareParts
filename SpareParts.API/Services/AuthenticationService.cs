@@ -22,9 +22,9 @@ namespace SpareParts.API.Services
         // TODO: implement a more sophisticated user repo.
         private readonly List<UserInfo> _userRepository = new()
         {
-            new UserInfo { UserName = "admin", Password = "password", DisplayName = "Administrator", Roles = new List<Role>{ Role.Administrator } },
-            new UserInfo { UserName = "stocktake", Password = "password", DisplayName = "Stocktake User", Roles = new List<Role>{ Role.StocktakeUser } },
-            new UserInfo { UserName = "guest", Password = "password", DisplayName = "Guest User", Roles = new List<Role>{Role.Guest } },
+            new UserInfo { UserName = "admin", Password = "password", DisplayName = "Administrator", Roles = new []{ Role.Administrator } },
+            new UserInfo { UserName = "stocktake", Password = "password", DisplayName = "Stocktake User", Roles = new []{ Role.StocktakeUser } },
+            new UserInfo { UserName = "guest", Password = "password", DisplayName = "Guest User", Roles = new []{Role.Guest } }
         };
 
         public AuthenticationService(IOptions<AppSettings> appSettings, ILogger<AuthenticationService> logger)

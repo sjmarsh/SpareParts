@@ -6,6 +6,6 @@
         public string? Password { get; set; }
         public string? DisplayName { get; set; }
 
-        public List<Role>? Roles { get; set; }
+        public string[]? Roles { get; set; }
     }
 }
