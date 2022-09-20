@@ -29,10 +29,12 @@ namespace SpareParts.Browser.Tests.Pages
 
         public async Task<bool> IsPartTableVisible()
         {
+            await _page.WaitForSelectorAsync("div.spinner-border", new PageWaitForSelectorOptions { State = WaitForSelectorState.Detached });
+
             var partTableCount = await _page.Locator("#partTable").CountAsync();
             return partTableCount == 1;
         }
-
+        
         public async Task<int> PartListItemCount()
         {
             await _page.WaitForSelectorAsync("#partTable");

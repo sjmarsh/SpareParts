@@ -8,12 +8,14 @@ namespace SpareParts.Browser.Tests.Features
     public class PartsTests : IAsyncLifetime
     {
         private readonly PartsPage _partsPage;
+        private readonly LoginPage _loginPage;
         private readonly SparePartsDbContext _dbContext;
         private readonly DataHelper _dataHelper;
 
         public PartsTests(SparePartsBrowserTestFixture fixture)
         {
             _partsPage = fixture.Pages.Parts;
+            _loginPage = fixture.Pages.Login;
             _dbContext = fixture.DbContext;
             _dataHelper = new DataHelper(_dbContext);
         }
@@ -25,6 +27,8 @@ namespace SpareParts.Browser.Tests.Features
             await _dbContext.SaveChangesAsync();
             _dbContext.Parts.RemoveRange(_dbContext.Parts);
             await _dbContext.SaveChangesAsync();
+
+            await _loginPage.EnsureLoggedIn();
             await _partsPage.InitializePage();
         }
 
@@ -86,7 +90,8 @@ namespace SpareParts.Browser.Tests.Features
             (await _partsPage.PartListItemCount()).Should().Be(2);
 
             await _partsPage.ClickDeleteButtonForRow(0);  // delete part1
-                        
+
+            (await _partsPage.IsPartTableVisible()).Should().BeTrue();
             (await _partsPage.PartListItemCount()).Should().Be(1);
             var rowPart = await _partsPage.GetPartFromRow(0);  
             rowPart.Should().NotBeNull();

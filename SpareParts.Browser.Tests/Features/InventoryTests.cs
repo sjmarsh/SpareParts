@@ -9,12 +9,14 @@ namespace SpareParts.Browser.Tests.Features
     public class InventoryTests : IAsyncLifetime
     {
         private readonly InventoryPage _inventoryPage;
+        private readonly LoginPage _loginPage;
         private readonly SparePartsDbContext _dbContext;
         private readonly DataHelper _dataHelper;
 
         public InventoryTests(SparePartsBrowserTestFixture fixture)
         {
             _inventoryPage = fixture.Pages.Inventory;
+            _loginPage = fixture.Pages.Login;
             _dbContext = fixture.DbContext;
             _dataHelper = new DataHelper(_dbContext);
         }
@@ -25,6 +27,8 @@ namespace SpareParts.Browser.Tests.Features
             await _dbContext.SaveChangesAsync();
             _dbContext.Parts.RemoveRange(_dbContext.Parts);
             await _dbContext.SaveChangesAsync();
+
+            await _loginPage.EnsureLoggedIn();
             await _inventoryPage.InitializePage();
         }
 
