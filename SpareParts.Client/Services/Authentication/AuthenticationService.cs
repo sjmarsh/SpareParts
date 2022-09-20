@@ -31,10 +31,10 @@ namespace SpareParts.Client.Services.Authentication
         {
             var result = await _userService.Authenticate(request);
             
-            if (result.IsAuthenticated)
+            if (result.IsAuthenticated && result.Token != null)
             {
                 await _localStorage.SetItemAsync(AuthToken.Name, result.Token);
-                ((AuthStateProvider)_authenticationStateProvider).NotifyUserAuthentication(result.UserName);
+                ((AuthStateProvider)_authenticationStateProvider).NotifyUserAuthentication(result.Token);
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.Token);
             }
 

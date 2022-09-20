@@ -14,14 +14,8 @@ namespace SpareParts.Client.Services.Authentication
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var token = await _localStorage.GetItemAsStringAsync(AuthToken.Name, cancellationToken);
-            if (!string.IsNullOrEmpty(token))
-            {
-                token = token.Replace("\"", "");
-            }
-
+            var token = await _localStorage.GetItemAsync<string>(AuthToken.Name, cancellationToken);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
     }

@@ -1,6 +1,7 @@
 ﻿@page "/login"
 
 @using SpareParts.Shared.Models
+@using System.Security.Claims
 
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
@@ -18,7 +19,8 @@
 {
     <AuthorizeView Context="authContext">
         <Authorized>
-            <p>Hello @authContext?.User?.Identity?.Name</p>
+            @*<p>Hello @authContext?.User?.Identity?.Name</p>*@
+            <p>Hello @authContext?.User?.FindFirst("displayName")?.Value</p>
             <div class="my-3">
                 <button class="btn btn-primary my-1" @onclick="ExecuteLogout">Logout</button>
             </div>

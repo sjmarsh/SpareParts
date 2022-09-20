@@ -13,8 +13,36 @@ namespace SpareParts.Client.Services.Authentication
             var jsonBytes = ParseBase64WithoutPadding(payload);
 
             var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-            claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
+            if(keyValuePairs != null)
+            {
+                claims.AddRange(keyValuePairs.Select(kvp => new Claim(ConvertKeyToClaimType(kvp.Key), GetValueString(kvp.Value))));
+            }
             return claims;
+        }
+
+        private static string ConvertKeyToClaimType(string key)
+        {
+            if (!string.IsNullOrEmpty(key))
+            {
+                var fields = typeof(ClaimTypes).GetFields();
+                var field = fields.FirstOrDefault(f => f.Name.ToLower() == key.ToLower());
+                if (field != null && field.GetValue(null) is string strValue)
+                {
+                    return strValue;
+                }
+            }
+
+            return key;
+        }
+
+        private static string GetValueString(object value)
+        {
+            var strVal = value.ToString();
+            if(strVal != null)
+            {
+                return strVal.ToString();
+            }
+            return "";
         }
 
         private static byte[] ParseBase64WithoutPadding(string base64)

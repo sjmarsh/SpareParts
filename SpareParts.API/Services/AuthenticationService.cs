@@ -22,9 +22,9 @@ namespace SpareParts.API.Services
         // TODO: implement a more sophisticated user repo.
         private readonly List<UserInfo> _userRepository = new()
         {
-            new UserInfo { UserName = "admin", Password = "password", DisplayName = "Administrator" },
-            new UserInfo { UserName = "stocktake", Password = "password", DisplayName = "Stocktake User" },
-            new UserInfo { UserName = "guest", Password = "password", DisplayName = "Guest User" },
+            new UserInfo { UserName = "admin", Password = "password", DisplayName = "Administrator", Roles = new List<Role>{ Role.Administrator } },
+            new UserInfo { UserName = "stocktake", Password = "password", DisplayName = "Stocktake User", Roles = new List<Role>{ Role.StocktakeUser } },
+            new UserInfo { UserName = "guest", Password = "password", DisplayName = "Guest User", Roles = new List<Role>{Role.Guest } },
         };
 
         public AuthenticationService(IOptions<AppSettings> appSettings, ILogger<AuthenticationService> logger)
@@ -75,9 +75,23 @@ namespace SpareParts.API.Services
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+
+            var claims = new List<Claim>
+            {
+                new Claim("userName", user.UserName!),
+                new Claim("displayName", user.DisplayName!)
+            };
+            if(user.Roles != null && user.Roles.Any())
+            {
+                foreach(var role in user.Roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
+                }
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] { new Claim("userName", user.UserName!.ToString()) }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(60),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
