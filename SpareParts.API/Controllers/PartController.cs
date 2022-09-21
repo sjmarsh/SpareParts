@@ -30,6 +30,7 @@ namespace SpareParts.API.Controllers
 
         [HttpGet]
         [Route("report")]
+        [AuthorizeByRole(Role.Administrator)]
         public async Task<IActionResult> Report()
         {
             var report = await _mediator.Send(new CreateReportCommand { ReportName = ReportName.PartListReport });

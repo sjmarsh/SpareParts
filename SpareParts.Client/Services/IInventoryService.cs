@@ -14,6 +14,9 @@ namespace SpareParts.Client.Services
         [Get("/api/inventory/index-detail")]
         Task<InventoryItemDetailListResponse> IndexDetail(bool isCurrentOnly, int skip = 0, int? take = null);
 
+        [Get("/api/inventory/report")]
+        Task<HttpResponseMessage> Report(bool isCurrentOnly);
+
         [Post("/api/inventory")]
         Task<InventoryItemResponse> Post(InventoryItem InventoryItem);
 

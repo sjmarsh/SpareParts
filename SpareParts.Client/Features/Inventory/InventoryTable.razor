@@ -1,6 +1,7 @@
 ﻿@using SpareParts.Shared.Models;
 
 @inject IInventoryService InventoryService;
+@inject IJSRuntime jsRuntime;
 
 <h3>@HeaderText</h3>
 
@@ -10,7 +11,8 @@
 }
 @if(_inventoryItems != null && _inventoryItems.Any())
 {
-    <a href="@($"/api/inventory/report?isCurrentOnly={IsCurrentOnly}")" target="_blank"><span class="oi oi-print" title="Print" aria-hidden="true"></span></a>
+    <button class="btn btn-primary" @onclick="OpenReport" ><span class="oi oi-print" title="Print" aria-hidden="true"/></button>
+
     <table class="table table-hover">
         <thead>
             <tr>
@@ -107,5 +109,15 @@
     {
         _currentPage = page;
         await RefreshInventoryItemList();
+    }
+
+    private async Task OpenReport()
+    {
+        var response = await InventoryService.Report(IsCurrentOnly);
+        var reportData = await response.Content.ReadAsByteArrayAsync();
+
+        IJSObjectReference module;        
+        module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
+        await module.InvokeAsync<string>("openBlob", reportData);
     }
 }

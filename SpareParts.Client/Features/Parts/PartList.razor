@@ -4,6 +4,7 @@
 @using SpareParts.Shared.Models
 
 @inject IPartService PartService;
+@inject IJSRuntime jsRuntime;
 
 <h3>Part List</h3>
 @if (_isLoading)
@@ -13,7 +14,7 @@
 
 @if(_parts != null && _parts.Any())
 {
-    <a href="/api/part/report" target="_blank"><span class="oi oi-print" title="Print" aria-hidden="true"></span></a>
+    <button class="btn btn-primary" @onclick="OpenReport" ><span class="oi oi-print" title="Print" aria-hidden="true"/></button>
     <table id="partTable" class="table table-hover">
         <thead>
             <tr>
@@ -166,5 +167,15 @@
     private void OnCloseDetailModal()
     {
         _isDetailModalVisible = false;
+    }
+
+    private async Task OpenReport()
+    {
+        var response = await PartService.Report();
+        var reportData = await response.Content.ReadAsByteArrayAsync();
+
+        IJSObjectReference module;        
+        module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
+        await module.InvokeAsync<string>("openBlob", reportData);
     }
 }

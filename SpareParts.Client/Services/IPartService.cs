@@ -11,6 +11,9 @@ namespace SpareParts.Client.Services
         [Get("/api/part/index")]
         Task<PartListResponse> Index(bool isCurrentOnly, int skip = 0, int? take = null);
 
+        [Get("/api/part/report")]
+        Task<HttpResponseMessage> Report();
+        
         [Post("/api/part")]
         Task<PartResponse> Post(Part part);
 

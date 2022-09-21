@@ -35,6 +35,7 @@ namespace SpareParts.API.Controllers
 
         [HttpGet]
         [Route("report")]
+        [AuthorizeByRole(Role.Administrator, Role.StocktakeUser)]
         public async Task<IActionResult> Report(bool isCurrentOnly)
         {
             var report = await _mediator.Send(new CreateReportCommand { ReportName = ReportName.InventoryReport, IsCurrentOnly = isCurrentOnly });
