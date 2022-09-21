@@ -18,6 +18,9 @@ namespace SpareParts.API.Int.Tests
             _testFixture.DbContext.InventoryItems.RemoveRange(_testFixture.DbContext.InventoryItems);
             _testFixture.DbContext.SaveChanges();
             _testFixture.DbContext.ChangeTracker.Clear();
+
+            // ensure client has Auth Header set
+            _testFixture.AddAuthHeaderToClient();
         }
 
         [Fact]

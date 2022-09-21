@@ -19,7 +19,7 @@ namespace SpareParts.API.Services
         private readonly AppSettings _appSettings;
         private readonly ILogger<AuthenticationService> _logger;
 
-        // TODO: implement a more sophisticated user repo.
+        // TODO: implement a more sophisticated user repo or use .Net Identity with EF.
         private readonly List<UserInfo> _userRepository = new()
         {
             new UserInfo { UserName = "admin", Password = "password", DisplayName = "Administrator", Roles = new []{ Role.Administrator } },

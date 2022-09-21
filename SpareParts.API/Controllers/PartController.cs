@@ -18,13 +18,14 @@ namespace SpareParts.API.Controllers
             Guard.Against.Null(mediator);
             _mediator = mediator;
         }
-
-        [Authorize]
+                
         [HttpGet]
+        [AuthorizeByRole(Role.Administrator)]
         public async Task<PartResponse> Get(int id) => await _mediator.Send(new GetPartRequest(id));  
         
         [HttpGet]
         [Route("index")]
+        [AuthorizeByRole(Role.Administrator, Role.StocktakeUser)]
         public async Task<PartListResponse> Index([FromQuery]GetPartListRequest request) => await _mediator.Send(request);
 
         [HttpGet]
@@ -36,12 +37,15 @@ namespace SpareParts.API.Controllers
         }  
 
         [HttpPost]
+        [AuthorizeByRole(Role.Administrator)]
         public async Task<PartResponse> Post(Part part) => await _mediator.Send(new CreatePartCommand(part));
         
-        [HttpPut]    
+        [HttpPut]
+        [AuthorizeByRole(Role.Administrator)]
         public async Task<PartResponse> Put(Part part) => await _mediator.Send(new UpdatePartCommand(part));
         
         [HttpDelete]
+        [AuthorizeByRole(Role.Administrator)]
         public async Task<PartResponse> Delete(int id) => await _mediator.Send(new DeletePartCommand(id));
     }
 }

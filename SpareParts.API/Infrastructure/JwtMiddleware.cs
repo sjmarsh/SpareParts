@@ -2,7 +2,6 @@
 using Microsoft.IdentityModel.Tokens;
 using SpareParts.API.Services;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
 
 namespace SpareParts.API.Infrastructure
