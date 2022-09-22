@@ -64,7 +64,7 @@
 
         public async Task Logout()
         {
-            var logoutButton = _page.Locator("text=Logout");
+            var logoutButton = _page.Locator("button >> text=Logout");
             await logoutButton.ClickAsync();
         }
 

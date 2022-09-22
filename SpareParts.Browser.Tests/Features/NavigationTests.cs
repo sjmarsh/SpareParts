@@ -37,7 +37,7 @@ namespace SpareParts.Browser.Tests.Features
         {
             var navItemTitles = await _navBar.GetNavItemTitles();
             navItemTitles.Should().HaveCount(4);
-            var expectedTitles = new[] { "Home", "Login", "Parts", "Inventory" };
+            var expectedTitles = new[] { "Home", "Logout", "Parts", "Inventory" };
             expectedTitles.Should().BeEquivalentTo(navItemTitles);
         }
 
