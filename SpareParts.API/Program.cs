@@ -129,6 +129,8 @@ try
     app.MapRazorPages();
     app.MapFallbackToFile("index.html");
 
+    app.UseContentSecurityPolicy();
+
     app.UseAuthentication();
     app.UseAuthorization();
 
