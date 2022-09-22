@@ -23,8 +23,33 @@ namespace SpareParts.Client.Services.Authentication
             var token = await _localStorage.GetItemAsync<string>(AuthToken.Name);
             if (string.IsNullOrWhiteSpace(token))
                 return _anonymous;
+
+            IEnumerable<Claim> claims = JwtParser.ParseClaimsFromJwt(token).ToArray();
+
+            if (await HasTokenExpired(claims))
+            {
+                return _anonymous;
+            }
+
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(JwtParser.ParseClaimsFromJwt(token), "jwtAuthType")));
+            
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, "jwtAuthType")));
+        }
+
+        private async Task<bool> HasTokenExpired(IEnumerable<Claim> claims)
+        {
+            var expiryClaim = claims.FirstOrDefault(c => c.Type == "exp");
+            if(expiryClaim != null)
+            {
+                var expiry = Convert.ToInt64(expiryClaim.Value);
+                var expiryDate = DateTimeOffset.FromUnixTimeSeconds(expiry).ToLocalTime();
+                if (DateTime.Now >= expiryDate)
+                {
+                    await _localStorage.RemoveItemAsync(AuthToken.Name);
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void NotifyUserAuthentication(string token)
@@ -39,5 +64,7 @@ namespace SpareParts.Client.Services.Authentication
             var authState = Task.FromResult(_anonymous);
             NotifyAuthenticationStateChanged(authState);
         }
+
+
     }
 }
