@@ -37,12 +37,19 @@ namespace SpareParts.API.Int.Tests
 
         public async Task InitializeAsync()
         {
+            await SetupUsersAndRoles();
             _authToken = await GetAuthToken();
         }
 
         public async Task DisposeAsync()
         {
             _authToken = null;
+        }
+
+        private async Task SetupUsersAndRoles()
+        {
+            var result = await GetRequest<bool>("/api/user/setup");
+            result.Should().BeTrue();
         }
 
         private async Task<string> GetAuthToken()

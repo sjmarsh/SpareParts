@@ -16,9 +16,15 @@ namespace SpareParts.API.Controllers
         }
 
         [HttpPost("authenticate")]
-        public AuthenticationResponse Authenticate(AuthenticationRequest authenticationRequest)
+        public Task<AuthenticationResponse> Authenticate(AuthenticationRequest authenticationRequest)
         {
             return _authenticatinService.Authenticate(authenticationRequest);
+        }
+
+        [HttpGet("setup")]
+        public Task<bool> SetupUsersAndRoles()
+        {
+            return _authenticatinService.SetupUsersAndRoles();
         }
     }
 }

@@ -1,11 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpareParts.API.Entities;
 
 namespace SpareParts.API.Data
 {
-    public class SparePartsDbContext : DbContext
+    public class SparePartsDbContext : IdentityDbContext<IdentityUser>
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         
@@ -36,6 +38,8 @@ namespace SpareParts.API.Data
                         property.SetValueConverter(converter);
                     }
                 }
+
+                base.OnModelCreating(modelBuilder);
             }
 
             modelBuilder.Entity<Part>()

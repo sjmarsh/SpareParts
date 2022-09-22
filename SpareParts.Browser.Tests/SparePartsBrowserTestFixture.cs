@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using SpareParts.API.Data;
+using SpareParts.API.Services;
 using SpareParts.Browser.Tests.Pages;
 using System.Net;
 using System.Net.Sockets;
@@ -41,12 +42,13 @@ namespace SpareParts.Browser.Tests
         public async Task InitializeAsync()
         {
             DbContext = await SetupDbContextAsync();
+            await SetupUsersAndRoles();
 
             Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
             Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false });
             var page = await Browser.NewPageAsync(new BrowserNewPageOptions { Locale = "en-AU" });
             await page.GotoAsync(BaseUrl);
-            Pages = new PageModels(page, BaseUrl);
+            Pages = new PageModels(page, BaseUrl);            
         }              
 
         private async Task<SparePartsDbContext> SetupDbContextAsync()
@@ -66,6 +68,13 @@ namespace SpareParts.Browser.Tests
             
             dbContext.Database.EnsureCreated();
             return dbContext;
+        }
+        
+        private async Task SetupUsersAndRoles()
+        {
+            var authService = (IAuthenticationService)_factory.Services.GetService(typeof(IAuthenticationService));
+            var isSetup = await authService.SetupUsersAndRoles();
+            isSetup.Should().BeTrue();
         }
 
         private WebApplicationFactoryFixture<Program> SetupTestClient()

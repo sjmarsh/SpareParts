@@ -1,7 +1,10 @@
 using FluentValidation.AspNetCore;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using SpareParts.API.Data;
 using SpareParts.API.Extensions;
@@ -11,6 +14,7 @@ using SpareParts.Shared.Validators;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using System.Text;
 using System.Text.Json.Serialization;
 
 Log.Logger = new LoggerConfiguration()
@@ -34,15 +38,37 @@ try
     builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
     // Add services to the container.
-    builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
-
     builder.Services.AddControllers()
-        .AddJsonOptions(options =>
-            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()
-        )
-    );
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()
+    ));
 
     builder.Services.AddHttpContextAccessor();
+
+    // Identity / Auth
+    builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<SparePartsDbContext>();
+
+    builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    builder.Services.AddAuthentication(opt =>
+    {
+        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+    }).AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["ValidIssuer"],
+            ValidAudience = jwtSettings["ValidAudience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SigninKey"]))
+        };
+    });
 
     // Validation
     builder.Services.AddMvc()
@@ -100,13 +126,14 @@ try
     app.UseBlazorFrameworkFiles();
     app.UseStaticFiles();
 
-    app.UseAuthorization();
-    app.UseAuthentication();
-    app.UseMiddleware<JwtMiddleware>();
-    
     app.MapRazorPages();
-    app.MapControllers();
     app.MapFallbackToFile("index.html");
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+    
 
     CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-AU");
     CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-AU");
