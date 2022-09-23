@@ -11,7 +11,11 @@
 
 @if(_parts != null && _parts.Any())
 {
-    <button class="btn btn-primary" @onclick="OpenReport" ><span class="oi oi-print" title="Print" aria-hidden="true"/></button>
+    <div class="tool-container">
+        <button class="btn btn-outline-dark tool-button" @onclick="OpenReport"><span class="oi oi-print tool-button-image" title="Report" aria-hidden="true"/><span>Report</span></button>
+        <button class="btn btn-outline-dark tool-button" @onclick="AddPart"><span class="oi oi-plus tool-button-image" title="Add Part" aria-hidden="true"/><span>Add Part</span></button>
+    </div>
+    
     <table id="partTable" class="table table-hover">
         <thead>
             <tr>
@@ -43,10 +47,6 @@
     </table>   
     <Pager TotalItemCount="_totalItemCount" PageSize="PageSize" OnPageChanged="HandlePageChanged"/>
 }
-
-<div>
-    <button class="btn btn-primary" @onclick="AddPart">Add Part</button>
-</div>
 
 @if(_hasError)
 {

@@ -4,11 +4,12 @@
 @inject IServiceWrapper ServiceWrapper
 @inject IJSRuntime jsRuntime
 
-<h3>@HeaderText</h3>
-
 @if(_inventoryItems != null && _inventoryItems.Any())
 {
-    <button class="btn btn-primary" @onclick="OpenReport" ><span class="oi oi-print" title="Print" aria-hidden="true"/></button>
+    <div class="tool-container">
+        <button class="btn btn-outline-dark tool-button" @onclick="OpenReport"><span class="oi oi-print tool-button-image" title="Report" aria-hidden="true"/><span>Report</span></button>    
+    </div>
+    
 
     <table class="table table-hover">
         <thead>
@@ -40,9 +41,6 @@
 
 
 @code {
-
-    [Parameter]
-    public string? HeaderText { get; set; }
 
     [Parameter]
     public bool IsCurrentOnly { get; set; }

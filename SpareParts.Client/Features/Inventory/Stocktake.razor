@@ -4,8 +4,6 @@
 @inject IInventoryService InventoryService
 @inject IServiceWrapper ServiceWrapper
 
-<h3>Stocktake</h3>
-
 @if(_stocktakeModel != null && _stocktakeModel.InventoryItems != null && _stocktakeModel.InventoryItems.Any())
 {
     <EditForm Model="_stocktakeModel.InventoryItems" OnValidSubmit="@SubmitValidForm">
