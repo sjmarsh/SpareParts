@@ -5,6 +5,7 @@
 
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
+@inject IServiceWrapper ServiceWrapper
 
 <h3>Login</h3>
 
@@ -19,7 +20,6 @@
 {
     <AuthorizeView Context="authContext">
         <Authorized>
-            @*<p>Hello @authContext?.User?.Identity?.Name</p>*@
             <p>Hello @authContext?.User?.FindFirst("displayName")?.Value</p>
             <div class="my-3">
                 <button class="btn btn-primary my-1" @onclick="ExecuteLogout">Logout</button>
@@ -51,7 +51,7 @@
     {
         _hasError = false;
 
-        var result = await AuthenticationService.Authenticate(_authRequest);
+        var result = await ServiceWrapper.ServiceCall(() => AuthenticationService.Authenticate(_authRequest), "An error occurred logging in.");
 
         if (!result.IsAuthenticated)
         {

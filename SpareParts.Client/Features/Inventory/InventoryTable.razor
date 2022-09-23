@@ -1,14 +1,11 @@
 ﻿@using SpareParts.Shared.Models;
 
-@inject IInventoryService InventoryService;
-@inject IJSRuntime jsRuntime;
+@inject IInventoryService InventoryService
+@inject IServiceWrapper ServiceWrapper
+@inject IJSRuntime jsRuntime
 
 <h3>@HeaderText</h3>
 
-@if (_isLoading)
-{
-    <div class="spinner-border"></div>
-}
 @if(_inventoryItems != null && _inventoryItems.Any())
 {
     <button class="btn btn-primary" @onclick="OpenReport" ><span class="oi oi-print" title="Print" aria-hidden="true"/></button>
@@ -50,7 +47,6 @@
     [Parameter]
     public bool IsCurrentOnly { get; set; }
 
-    private bool _isLoading;
     private bool _hasError;
     private string? _errorMessage;
     private List<InventoryItemDetail>? _inventoryItems;
@@ -61,7 +57,6 @@
 
     protected async override Task OnInitializedAsync()
     {
-        _isLoading = false;
         _hasError = false;
         _errorMessage = string.Empty;
         _currentPage = 1;
@@ -70,39 +65,26 @@
     }
 
     private async Task RefreshInventoryItemList()
-    {
-        _isLoading = true;
-
+    {        
         var skip = (_currentPage - 1) * PageSize;
 
-        try
-        {
-            var response = await InventoryService.IndexDetail(IsCurrentOnly, skip, PageSize);
+        var response = await ServiceWrapper.ServiceCall(() => InventoryService.IndexDetail(IsCurrentOnly, skip, PageSize), "An error occurred retrieving inventory items.");
 
-            if (response == null)
+        if (response == null)
+        {
+            _hasError = true;
+        }
+        else
+        {
+            if (response.HasError)
             {
                 _hasError = true;
+                _errorMessage = response.Message;
             }
-            else
-            {
-                if (response.HasError)
-                {
-                    _hasError = true;
-                    _errorMessage = response.Message;
-                }
 
-                _inventoryItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
-                _totalItemCount = response.TotalItemCount;
-            }
+            _inventoryItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
+            _totalItemCount = response.TotalItemCount;
         }
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex);
-            _hasError = true;
-            _errorMessage = "Error occurred retrieving inventory.";
-        }
-
-        _isLoading = false;
     }
 
     private async Task HandlePageChanged(int page)
@@ -113,11 +95,13 @@
 
     private async Task OpenReport()
     {
-        var response = await InventoryService.Report(IsCurrentOnly);
-        var reportData = await response.Content.ReadAsByteArrayAsync();
-
-        IJSObjectReference module;        
-        module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
-        await module.InvokeAsync<string>("openBlob", reportData);
+        var response = await ServiceWrapper.ServiceCall(() => InventoryService.Report(IsCurrentOnly), "An error occurred loading report.");
+        if (response.IsSuccessStatusCode)
+        {
+            var reportData = await response.Content.ReadAsByteArrayAsync();
+            IJSObjectReference module;        
+            module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
+            await module.InvokeAsync<string>("openBlob", reportData);    
+        }
     }
 }

@@ -1,14 +1,11 @@
 ﻿@using SpareParts.Shared.Models;
 @using System.Text
 
-@inject IInventoryService InventoryService;
+@inject IInventoryService InventoryService
+@inject IServiceWrapper ServiceWrapper
 
 <h3>Stocktake</h3>
 
-@if (_isLoading)
-{
-    <div class="spinner-border"></div>
-}
 @if(_stocktakeModel != null && _stocktakeModel.InventoryItems != null && _stocktakeModel.InventoryItems.Any())
 {
     <EditForm Model="_stocktakeModel.InventoryItems" OnValidSubmit="@SubmitValidForm">
@@ -54,7 +51,6 @@
 
 @code {
 
-    private bool _isLoading;
     private bool _hasError;
     private bool _hasSubmitted;
     private string? _errorMessage;
@@ -62,7 +58,6 @@
 
     protected async override Task OnInitializedAsync()
     {
-        _isLoading = false;
         _hasError = false;
         _hasSubmitted = false;
         _errorMessage = string.Empty;
@@ -72,45 +67,32 @@
 
     private async Task RefreshInventoryItemList()
     {
-        _isLoading = true;
+        var response = await ServiceWrapper.ServiceCall(() => InventoryService.IndexDetail(true), "An error occurred retrieving inventory items.");
 
-        try
+        if (response == null)
         {
-            var response = await InventoryService.IndexDetail(true);
-
-            if (response == null)
+            _hasError = true;
+        }
+        else
+        {
+            if (response.HasError)
             {
                 _hasError = true;
+                _errorMessage = response.Message;
             }
-            else
+
+            var currentItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
+            var stocktakeItems = new List<InventoryItemDetail>();
+
+            if (currentItems != null && currentItems.Any())
             {
-                if (response.HasError)
+                foreach (var item in currentItems)
                 {
-                    _hasError = true;
-                    _errorMessage = response.Message;
+                    stocktakeItems.Add(new InventoryItemDetail(0, item.PartID, item.PartName, 0, DateTime.Now));
                 }
-
-                var currentItems = response.Items?.OrderBy(i => i.PartName).ThenByDescending(i => i.DateRecorded).ToList();
-                var stocktakeItems = new List<InventoryItemDetail>();
-
-                if (currentItems != null && currentItems.Any())
-                {
-                    foreach (var item in currentItems)
-                    {
-                        stocktakeItems.Add(new InventoryItemDetail(0, item.PartID, item.PartName, 0, DateTime.Now));
-                    }
-                    _stocktakeModel = new StocktakeModel { InventoryItems = stocktakeItems };
-                }
+                _stocktakeModel = new StocktakeModel { InventoryItems = stocktakeItems };
             }
         }
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex);
-            _hasError = true;
-            _errorMessage = "Error occurred retrieving inventory";
-        }
-
-        _isLoading = false;
     }
 
     private async Task SubmitValidForm(EditContext context)
@@ -132,9 +114,7 @@
                 _errorMessage = sb.ToString();
                 return;
             }
-
-
-            _isLoading = true;
+            
             _hasSubmitted = true;
 
             var _baseItems = new List<InventoryItem>();
@@ -142,30 +122,19 @@
             {
                 _baseItems.Add(new InventoryItem { PartID = item.PartID, Quantity = item.Quantity, DateRecorded = DateTime.Now });
             }
+                        
+            var inventoryResponse = await ServiceWrapper.ServiceCall(() => InventoryService.PostList(_baseItems), "An error occurred updating stock.");
 
-            try
+            if (inventoryResponse == null || inventoryResponse.HasError)
             {
-                var inventoryResponse = await InventoryService.PostList(_baseItems);
-
-                if (inventoryResponse == null || inventoryResponse.HasError)
-                {
-                    _hasError = true;
-                    _errorMessage = inventoryResponse?.Message;
-                }
-                else
-                {
-                    _hasError = false;
-                    await RefreshInventoryItemList();
-                }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex);
                 _hasError = true;
-                _errorMessage = "Error occurred updating stock.";
+                _errorMessage = inventoryResponse?.Message;
             }
-
-            _isLoading = false;
+            else
+            {
+                _hasError = false;
+                await RefreshInventoryItemList();
+            }
         }
     }
         

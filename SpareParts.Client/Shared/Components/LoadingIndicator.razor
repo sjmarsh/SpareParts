@@ -1,0 +1,21 @@
+﻿@inject ILoadingIndicatorService LoadingService
+
+@if (_isLoading)
+{
+    <div class="spinner"/>
+}
+
+@code {
+    private bool _isLoading;
+
+    protected override void OnInitialized()
+    {
+        LoadingService.OnLoadingStateChanged += OnLoadingStateChanged;
+    }
+
+    private void OnLoadingStateChanged(bool isLoading)
+    {
+        _isLoading = isLoading;
+        StateHasChanged();
+    }
+}

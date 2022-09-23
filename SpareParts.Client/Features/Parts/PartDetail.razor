@@ -1,13 +1,10 @@
 ﻿@using SpareParts.Shared.Models;
 
-@inject IPartService PartService;
-@inject HttpClient HttpClient;
+@inject IPartService PartService
+@inject HttpClient HttpClient
+@inject IServiceWrapper ServiceWrapper
 
 <h3>@_modeDescription Part</h3>
-@if (_isLoading)
-{
-    <div class="spinner-border"></div>
-}
 
 @if(_part != null)
 {
@@ -50,7 +47,6 @@
 
     private Part? _part;
     private bool _isEdit;
-    private bool _isLoading;
     private bool _hasSubmitted;
     private bool _hasError;
     private string? _errorMessage;
@@ -60,39 +56,26 @@
     protected async override Task OnInitializedAsync()
     {       
         _isEdit = PartID.HasValue && PartID > 0;
-        _isLoading = false;
+        
         _hasError = false;
         _hasSubmitted = false;
 
         if(_isEdit && PartID.HasValue)
         {
-            _isLoading = true;
-
-            try
+            var partResponse = await ServiceWrapper.ServiceCall(() => PartService.Get(PartID.Value), "An error occurred retrieving part.");
+            if (partResponse == null)
             {
-                var partResponse = await PartService.Get(PartID.Value);
-                if (partResponse == null)
+                _hasError = true;
+            }
+            else
+            {
+                if (partResponse.HasError)
                 {
                     _hasError = true;
+                    _errorMessage = partResponse.Message;
                 }
-                else
-                {
-                    if (partResponse.HasError)
-                    {
-                        _hasError = true;
-                        _errorMessage = partResponse.Message;
-                    }
-                    _part = partResponse.Value;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);  // TODO add client side logging.
-                _hasError = true;
-                _errorMessage = "Error occurred retrieving part.";
-            }
-
-            _isLoading = false;
+                _part = partResponse.Value;
+            }            
         }
         else
         {
@@ -104,43 +87,30 @@
     {        
         if (_part != null)
         {
-            _isLoading = true;
             _hasSubmitted = true;
 
             PartResponse partResponse;
-
-            try
+                        
+            if (_isEdit)
             {
-                if (_isEdit)
-                {
-                    partResponse = await PartService.Put(_part);
-                }
-                else
-                {
-                    partResponse = await PartService.Post(_part);
-                }
-
-                if (partResponse == null || partResponse.HasError)
-                {
-                    _hasError = true;
-                    _errorMessage = partResponse?.Message;
-                }
-                else
-                {
-                    _isEdit = true;
-                    _part = partResponse.Value;
-                    await OnValidSubmit.InvokeAsync();
-                }
+                partResponse = await ServiceWrapper.ServiceCall(() => PartService.Put(_part), "An error occurred updating part.");
             }
-            catch(Exception ex)
+            else
             {
-                Console.WriteLine(ex);  // TODO add client side logging.
+                partResponse = await ServiceWrapper.ServiceCall(() => PartService.Post(_part), "An error occurred adding part.");
+            }
+
+            if (partResponse == null || partResponse.HasError)
+            {
                 _hasError = true;
-                _errorMessage = "Error occurred updating part.";
+                _errorMessage = partResponse?.Message;
             }
-
-            _isLoading = false;
-
+            else
+            {
+                _isEdit = true;
+                _part = partResponse.Value;
+                await OnValidSubmit.InvokeAsync();
+            }
         }
     }   
 }

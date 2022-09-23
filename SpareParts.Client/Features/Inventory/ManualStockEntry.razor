@@ -1,52 +1,48 @@
 ﻿@using SpareParts.Shared.Models;
 
-@inject IInventoryService InventoryService;
-@inject IPartService PartService;
+@inject IInventoryService InventoryService
+@inject IPartService PartService
+@inject IServiceWrapper ServiceWrapper
 
 <div>
-    @if (_isLoading)
+   
+    @if (_inventoryItem != null)
     {
-        <div class="spinner-border"></div>
-    }
-    else
-    {
-        @if (_inventoryItem != null)
-        {
-            <EditForm Model="_inventoryItem" OnValidSubmit="@SubmitValidForm">
-                <FluentValidationValidator/>
-                <div class="container-fluid">
-                    <div class="row justify-content-start">
-                        <div class="col">
-                            <div class="form-group my-2">
-                                <label for="selectPart">Select Part</label>
-                                @if(_parts != null)
+        <EditForm Model="_inventoryItem" OnValidSubmit="@SubmitValidForm">
+            <FluentValidationValidator/>
+            <div class="container-fluid">
+                <div class="row justify-content-start">
+                    <div class="col">
+                        <div class="form-group my-2">
+                            <label for="selectPart">Select Part</label>
+                            @if(_parts != null)
+                            {
+                                <InputSelect id="selectPart" class="form-select" @bind-Value="_inventoryItem.PartID">
+                                @foreach(var part in _parts)
                                 {
-                                    <InputSelect id="selectPart" class="form-select" @bind-Value="_inventoryItem.PartID">
-                                    @foreach(var part in _parts)
-                                    {
-                                        <option value="@part.ID">@part.Name</option> 
-                                    }
-                                    </InputSelect>       
+                                    <option value="@part.ID">@part.Name</option> 
                                 }
-                            </div>
-                        </div>
-                        <div class="col">
-                            <ValidInputNumber Id="partQty" DisplayName="Quantity" @bind-Value="_inventoryItem.Quantity" />
+                                </InputSelect>       
+                            }
                         </div>
                     </div>
+                    <div class="col">
+                        <ValidInputNumber Id="partQty" DisplayName="Quantity" @bind-Value="_inventoryItem.Quantity" />
+                    </div>
                 </div>
-                <div class="my-3">
-                    <button type="submit" class="btn btn-primary my-1" >Submit</button>
-                    @if(_hasSubmitted && !_hasError)
-                    {
-                        <div class="alert alert-success py-1">
-                            Success
-                        </div>
-                    }
-                </div>
-            </EditForm>
-        }
+            </div>
+            <div class="my-3">
+                <button type="submit" class="btn btn-primary my-1" >Submit</button>
+                @if(_hasSubmitted && !_hasError)
+                {
+                    <div class="alert alert-success py-1">
+                        Success
+                    </div>
+                }
+            </div>
+        </EditForm>
     }
+    
     @if(_hasError)
     {
         <div class="alert alert-danger py-1">
@@ -56,16 +52,15 @@
 </div>
 
 @code {
+
     private InventoryItem? _inventoryItem = default;
     private List<Part>? _parts = default;
-    private bool _isLoading;
     private bool _hasError;
     private bool _hasSubmitted;
     private string? _errorMessage;
 
     protected async override Task OnInitializedAsync()
     {
-        _isLoading = false;
         _hasError = false;
         _hasSubmitted = false;
 
@@ -78,76 +73,51 @@
     {
         // TODO: cache response - maybe use state OR - don't use select.  instead use auto-complete/look-ahead control
         // TODO: maybe add batch of items (instead of entering one at a time)
-
-        _isLoading = true;
-
-        try
+                
+        var partListResponse = await ServiceWrapper.ServiceCall(() => PartService.Index(true), "An error occurred retrieving parts.");
+        if (partListResponse == null)
         {
-            var partListResponse = await PartService.Index(true);
-            if (partListResponse == null)
+            _hasError = true;
+        }
+        else
+        {
+            if (partListResponse.HasError)
             {
                 _hasError = true;
+                _errorMessage = partListResponse.Message;
             }
-            else
+
+            _parts = partListResponse?.Items;
+            var firstPart = _parts?.FirstOrDefault();
+
+            if (_inventoryItem != null && firstPart != null)
             {
-                if (partListResponse.HasError)
-                {
-                    _hasError = true;
-                    _errorMessage = partListResponse.Message;
-                }
-
-                _parts = partListResponse?.Items;
-                var firstPart = _parts?.FirstOrDefault();
-
-                if (_inventoryItem != null && firstPart != null)
-                {
-                    _inventoryItem.PartID = firstPart.ID;
-                }
+                _inventoryItem.PartID = firstPart.ID;
             }
         }
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex);
-            _hasError = true;
-            _errorMessage = "Error occurred retrieving parts.";
-        }
-
-        _isLoading = false;
     }
 
     private async Task SubmitValidForm(EditContext context)
     {
         if(_inventoryItem != null)
         {
-            _isLoading = true;
             _hasSubmitted = true;
 
             _inventoryItem.DateRecorded = DateTime.Now;
-
-            try
+                        
+            var inventoryResponse = await ServiceWrapper.ServiceCall(() => InventoryService.Post(_inventoryItem), "An error occurred updating stock.");
+            if (inventoryResponse == null || inventoryResponse.HasError)
             {
-                var inventoryResponse = await InventoryService.Post(_inventoryItem);
-                if (inventoryResponse == null || inventoryResponse.HasError)
-                {
-                    _hasError = true;
-                    _errorMessage = inventoryResponse?.Message;
-                }
-                else
-                {
-                    _hasError = false;
-                    _inventoryItem = new InventoryItem();
-                    await RefreshPartsList();
-
-                }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex);
                 _hasError = true;
-                _errorMessage = "Error occurred updating stock.";
+                _errorMessage = inventoryResponse?.Message;
             }
+            else
+            {
+                _hasError = false;
+                _inventoryItem = new InventoryItem();
+                await RefreshPartsList();
 
-            _isLoading = false;
+            }
         }
     }
 }

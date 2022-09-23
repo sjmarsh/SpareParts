@@ -3,14 +3,11 @@
 
 @using SpareParts.Shared.Models
 
-@inject IPartService PartService;
-@inject IJSRuntime jsRuntime;
+@inject IPartService PartService
+@inject IServiceWrapper ServiceWrapper
+@inject IJSRuntime jsRuntime
 
 <h3>Part List</h3>
-@if (_isLoading)
-{
-    <div class="spinner-border"></div>
-}
 
 @if(_parts != null && _parts.Any())
 {
@@ -47,12 +44,9 @@
     <Pager TotalItemCount="_totalItemCount" PageSize="PageSize" OnPageChanged="HandlePageChanged"/>
 }
 
-@if(!_isLoading)
-{
-    <div>
-        <button class="btn btn-primary" @onclick="AddPart">Add Part</button>
-    </div>
-}
+<div>
+    <button class="btn btn-primary" @onclick="AddPart">Add Part</button>
+</div>
 
 @if(_hasError)
 {
@@ -75,8 +69,6 @@
 }
 
 @code {
-
-    private bool _isLoading;
     private bool _hasDeleted;
     private bool _hasError;
     private bool _isDetailModalVisible;
@@ -102,10 +94,9 @@
 
     private async Task RefreshPartsList()
     {        
-        _isLoading = true;
         var skip = (_currentPage - 1) * PageSize;
 
-        var partListResponse = await PartService.Index(false, skip, PageSize);
+        var partListResponse = await ServiceWrapper.ServiceCall(() => PartService.Index(false, skip, PageSize), "An error occurred retrieving part");
         if(partListResponse == null)
         {
             _hasError = true;
@@ -121,8 +112,6 @@
             _parts = partListResponse.Items;
             _totalItemCount = partListResponse.TotalItemCount;
         }
-
-        _isLoading = false;
     }
 
     private async Task HandlePageChanged(int page)
@@ -149,7 +138,7 @@
         _hasError = false;
         _errorMessage = "";
 
-        var partResponse = await PartService.Delete(partID);
+        var partResponse = await ServiceWrapper.ServiceCall(() => PartService.Delete(partID), "An error occurred deleting part.");
 
         if(partResponse != null && partResponse.HasError)
         {
@@ -171,11 +160,14 @@
 
     private async Task OpenReport()
     {
-        var response = await PartService.Report();
-        var reportData = await response.Content.ReadAsByteArrayAsync();
+        var response = await ServiceWrapper.ServiceCall(() => PartService.Report(), "An error occurred loading report.");
 
-        IJSObjectReference module;        
-        module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
-        await module.InvokeAsync<string>("openBlob", reportData);
+        if (response.IsSuccessStatusCode)
+        {
+            var reportData = await response.Content.ReadAsByteArrayAsync();
+            IJSObjectReference module;        
+            module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
+            await module.InvokeAsync<string>("openBlob", reportData);    
+        }
     }
 }
