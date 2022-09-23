@@ -73,7 +73,7 @@ namespace SpareParts.Browser.Tests.Pages
 
         public async Task ClickAddButton()
         {
-            var addButton = _page.Locator("text=Add");
+            var addButton = _page.Locator("text=Add Part");
             addButton.Should().NotBeNull();
             await addButton.ClickAsync();
         }
