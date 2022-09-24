@@ -6,17 +6,19 @@ namespace SpareParts.Browser.Tests.Pages
     {
         public const string UrlPath = "part-list";
         private readonly IPage _page;
-        private string _baseUrl;
+        private readonly string _baseUrl;
+        private readonly NavBar _navBar;
 
         public PartsPage(IPage page, string baseUrl)
         {
             _page = page;
             _baseUrl = baseUrl;
+            _navBar = new NavBar(_page);
         }
 
         public async Task InitializePage()
         {
-            await _page.GotoAsync($"{_baseUrl}/{UrlPath}");
+            await _navBar.ClickPartsNav();
             await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
             await _page.WaitForSelectorAsync("h3 >> text=Part List");
         }
@@ -25,6 +27,11 @@ namespace SpareParts.Browser.Tests.Pages
         {
             await _page.GotoAsync($"{_baseUrl}/{UrlPath}");
             await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        }
+
+        public async Task NavigateToPage()
+        {
+            await _navBar.ClickPartsNav();
         }
 
         public async Task<string> PageHeader()
@@ -41,8 +48,8 @@ namespace SpareParts.Browser.Tests.Pages
 
         public async Task<bool> IsPartTableVisible()
         {
-            await _page.WaitForSelectorAsync("div.spinner-border", new PageWaitForSelectorOptions { State = WaitForSelectorState.Detached });
-
+            await _page.WaitForSelectorAsync("div.spinner", new PageWaitForSelectorOptions { State = WaitForSelectorState.Detached });
+            await _page.WaitForLoadStateAsync();
             var partTableCount = await _page.Locator("#partTable").CountAsync();
             return partTableCount == 1;
         }

@@ -5,11 +5,13 @@
         public const string UrlPath = "login";
         private readonly IPage _page;
         private string _baseUrl;
+        private readonly NavBar _navBar;
 
         public LoginPage(IPage page, string baseUrl)
         {
             _page = page;
             _baseUrl = baseUrl;
+            _navBar = new NavBar(_page);
         }
 
         public async Task InitializePage()
@@ -24,6 +26,11 @@
             await _page.WaitForSelectorAsync("h3 >> text=Login");
         }
 
+        public async Task NavigateToPage()
+        {
+            await _navBar.ClickLoginNav();
+        }
+
         public string CurrentUrl()
         {
             return _page.Url;
@@ -34,13 +41,7 @@
             var h3 = _page.Locator("h3");
             return await h3.InnerTextAsync();
         }
-
-        public async Task<bool> IsLoggedIn()
-        {           
-            var helloMessage = await _page.QuerySelectorAsync("p >> text=Hello");
-            return helloMessage != null;
-        }
-
+                
         public async Task Login(bool waitForNav = true)
         {
             // TODO store test credentials in appsettings
@@ -62,11 +63,21 @@
             }
         }
 
+        public async Task<bool> IsLoggedIn()
+        {
+            return (await _navBar.GetNavItemTitles()).Contains("Logout");
+        }
+
         public async Task Logout()
         {
-            var logoutButton = _page.Locator("button >> text=Logout");
-            await logoutButton.ClickAsync();
+            await _navBar.ClickLogoutNav();
         }
+
+        public async Task<bool> IsLoggedOut()
+        {
+            return (await _navBar.GetNavItemTitles()).Contains("Login");
+        }
+
 
         public async Task EnsureLoggedOut()
         {

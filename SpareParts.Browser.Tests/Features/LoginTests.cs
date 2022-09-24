@@ -27,18 +27,17 @@ namespace SpareParts.Browser.Tests.Features
         public async Task Should_Login_and_Logout()
         {
             await _loginPage.EnsureLoggedOut();
-            await _loginPage.GoToPage();
+            await _loginPage.NavigateToPage();
 
             await _loginPage.Login();
 
-            _loginPage.CurrentUrl().Should().Be($"{_baseUrl}/");
-            await _loginPage.GoToPage();
+            _loginPage.CurrentUrl().Should().Be($"{_baseUrl}/");  // Home
             (await _loginPage.IsLoggedIn()).Should().BeTrue();
 
             await _loginPage.Logout();
 
-            _loginPage.CurrentUrl().Should().Be($"{_baseUrl}/");
-            await _loginPage.GoToPage();
+            _loginPage.CurrentUrl().Should().Be($"{_baseUrl}/"); // Home
+            await _loginPage.NavigateToPage();
             (await _loginPage.IsLoggedIn()).Should().BeFalse();
         }
 

@@ -4,17 +4,19 @@
     {
         public const string UrlPath = "inventory-home";
         private readonly IPage _page;
-        private string _baseUrl;
+        private readonly string _baseUrl;
+        private readonly NavBar _navBar;
 
         public InventoryPage(IPage page, string baseUrl)
         {
             _page = page;
             _baseUrl = baseUrl;
+            _navBar = new NavBar(_page);
         }
 
         public async Task InitializePage()
         {
-            await _page.GotoAsync($"{_baseUrl}/{UrlPath}");
+            await _navBar.ClickInventoryNav();
             await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
             await _page.WaitForSelectorAsync("h3 >> text=Inventory");
         }
@@ -23,6 +25,11 @@
         {
             await _page.GotoAsync($"{_baseUrl}/{UrlPath}");
             await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        }
+
+        public async Task NavigateToPage()
+        {
+            await _navBar.ClickInventoryNav();
         }
 
         public ManualStockEntryTab ManualStockEntry => new(_page);

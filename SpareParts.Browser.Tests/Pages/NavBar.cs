@@ -36,14 +36,20 @@
 
         public async Task ClickHomeNav()
         {
-            var partsNav = _page.Locator(".nav-link >> text=Home");
-            await partsNav.ClickAsync();
+            var homeNav = _page.Locator(".nav-link >> text=Home");
+            await homeNav.ClickAsync();
         }
 
         public async Task ClickLoginNav()
         {
-            var partsNav = _page.Locator(".nav-link >> text=Login");
-            await partsNav.ClickAsync();
+            var loginNav = _page.Locator(".nav-link >> text=Login");
+            await loginNav.ClickAsync();
+        }
+
+        public async Task ClickLogoutNav()
+        {
+            var logoutNav = _page.Locator(".nav-link >> text=Logout");
+            await logoutNav.ClickAsync();
         }
 
         public async Task ClickPartsNav()
@@ -54,8 +60,8 @@
 
         public async Task ClickInventoryNav()
         {
-            var partsNav = _page.Locator(".nav-link >> text=Inventory");
-            await partsNav.ClickAsync();
+            var inventoryNav = _page.Locator(".nav-link >> text=Inventory");
+            await inventoryNav.ClickAsync();
         }        
     }
 }
