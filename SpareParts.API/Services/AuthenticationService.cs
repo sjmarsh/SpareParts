@@ -6,23 +6,27 @@ using System.Text;
 using SpareParts.API.Infrastructure;
 using SpareParts.Shared.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Cryptography;
+using SpareParts.API.Entities;
+using SpareParts.API.Models;
 
 namespace SpareParts.API.Services
 {
     public interface IAuthenticationService
     {        
-        Task<AuthenticationResponse> Authenticate(AuthenticationRequest request);
+        Task<AuthenticationDetails> Authenticate(AuthenticationRequest request);
+        Task<AuthenticationDetails> Refresh(RefreshRequest refreshRequest);
         Task<bool> SetupUsersAndRoles();
     }
 
     public class AuthenticationService : IAuthenticationService
     {        
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JwtSettings _jwtSettings;
         private readonly ILogger<AuthenticationService> _logger;
-        
-        public AuthenticationService(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JwtSettings> jwtSettings, ILogger<AuthenticationService> logger)
+
+        public AuthenticationService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JwtSettings> jwtSettings, ILogger<AuthenticationService> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -30,31 +34,55 @@ namespace SpareParts.API.Services
             _logger = logger;
         }
 
-        public async Task<AuthenticationResponse> Authenticate(AuthenticationRequest request)
+        public async Task<AuthenticationDetails> Authenticate(AuthenticationRequest request)
         {
-            if(request.UserName == null || request.Password == null)
+            if (request.UserName == null || request.Password == null)
             {
                 // This should be handled by validation but just in case...
-                _logger.LogWarning("Attempted to Authenticate with incomplete credentials.");  
-                return new AuthenticationResponse(false, "Incomplete credentials.");
+                _logger.LogWarning("Attempted to Authenticate with incomplete credentials.");
+                return new AuthenticationDetails(new AuthenticationResponse(false, "Incomplete credentials."));
             }
 
             var user = await _userManager.FindByNameAsync(request.UserName);
-                        
+
             var isValidPassword = await _userManager.CheckPasswordAsync(user, request.Password);
             if (user == null || !isValidPassword)
             {
                 _logger.LogWarning($"User: {request.UserName} is not a valid user or password is invalid.");
-                return new AuthenticationResponse(false, "Invalid credentials");
+                return new AuthenticationDetails(new AuthenticationResponse(false, "Invalid credentials"));
             }
 
-            var signingCredentials = GetSigningCredentials();
-            var claims = await GetClaims(user);
-            var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
-            var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-            return new AuthenticationResponse(user.UserName, user.NormalizedUserName, true, "Authentication successful.", token);
+            return await BuildSuccessfulAuthenticationDetails(user);
         }
+        
+        public async Task<AuthenticationDetails> Refresh(RefreshRequest refreshRequest)
+        {
+            if(refreshRequest == null || refreshRequest.AccessToken == null || refreshRequest.RefreshToken == null)
+            {
+                _logger.LogWarning("Attempted to Refresh with missing tokens.");
+                return new AuthenticationDetails(new AuthenticationResponse(false, "Missing tokens."));
+            }
 
+            var principal = GetPrincipalFromExpiredToken(refreshRequest.AccessToken);
+            
+            if(principal == null)
+            {
+                _logger.LogWarning("Attempted to Refresh with invalid accesss token.");
+                return new AuthenticationDetails(new AuthenticationResponse(false, "Invalid token."));
+            }
+            
+            var userName = principal?.Identity?.Name;
+            var user = await _userManager.FindByNameAsync(userName);
+            
+            if(user == null || user.RefreshToken != refreshRequest.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+            {
+                _logger.LogWarning("Attempted to Refresh with invalid or expired refresh token.");
+                return new AuthenticationDetails(new AuthenticationResponse(false, "Invalid or expired token."));
+            }
+
+            return await BuildSuccessfulAuthenticationDetails(user);
+        }
+        
         public async Task<bool> SetupUsersAndRoles()
         {
             // One-Off method to establish users and roles in the database (for the sake of demo).
@@ -68,7 +96,7 @@ namespace SpareParts.API.Services
 
             foreach (var user in users)
             {
-                var identityUser = new IdentityUser { UserName = user.UserName, NormalizedUserName = user.DisplayName };
+                var identityUser = new ApplicationUser { UserName = user.UserName, DisplayName = user.DisplayName };
                 identityUser.PasswordHash = _userManager.PasswordHasher.HashPassword(identityUser, user.Password);
                 await _userManager.CreateAsync(identityUser);
 
@@ -86,6 +114,24 @@ namespace SpareParts.API.Services
             return true;
         }
 
+        private async Task<AuthenticationDetails> BuildSuccessfulAuthenticationDetails(ApplicationUser user)
+        {
+            string accessToken = await CreateAccessToken(user);
+            var refreshToken = CreateRefreshToken();
+            await StoreRefreshToken(user, refreshToken);
+            var authenticationResponse = new AuthenticationResponse(user.UserName, user.DisplayName, true, "Authentication successful.", accessToken);
+            return new AuthenticationDetails(authenticationResponse, refreshToken.Token);
+        }
+
+        private async Task<string> CreateAccessToken(ApplicationUser user)
+        {
+            var signingCredentials = GetSigningCredentials();
+            var claims = await GetClaims(user);
+            var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+            return accessToken;
+        }
+
         private SigningCredentials GetSigningCredentials()
         {
             var key = Encoding.UTF8.GetBytes(_jwtSettings.SigninKey);
@@ -93,7 +139,8 @@ namespace SpareParts.API.Services
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
-        private async Task<List<Claim>> GetClaims(IdentityUser user)
+
+        private async Task<List<Claim>> GetClaims(ApplicationUser user)
         {
             var claims = new List<Claim>
             {
@@ -109,6 +156,7 @@ namespace SpareParts.API.Services
 
             return claims;
         }
+
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
             var tokenOptions = new JwtSecurityToken(
@@ -121,5 +169,39 @@ namespace SpareParts.API.Services
             return tokenOptions;
         }
 
+        private RefreshToken CreateRefreshToken()
+        {
+            return new RefreshToken()
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                ExpiryTime = DateTime.Now.AddHours(_jwtSettings.RefreshTokenExpiryInHours)
+            };
+        }
+
+        private async Task StoreRefreshToken(ApplicationUser user, RefreshToken refreshToken)
+        {
+            user.RefreshToken = refreshToken.Token;
+            user.RefreshTokenExpiryTime = refreshToken.ExpiryTime;
+            await _userManager.UpdateAsync(user);
+        }
+
+        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SigninKey)),
+                ValidateLifetime = false
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
+
+            return principal;
+        }
     }
 }

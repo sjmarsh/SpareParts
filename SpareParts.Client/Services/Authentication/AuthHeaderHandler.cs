@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using SpareParts.Shared.Constants;
 using System.Net.Http.Headers;
 
 namespace SpareParts.Client.Services.Authentication
@@ -14,7 +15,7 @@ namespace SpareParts.Client.Services.Authentication
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var token = await _localStorage.GetItemAsync<string>(AuthToken.Name, cancellationToken);
+            var token = await _localStorage.GetItemAsync<string>(AuthToken.AccessTokenName, cancellationToken);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }

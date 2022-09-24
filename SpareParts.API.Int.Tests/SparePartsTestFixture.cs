@@ -57,8 +57,8 @@ namespace SpareParts.API.Int.Tests
             var authRequest = new AuthenticationRequest("admin", "password");
             var authenticationResponse = await PostRequest<AuthenticationRequest, AuthenticationResponse>("/api/user/authenticate", authRequest);
             authenticationResponse.Should().NotBeNull();
-            authenticationResponse.Token.Should().NotBeNullOrEmpty();
-            return authenticationResponse.Token!;
+            authenticationResponse.AccessToken.Should().NotBeNullOrEmpty();
+            return authenticationResponse.AccessToken!;
         }
 
         public void AddAuthHeaderToClient()

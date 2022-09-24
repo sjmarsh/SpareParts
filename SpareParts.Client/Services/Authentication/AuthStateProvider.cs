@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using SpareParts.Shared.Constants;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 
@@ -20,7 +21,7 @@ namespace SpareParts.Client.Services.Authentication
 
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = await _localStorage.GetItemAsync<string>(AuthToken.Name);
+            var token = await _localStorage.GetItemAsync<string>(AuthToken.AccessTokenName);
             if (string.IsNullOrWhiteSpace(token))
                 return _anonymous;
 
@@ -45,7 +46,7 @@ namespace SpareParts.Client.Services.Authentication
                 var expiryDate = DateTimeOffset.FromUnixTimeSeconds(expiry).ToLocalTime();
                 if (DateTime.Now >= expiryDate)
                 {
-                    await _localStorage.RemoveItemAsync(AuthToken.Name);
+                    await _localStorage.RemoveItemAsync(AuthToken.AccessTokenName);
                     return true;
                 }
             }

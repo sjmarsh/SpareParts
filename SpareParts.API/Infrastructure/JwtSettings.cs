@@ -6,6 +6,6 @@
         public string ValidIssuer { get; set; }
         public string ValidAudience { get; set; }
         public int ExpiryInMinutes { get; set; }
-
+        public int RefreshTokenExpiryInHours { get; set; }
     }
 }

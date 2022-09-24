@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using SpareParts.API.Data;
+using SpareParts.API.Entities;
 using SpareParts.API.Extensions;
 using SpareParts.API.Infrastructure;
 using SpareParts.API.Services;
@@ -46,7 +47,7 @@ try
     builder.Services.AddHttpContextAccessor();
 
     // Identity / Auth
-    builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<SparePartsDbContext>();
 
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));

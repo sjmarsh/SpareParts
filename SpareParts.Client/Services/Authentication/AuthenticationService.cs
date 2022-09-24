@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 using SpareParts.Shared.Models;
+using SpareParts.Shared.Constants;
 
 namespace SpareParts.Client.Services.Authentication
 {
@@ -31,11 +32,11 @@ namespace SpareParts.Client.Services.Authentication
         {
             var result = await _userService.Authenticate(request);
             
-            if (result.IsAuthenticated && result.Token != null)
+            if (result.IsAuthenticated && result.AccessToken != null)
             {
-                await _localStorage.SetItemAsync(AuthToken.Name, result.Token);
-                ((AuthStateProvider)_authenticationStateProvider).NotifyUserAuthentication(result.Token);
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.Token);
+                await _localStorage.SetItemAsync(AuthToken.AccessTokenName, result.AccessToken);
+                ((AuthStateProvider)_authenticationStateProvider).NotifyUserAuthentication(result.AccessToken);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.AccessToken);
             }
 
             return result;
@@ -43,7 +44,7 @@ namespace SpareParts.Client.Services.Authentication
 
         public async Task Logout()
         {
-            await _localStorage.RemoveItemAsync(AuthToken.Name);
+            await _localStorage.RemoveItemAsync(AuthToken.AccessTokenName);
             ((AuthStateProvider)_authenticationStateProvider).NotifyUserLogout();
             _httpClient.DefaultRequestHeaders.Authorization = null;
         }

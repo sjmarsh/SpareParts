@@ -7,7 +7,7 @@ using SpareParts.API.Entities;
 
 namespace SpareParts.API.Data
 {
-    public class SparePartsDbContext : IdentityDbContext<IdentityUser>
+    public class SparePartsDbContext : IdentityDbContext<ApplicationUser>
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         
