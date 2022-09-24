@@ -1,31 +1,54 @@
 ﻿using Blazored.Toast.Services;
 using Refit;
+using SpareParts.Client.Services.Authentication;
 
 namespace SpareParts.Client.Services
 {
     public interface IServiceWrapper
     {
-        Task<TResult> ServiceCall<TResult>(Func<Task<TResult>> serviceCall, string friendlyErrorMessage) where TResult : class, new();
+        /// <summary>
+        /// Wraps a service call with loading states, authentication token refresh and error handling / logging.
+        /// </summary>
+        /// <typeparam name="TResult">The result type for the service call</typeparam>
+        /// <param name="serviceCall">A function delegate for the service call</param>
+        /// <param name="friendlyErrorMessage">User friendly error message</param>
+        /// <param name="shouldRefreshAuthentication">Should this attempt to refresh the authentication token before making the service call.  Default = true.</param>
+        /// <returns></returns>
+        Task<TResult> ServiceCall<TResult>(Func<Task<TResult>> serviceCall, string friendlyErrorMessage, bool shouldRefreshAuthentication = true) where TResult : class, new();
     }
 
     public class ServiceWrapper : IServiceWrapper
-    {
-        private readonly ILogger<ServiceWrapper> _logger;
+    {        
+        private readonly IAuthenticationService _authenticationService;
         private readonly ILoadingIndicatorService _loadingIndicatorService;
         private readonly IToastService _toastService;
+        private readonly ILogger<ServiceWrapper> _logger;
 
-        public ServiceWrapper(ILogger<ServiceWrapper> logger, ILoadingIndicatorService loadingIndicatorService, IToastService toastService)
-        {
-            _logger = logger;
+        public ServiceWrapper(IAuthenticationService authenticationService, ILoadingIndicatorService loadingIndicatorService, IToastService toastService, ILogger<ServiceWrapper> logger)
+        {   
+            _authenticationService = authenticationService;
             _loadingIndicatorService = loadingIndicatorService;
             _toastService = toastService;
+            _logger = logger;
         }
 
-        public async Task<TResult> ServiceCall<TResult>(Func<Task<TResult>> serviceCall, string friendlyErrorMessage) where TResult : class, new()
+        public async Task<TResult> ServiceCall<TResult>(Func<Task<TResult>> serviceCall, string friendlyErrorMessage, bool shouldRefresh = true) where TResult : class, new()
         {
             try
             {
                 _loadingIndicatorService.SetIsLoading(true);
+
+                if(shouldRefresh)
+                {
+                    var response = await _authenticationService.RefreshIfRequired();
+                    if(response != null && response.IsAuthenticated == false)
+                    {
+                        _toastService.ShowWarning("You're session has expired. Please log-in and try again.");
+                        _logger.LogWarning(response.Message);
+                        return new TResult();
+                    }
+                }  
+
                 return await serviceCall();
             }
             catch(ApiException ex)

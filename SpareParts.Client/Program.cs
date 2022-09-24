@@ -1,4 +1,3 @@
-using Blazored.LocalStorage;
 using Blazored.Toast;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -13,9 +12,9 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddServiceWrapper();
 builder.Services.AddLoadingIndicatorService();
-builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();
 builder.Services.AddAuthorizationCore();
+builder.Services.AddInMemoryAuthTokenStore();
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<AuthHeaderHandler>();
@@ -25,7 +24,5 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddRefitClientFor<IUserService>(builder.HostEnvironment.BaseAddress);
 builder.Services.AddRefitClientFor<IPartService>(builder.HostEnvironment.BaseAddress);
 builder.Services.AddRefitClientFor<IInventoryService>(builder.HostEnvironment.BaseAddress);
-
-
 
 await builder.Build().RunAsync();

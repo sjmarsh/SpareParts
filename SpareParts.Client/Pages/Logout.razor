@@ -6,9 +6,9 @@
 <h3>Logout</h3>
 
 @code {
-    protected async override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await AuthenticationService.Logout();
+        AuthenticationService.Logout();
         NavigationManager.NavigateTo("/");
     }
 

@@ -51,7 +51,7 @@
     {
         _hasError = false;
 
-        var result = await ServiceWrapper.ServiceCall(() => AuthenticationService.Authenticate(_authRequest), "An error occurred logging in.");
+        var result = await ServiceWrapper.ServiceCall(() => AuthenticationService.Authenticate(_authRequest), "An error occurred logging in.", shouldRefreshAuthentication: false);
 
         if (!result.IsAuthenticated)
         {

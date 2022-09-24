@@ -1,6 +1,4 @@
-﻿using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
-using SpareParts.Shared.Constants;
+﻿using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 
@@ -9,48 +7,25 @@ namespace SpareParts.Client.Services.Authentication
     public class AuthStateProvider : AuthenticationStateProvider
     {
         private readonly HttpClient _httpClient;
-        private readonly ILocalStorageService _localStorage;
+        private readonly IAuthTokenStore _authTokenStore;
         private readonly AuthenticationState _anonymous;
 
-        public AuthStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
+        public AuthStateProvider(HttpClient httpClient, IAuthTokenStore authTokenStore)
         {
             _httpClient = httpClient;
-            _localStorage = localStorage;
+            _authTokenStore = authTokenStore;
             _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
 
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = await _localStorage.GetItemAsync<string>(AuthToken.AccessTokenName);
-            if (string.IsNullOrWhiteSpace(token))
+            var token = _authTokenStore.GetToken();
+            if (string.IsNullOrWhiteSpace(token) || _authTokenStore.HasTokenExpired())
                 return _anonymous;
-
-            IEnumerable<Claim> claims = JwtParser.ParseClaimsFromJwt(token).ToArray();
-
-            if (await HasTokenExpired(claims))
-            {
-                return _anonymous;
-            }
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
             
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, "jwtAuthType")));
-        }
-
-        private async Task<bool> HasTokenExpired(IEnumerable<Claim> claims)
-        {
-            var expiryClaim = claims.FirstOrDefault(c => c.Type == "exp");
-            if(expiryClaim != null)
-            {
-                var expiry = Convert.ToInt64(expiryClaim.Value);
-                var expiryDate = DateTimeOffset.FromUnixTimeSeconds(expiry).ToLocalTime();
-                if (DateTime.Now >= expiryDate)
-                {
-                    await _localStorage.RemoveItemAsync(AuthToken.AccessTokenName);
-                    return true;
-                }
-            }
-            return false;
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(_authTokenStore.GetClaims(), "jwtAuthType")));
         }
 
         public void NotifyUserAuthentication(string token)
@@ -65,7 +40,5 @@ namespace SpareParts.Client.Services.Authentication
             var authState = Task.FromResult(_anonymous);
             NotifyAuthenticationStateChanged(authState);
         }
-
-
     }
 }

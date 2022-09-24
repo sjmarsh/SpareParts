@@ -185,8 +185,10 @@ namespace SpareParts.API.Services
             await _userManager.UpdateAsync(user);
         }
 
-        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
+        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
         {
+            token = token.Replace("Bearer ", "").Replace("bearer ", "");
+
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateAudience = false,

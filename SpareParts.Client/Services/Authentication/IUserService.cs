@@ -7,5 +7,8 @@ namespace SpareParts.Client.Services.Authentication
     {
         [Post("/api/user/authenticate")]
         public Task<AuthenticationResponse> Authenticate(AuthenticationRequest authenticationRequest);
+
+        [Post("/api/user/refresh")]
+        public Task<AuthenticationResponse> Refresh();
     }
 }
