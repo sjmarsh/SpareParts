@@ -90,7 +90,7 @@ namespace SpareParts.Test.Helpers
                 itemDetails.Add(new()
                 {
                     ID = item.ID,
-                    PartID = item.PartID.Value,
+                    PartID = item.PartID!.Value,
                     PartName = parts.First(p => p.ID == item.PartID.Value).Name,
                     Quantity = item.Quantity,
                     DateRecorded = item.DateRecorded

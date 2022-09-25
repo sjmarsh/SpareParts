@@ -31,7 +31,7 @@ namespace SpareParts.API.Int.Tests
             var savedPart = await _dataHelper.CreatePartInDatabase();
             savedPart?.ID.Should().BeGreaterThan(0);
 
-            var result = await _testFixture.Get($"/api/part/?id={savedPart.ID}");
+            var result = await _testFixture.Get($"/api/part/?id={savedPart?.ID}");
 
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -43,7 +43,7 @@ namespace SpareParts.API.Int.Tests
             var savedPart = await _dataHelper.CreatePartInDatabase();
             savedPart?.ID.Should().BeGreaterThan(0);
 
-            var result = await _testFixture.GetRequest<PartResponse>($"/api/part/?id={savedPart.ID}");
+            var result = await _testFixture.GetRequest<PartResponse>($"/api/part/?id={savedPart!.ID}");
             
             result.Should().NotBeNull();
             result.Value.Should().NotBeNull();
@@ -97,7 +97,7 @@ namespace SpareParts.API.Int.Tests
             result.Should().NotBeNull();
             result.Items.Should().NotBeNull();
             result.Items.Should().HaveCount(1);
-            result.Items[0].Should().BeEquivalentTo(parts[0]);
+            result?.Items?[0].Should().BeEquivalentTo(parts[0]);
         }
 
 
@@ -124,7 +124,7 @@ namespace SpareParts.API.Int.Tests
         {
             var savedPart = await _dataHelper.CreatePartInDatabase();
             savedPart?.ID.Should().BeGreaterThan(0);
-            var partModel = new Part { ID = savedPart.ID, Name = "Other Name", Description = "Other Descritpion", Weight = savedPart.Weight, Price = savedPart.Price.Value, StartDate = savedPart.StartDate };
+            var partModel = new Part { ID = savedPart!.ID, Name = "Other Name", Description = "Other Descritpion", Weight = savedPart.Weight, Price = savedPart!.Price!.Value, StartDate = savedPart.StartDate };
             _testFixture.DbContext.ChangeTracker.Clear();
 
             var result = await _testFixture.PutRequest<Part, PartResponse>("/api/part", partModel);
@@ -147,7 +147,7 @@ namespace SpareParts.API.Int.Tests
             savedPart?.ID.Should().BeGreaterThan(0);
             _testFixture.DbContext.ChangeTracker.Clear();
 
-            var result = await _testFixture.DeleteRequest<PartResponse>($"/api/part/?id={savedPart.ID}");
+            var result = await _testFixture.DeleteRequest<PartResponse>($"/api/part/?id={savedPart!.ID}");
 
             result.Value.Should().BeNull();
             result.HasError.Should().BeFalse();

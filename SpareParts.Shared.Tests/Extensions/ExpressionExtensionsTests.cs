@@ -21,7 +21,7 @@ namespace SpareParts.Shared.Tests.Extensions
         public void ShouldReturnCompiledValueWhenNull()
         {            
             var tm = new TestModel();
-            Expression<Func<string>> exp = () => tm.Name;
+            Expression<Func<string>> exp = () => tm.Name!;
 
             var result = exp.GetValueFromExpression();
 
@@ -44,7 +44,7 @@ namespace SpareParts.Shared.Tests.Extensions
         {
             const string value = "Test";
             var tm = new TestModel();
-            Expression<Func<string>> exp = () => tm.Name;
+            Expression<Func<string>> exp = () => tm.Name!;
 
             exp.SetValueToExpression(tm, value);
 

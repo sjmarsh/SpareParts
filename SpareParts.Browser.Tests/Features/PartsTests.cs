@@ -33,6 +33,9 @@ namespace SpareParts.Browser.Tests.Features
 
         public async Task DisposeAsync()
         {
+            await Task.Run(() =>
+            {
+            });
         }
 
         [Fact]
@@ -102,7 +105,7 @@ namespace SpareParts.Browser.Tests.Features
 
         private async Task EnterPart(Shared.Models.Part part)
         {
-            var partModal = await _partsPage.GetPartModal();
+            var partModal = _partsPage.GetPartModal();
             await partModal.EnterName(part.Name);
             await partModal.EnterDescription(part.Description);
             await partModal.EnterWeight(part.Weight);

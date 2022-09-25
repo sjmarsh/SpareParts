@@ -17,15 +17,14 @@ namespace SpareParts.Client.Services.Authentication
             _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
 
-        public async override Task<AuthenticationState> GetAuthenticationStateAsync()
+        public override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             var token = _authTokenStore.GetToken();
             if (string.IsNullOrWhiteSpace(token) || _authTokenStore.HasTokenExpired())
-                return _anonymous;
+                return Task.FromResult(_anonymous);
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
-            
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(_authTokenStore.GetClaims(), "jwtAuthType")));
+            return Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(_authTokenStore.GetClaims(), "jwtAuthType"))));
         }
 
         public void NotifyUserAuthentication(string token)

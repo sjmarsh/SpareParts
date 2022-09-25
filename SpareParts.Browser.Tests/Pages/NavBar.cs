@@ -24,6 +24,10 @@
         {
             await _page.WaitForSelectorAsync(".sidebar");
             var sideBar = await _page.QuerySelectorAsync(".sidebar");
+            if(sideBar == null)
+            {
+                throw new Exception("Can't find Nav Bar on page.");
+            }
             var links = await sideBar.QuerySelectorAllAsync(".nav-link");
             links.Should().NotBeNullOrEmpty();
             var titles = new List<string>();

@@ -33,6 +33,9 @@ namespace SpareParts.Browser.Tests.Features
 
         public async Task DisposeAsync()
         {
+            await Task.Run(() =>
+            {
+            });
         }
 
         [Fact]
@@ -58,7 +61,7 @@ namespace SpareParts.Browser.Tests.Features
 
             await _inventoryPage.SelectTabNumber(0);
             var manualStockEntry = _inventoryPage.ManualStockEntry;
-            await manualStockEntry.SelectPart(part2.Name);
+            await manualStockEntry.SelectPart(part2.Name!);
             await manualStockEntry.EnterQuantity(quantity);
             await manualStockEntry.SaveManualStock();
 
@@ -125,7 +128,7 @@ namespace SpareParts.Browser.Tests.Features
                 {
                     partIndex = 0;
                 }
-                await manualStockEntry.SelectPart(parts[partIndex].Name);
+                await manualStockEntry.SelectPart(parts[partIndex].Name!);
                 await manualStockEntry.EnterQuantity(quantities[i]);
                 await manualStockEntry.SaveManualStock();
                 partIndex++;

@@ -75,7 +75,12 @@ namespace SpareParts.Browser.Tests
         
         private async Task SetupUsersAndRoles()
         {
-            var authService = (IAuthenticationService)_factory.Services.GetService(typeof(IAuthenticationService));
+            var service = _factory.Services.GetService(typeof(IAuthenticationService));
+            if(service == null)
+            {
+                throw new Exception("AuthenticationService has not been registered in Program.cs");
+            }
+            var authService = (IAuthenticationService)service;
             var isSetup = await authService.SetupUsersAndRoles();
             isSetup.Should().BeTrue();
         }
@@ -119,10 +124,9 @@ namespace SpareParts.Browser.Tests
     }
 
     //ref: https://stackoverflow.com/questions/71541576/using-webapplicationfactory-to-do-e2e-testing-with-net-6-minimal-api
-    public class WebApplicationFactoryFixture<TEntryPoint> : WebApplicationFactory<TEntryPoint>
-    where TEntryPoint : class
+    public class WebApplicationFactoryFixture<TEntryPoint> : WebApplicationFactory<TEntryPoint> where TEntryPoint : class
     {
-        public string HostUrl { get; set; }// = "https://localhost:5001"; // we can use any free port
+        public string HostUrl { get; set; } = "https://localhost:5001"; // we can use any free port
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {

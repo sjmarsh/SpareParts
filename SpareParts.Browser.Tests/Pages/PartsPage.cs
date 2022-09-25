@@ -78,7 +78,7 @@ namespace SpareParts.Browser.Tests.Pages
                 Description = await cells.Nth(1).InnerTextAsync(),
                 Weight = GetDouble(await cells.Nth(2).InnerTextAsync()),
                 Price = GetDouble((await cells.Nth(3).InnerTextAsync()).Replace("$", "")),
-                StartDate = GetDate(await cells.Nth(4).InnerTextAsync()).Value.Date,
+                StartDate = GetDate(await cells.Nth(4).InnerTextAsync())!.Value.Date,
                 EndDate = GetDate(await cells.Nth(5).InnerTextAsync())
             };
         }
@@ -97,7 +97,7 @@ namespace SpareParts.Browser.Tests.Pages
         }
 
 
-        public async Task<PartModal> GetPartModal()
+        public PartModal GetPartModal()
         {
             var modal = _page.Locator(".modal-dialog");
             modal.Should().NotBeNull();

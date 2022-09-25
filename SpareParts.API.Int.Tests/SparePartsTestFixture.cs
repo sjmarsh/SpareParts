@@ -43,7 +43,10 @@ namespace SpareParts.API.Int.Tests
 
         public async Task DisposeAsync()
         {
-            _authToken = null;
+            await Task.Run(() =>
+            {
+                _authToken = null;
+            });
         }
 
         private async Task SetupUsersAndRoles()
@@ -77,9 +80,7 @@ namespace SpareParts.API.Int.Tests
             try
             {
                 using HttpResponseMessage response = await HttpClient.GetAsync(uri);
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<TOut>(responseBody);
+                return await HandleResponse<TOut>(response);
             }
             catch (Exception ex)
             {
@@ -88,19 +89,15 @@ namespace SpareParts.API.Int.Tests
 
             return await Task.FromResult(new TOut());
         }
-
+        
         public async Task<TOut> PostRequest<TIn, TOut>(string uri, TIn content) where TOut : new()
         {
             try
             {
                 HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var serialized = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
-
                 using HttpResponseMessage response = await HttpClient.PostAsync(uri, serialized);
-                
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<TOut>(responseBody);
+                return await HandleResponse<TOut>(response);
             }
             catch (Exception ex)
             {
@@ -116,12 +113,8 @@ namespace SpareParts.API.Int.Tests
             {
                 HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var serialized = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
-
                 using HttpResponseMessage response = await HttpClient.PutAsync(uri, serialized);
-
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<TOut>(responseBody);
+                return await HandleResponse<TOut>(response);
             }
             catch (Exception ex)
             {
@@ -138,7 +131,7 @@ namespace SpareParts.API.Int.Tests
                 using HttpResponseMessage response = await HttpClient.DeleteAsync(uri);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<TOut>(responseBody);
+                return await HandleResponse<TOut>(response);
             }
             catch (Exception ex)
             {
@@ -146,6 +139,18 @@ namespace SpareParts.API.Int.Tests
             }
 
             return await Task.FromResult(new TOut());
+        }
+
+        private static async Task<TOut> HandleResponse<TOut>(HttpResponseMessage response) where TOut : new()
+        {
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<TOut>(responseBody);
+            if (result == null)
+            {
+                throw new Exception("Request returned null");
+            }
+            return result;
         }
 
         private SparePartsDbContext SetupDbContext()

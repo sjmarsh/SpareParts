@@ -18,6 +18,9 @@ namespace SpareParts.Browser.Tests.Features
 
         public async Task InitializeAsync()
         {
+            await Task.Run(() =>
+            {
+            });
         }
 
         public async Task DisposeAsync()

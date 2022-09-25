@@ -105,7 +105,7 @@ namespace SpareParts.API.Int.Tests
             result.Should().NotBeNull();
             result.Items.Should().NotBeNull();
             result.Items.Should().HaveCount(1);
-            result.Items[0].Should().BeEquivalentTo(inventoryItems[0]);
+            result?.Items?[0].Should().BeEquivalentTo(inventoryItems[0]);
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace SpareParts.API.Int.Tests
         {
             var savedItem = await _dataHelper.CreateInventoryItemInDatabase();
             savedItem?.ID.Should().BeGreaterThan(0);
-            var itemModel = new InventoryItem { ID = savedItem.ID, PartID = savedItem.PartID.Value, Quantity = savedItem.Quantity + 10, DateRecorded = savedItem.DateRecorded.AddHours(2)};
+            var itemModel = new InventoryItem { ID = savedItem!.ID, PartID = savedItem!.PartID!.Value, Quantity = savedItem.Quantity + 10, DateRecorded = savedItem.DateRecorded.AddHours(2)};
             _testFixture.DbContext.ChangeTracker.Clear();
 
             var result = await _testFixture.PutRequest<InventoryItem, InventoryItemResponse>("/api/inventory", itemModel);
@@ -171,7 +171,7 @@ namespace SpareParts.API.Int.Tests
             savedItem?.ID.Should().BeGreaterThan(0);
             _testFixture.DbContext.ChangeTracker.Clear();
 
-            var result = await _testFixture.DeleteRequest<InventoryItemResponse>($"/api/inventory/?id={savedItem.ID}");
+            var result = await _testFixture.DeleteRequest<InventoryItemResponse>($"/api/inventory/?id={savedItem!.ID}");
 
             result.Value.Should().BeNull();
             result.HasError.Should().BeFalse();
