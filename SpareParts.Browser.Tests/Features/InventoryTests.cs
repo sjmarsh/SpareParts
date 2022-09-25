@@ -27,8 +27,7 @@ namespace SpareParts.Browser.Tests.Features
             await _dbContext.SaveChangesAsync();
             _dbContext.Parts.RemoveRange(_dbContext.Parts);
             await _dbContext.SaveChangesAsync();
-
-            await _loginPage.EnsureLoggedIn();
+                        
             await _inventoryPage.InitializePage();
         }
 
@@ -42,15 +41,6 @@ namespace SpareParts.Browser.Tests.Features
             (await _inventoryPage.PageHeader()).Should().Be("Inventory");
         }
 
-        [Fact]
-        public async Task Should_NotBeAbleToAccessPageIfNotLoggedIn()
-        {
-            await _loginPage.EnsureLoggedOut();
-
-            await _inventoryPage.GotoPage();
-
-            _inventoryPage.HasNotAuthorizedMessage().Should().BeTrue();
-        }
 
         [Fact]
         public async Task Should_DefaultToFirstTab()

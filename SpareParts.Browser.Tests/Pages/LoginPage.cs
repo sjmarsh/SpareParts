@@ -49,17 +49,19 @@
         }
 
         public async Task Login(string userName, string password, bool waitForNav = true)
-        {
+        {            
             await _page.Locator("#userName").FillAsync(userName);
             await _page.Locator("#password").FillAsync(password);
 
             var loginButton = await _page.QuerySelectorAsync("button >> text=Login");
             loginButton.Should().NotBeNull();
+                        
             await loginButton!.ClickAsync();
 
             if (waitForNav)
             {
-                await _page.WaitForNavigationAsync();
+                await _page.WaitForNavigationAsync(new PageWaitForNavigationOptions { WaitUntil = WaitUntilState.NetworkIdle });
+                //await _page.WaitForSelectorAsync("h1 >> Spare Parts");
             }
         }
 
@@ -73,6 +75,12 @@
             await _navBar.ClickLogoutNav();
         }
 
+        public async Task GoToLogoutPage()
+        {
+            // note. navigating directly to this page just simply logs you out there is no page content to speak of.
+            await _page.GotoAsync($"{_baseUrl}/logout");
+        }
+
         public async Task<bool> IsLoggedOut()
         {
             return (await _navBar.GetNavItemTitles()).Contains("Login");
@@ -81,28 +89,28 @@
 
         public async Task EnsureLoggedOut()
         {
-            if (!_page.Url.Contains(UrlPath))
-            {
-                await GoToPage();
-            }
-
-            if (await IsLoggedIn())
+            if(await IsLoggedIn())
             {
                 await Logout();
             }
+            else
+            {
+                await GoToLogoutPage();
+                await _page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+            }
+            await _page.WaitForTimeoutAsync(1000);
+            (await _navBar.GetNavItemTitles()).Should().Contain("Login");
         }
 
         public async Task EnsureLoggedIn()
         {
-            if (!_page.Url.Contains(UrlPath))
+            if(await IsLoggedOut())
             {
-                await GoToPage();
-            }
-
-            if(!await IsLoggedIn())
-            {
+                await NavigateToPage();
                 await Login();
             }
+            await _page.WaitForTimeoutAsync(1000);
+            (await _navBar.GetNavItemTitles()).Should().Contain("Logout");
         }
 
         public async Task<string> AlertMessage()

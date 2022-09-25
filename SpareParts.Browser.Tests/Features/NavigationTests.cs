@@ -18,11 +18,11 @@ namespace SpareParts.Browser.Tests.Features
 
         public async Task InitializeAsync()
         {
-            await _loginPage.EnsureLoggedIn();
         }
 
         public async Task DisposeAsync()
         {
+            await _loginPage.EnsureLoggedIn();
         }
 
         [Fact]

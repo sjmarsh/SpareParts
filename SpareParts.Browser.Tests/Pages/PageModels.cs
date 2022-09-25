@@ -13,6 +13,8 @@
 
         public NavBar NavBar => new(_page);
 
+        public HomePage Home => new(_page);
+
         public LoginPage Login => new(_page, _baseUrl);
 
         public PartsPage Parts => new(_page, _baseUrl);

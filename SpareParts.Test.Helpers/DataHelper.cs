@@ -18,6 +18,7 @@ namespace SpareParts.Test.Helpers
             var partEntity = GetPartsFakerConfig().Generate(1).First();
             _dbContext.Parts.Add(partEntity);
             await _dbContext.SaveChangesAsync();
+            Thread.Sleep(1000);
             return partEntity;
         }
 
@@ -29,7 +30,7 @@ namespace SpareParts.Test.Helpers
                 _dbContext.Parts.Add(part);
             }
             await _dbContext.SaveChangesAsync();
-
+            Thread.Sleep(1000);
             return parts;
         }
 

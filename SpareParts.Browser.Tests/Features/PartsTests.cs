@@ -8,14 +8,14 @@ namespace SpareParts.Browser.Tests.Features
     public class PartsTests : IAsyncLifetime
     {
         private readonly PartsPage _partsPage;
-        private readonly LoginPage _loginPage;
+        
         private readonly SparePartsDbContext _dbContext;
         private readonly DataHelper _dataHelper;
 
         public PartsTests(SparePartsBrowserTestFixture fixture)
         {
             _partsPage = fixture.Pages.Parts;
-            _loginPage = fixture.Pages.Login;
+            
             _dbContext = fixture.DbContext;
             _dataHelper = new DataHelper(_dbContext);
         }
@@ -27,8 +27,7 @@ namespace SpareParts.Browser.Tests.Features
             await _dbContext.SaveChangesAsync();
             _dbContext.Parts.RemoveRange(_dbContext.Parts);
             await _dbContext.SaveChangesAsync();
-
-            await _loginPage.EnsureLoggedIn();
+            
             await _partsPage.InitializePage();
         }
 
@@ -42,16 +41,6 @@ namespace SpareParts.Browser.Tests.Features
             var header = await _partsPage.PageHeader();
 
             header.Should().Be("Part List");
-        }
-
-        [Fact]
-        public async Task Should_NotBeAbleToAccessPageIfNotLoggedIn()
-        {
-            await _loginPage.EnsureLoggedOut();
-
-            await _partsPage.GotoPage();
-
-            _partsPage.HasNotAuthorizedMessage().Should().BeTrue();
         }
 
         [Fact]

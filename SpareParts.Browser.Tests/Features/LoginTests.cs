@@ -21,6 +21,7 @@ namespace SpareParts.Browser.Tests.Features
 
         public async Task DisposeAsync()
         {
+            await _loginPage.EnsureLoggedIn();
         }
         
         [Fact]

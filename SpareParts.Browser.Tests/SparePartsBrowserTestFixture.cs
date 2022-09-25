@@ -48,7 +48,10 @@ namespace SpareParts.Browser.Tests
             Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false });
             var page = await Browser.NewPageAsync(new BrowserNewPageOptions { Locale = "en-AU" });
             await page.GotoAsync(BaseUrl);
-            Pages = new PageModels(page, BaseUrl);            
+            Pages = new PageModels(page, BaseUrl);
+            
+            await Pages.Login.NavigateToPage();
+            await Pages.Login.Login();
         }              
 
         private async Task<SparePartsDbContext> SetupDbContextAsync()
@@ -106,6 +109,8 @@ namespace SpareParts.Browser.Tests
 
         public async Task DisposeAsync()
         {
+            await Pages.Login.EnsureLoggedOut();
+
             DbContext.Database.EnsureDeleted();
             DbContext.Database.CloseConnection();
             DbContext.Dispose();
