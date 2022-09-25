@@ -23,5 +23,3 @@ jobs:
       run: dotnet build --no-restore
     - name: Unit Tests
       run: dotnet test SpareParts.Shared.Tests --no-build --verbosity normal
-    - name: Client Tests
-      run: dotnet test SpareParts.Client.Tests --verbosity normal
