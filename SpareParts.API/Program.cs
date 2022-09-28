@@ -97,16 +97,29 @@ try
     builder.Services.AddTransient<IDataService, DataService>();
     builder.Services.AddTransient<IReportService, ReportService>();
 
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("Default",
+            builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
+        options.AddPolicy("React",
+            builder => builder
+                .WithOrigins("https://localhost:3000")
+                .AllowCredentials()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+    });
+
     var app = builder.Build();
         
     
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment() || app.Environment.IsIntegrationTest())
     {
-        app.UseCors(builder => builder
-         .AllowAnyOrigin()
-         .AllowAnyMethod()
-         .AllowAnyHeader());
+        app.UseCors("React");
 
         app.UseSwagger();
         app.UseSwaggerUI();

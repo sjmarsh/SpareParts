@@ -195,7 +195,8 @@ namespace SpareParts.API.Services
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SigninKey)),
-                ValidateLifetime = false
+                ValidateLifetime = false,
+                ClockSkew = TimeSpan.FromMinutes(1)
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
