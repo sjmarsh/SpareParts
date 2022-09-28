@@ -2,7 +2,7 @@
 
 Spike/Playground project to test out different .Net / Blazor technologies and patterns.
 
-Note. React based client app for this exists at [https://github.com/sjmarsh/spare-parts-react(https://github.com/sjmarsh/spare-parts-react)]
+Note. React based client app for this exists at [https://github.com/sjmarsh/spare-parts-react](https://github.com/sjmarsh/spare-parts-react)
 
 ## Technologies:
 - Web API
