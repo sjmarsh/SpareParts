@@ -108,14 +108,16 @@ try
         options.AddPolicy("React",
             builder => builder
                 .WithOrigins("https://localhost:3000")
+                .SetIsOriginAllowed(origin => true)
                 .AllowCredentials()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
     });
 
     var app = builder.Build();
-        
-    
+
+    app.UseHttpsRedirection();
+
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment() || app.Environment.IsIntegrationTest())
     {
@@ -133,8 +135,7 @@ try
         // The default HSTS value is 30 days. Change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         app.UseHsts();
     }
-
-    app.UseHttpsRedirection();
+        
         
     // For Blazor
     app.UseBlazorFrameworkFiles();
