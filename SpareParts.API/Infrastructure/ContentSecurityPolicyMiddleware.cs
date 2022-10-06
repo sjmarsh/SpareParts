@@ -30,7 +30,7 @@
                 + $"style-src 'self' {embeddedPdfs}; "  // TODO: resolve issue with PDF viewer and CSP.   Using the 'unsafe-inline' is not ideal/safe and is not supported by Firefox.
                 + "style-src-elem 'self'; "
                 + $"connect-src 'self'{localWebSocket}; "
-                + "frame-src 'self' blob; "
+                + "frame-src 'self' blob: data:; "
                 + "img-src 'self' data: https:; "
                 + "frame-ancestors 'self'; "
                 + "form-action 'none'; "

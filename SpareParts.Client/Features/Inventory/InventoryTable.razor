@@ -2,7 +2,7 @@
 
 @inject IInventoryService InventoryService
 @inject IServiceWrapper ServiceWrapper
-@inject IJSRuntime jsRuntime
+@inject NavigationManager NavManager
 
 @if(_inventoryItems != null && _inventoryItems.Any())
 {
@@ -91,15 +91,9 @@
         await RefreshInventoryItemList();
     }
 
-    private async Task OpenReport()
+    private void OpenReport()
     {
-        var response = await ServiceWrapper.ServiceCall(() => InventoryService.Report(IsCurrentOnly), "An error occurred loading report.");
-        if (response.IsSuccessStatusCode)
-        {
-            var reportData = await response.Content.ReadAsByteArrayAsync();
-            IJSObjectReference module;        
-            module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
-            await module.InvokeAsync<string>("openBlob", reportData);    
-        }
+        var reportId = IsCurrentOnly ? ReportID.InventoryCurrent : ReportID.InventoryHistory;
+        NavManager.NavigateTo($"/report/{reportId}");
     }
 }

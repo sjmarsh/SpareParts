@@ -17,6 +17,8 @@ export function selectTab(elementId) {
     scrollIntoView(elementId);
 }
 
+/*
+ // This opens the supplied pdf blob data into a new tab.  This has been replaced by the Report.razor component.
 export async function openBlob(data) {    
 
     // blazor passes byte arrays to js as a Uint8Array
@@ -34,4 +36,4 @@ export async function openBlob(data) {
     anchor.click();
 
     window.URL.revokeObjectURL(objectUrl);
-}
+}*/

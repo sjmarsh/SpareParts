@@ -1,0 +1,108 @@
+﻿@page "/report/{ReportIDString}"
+@using System.Text
+
+@inject IServiceWrapper ServiceWrapper
+@inject IPartService PartService
+@inject IInventoryService InventoryService
+@inject NavigationManager NavManager
+
+<div>
+    <div class='tool-container'>
+        <button class="btn btn-outline-dark tool-button" onClick="NavigateBack"><span class="oi oi-arrow-circle-left" title="Back" aria-hidden="true"/></button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger py-1">
+            @_errorMessage
+        </div>
+    }
+
+    @if(_reportData != null)
+    {
+        <div class="pdf-container">
+            <iframe src="@_reportData" class="pdf-view" />
+        </div>    
+    }
+</div>
+
+
+@code {
+    [Parameter]
+    public string? ReportIDString { get; set; }  // needs to be string as can't automatically parse enum
+
+    private ReportID _reportId;
+    private string? _reportData;
+    private string? _errorMessage;
+
+    protected async override Task OnInitializedAsync()
+    {
+        _reportData = null;
+        _errorMessage = null;
+
+        if(ReportIDString != null && Enum.TryParse<ReportID>(ReportIDString, out _reportId))
+        {
+            await LoadReport(_reportId);
+        }
+        else
+        {
+            Console.WriteLine($"ReportID {ReportIDString} was null or not supported.");    
+        }        
+    }
+
+    private async Task LoadReport(ReportID reportId)
+    {
+        HttpResponseMessage? response = null;
+
+        switch (reportId)
+        {
+            case ReportID.Parts:
+                response = await ServiceWrapper.ServiceCall(() => PartService.Report(), "An error occurred loading report.");
+                break;
+            case ReportID.InventoryCurrent:
+                response = await ServiceWrapper.ServiceCall(() => InventoryService.Report(true), "An error occurred loading report.");
+                break;
+            case ReportID.InventoryHistory:
+                response = await ServiceWrapper.ServiceCall(() => InventoryService.Report(false), "An error occurred loading report.");
+                break;
+            default:
+                _errorMessage = "Invalid Report ID Supplied";
+                Console.WriteLine($"ReportID {ReportIDString} is not supported.");
+                break;
+        }    
+
+        if(response != null && response.IsSuccessStatusCode)
+        {
+            var dataBlob = await response.Content.ReadAsByteArrayAsync();
+            var dataString = Convert.ToBase64String(dataBlob);
+            _reportData = $"data:application/pdf;base64,{dataString}";
+        }
+        else
+        {
+            Console.WriteLine("Report service call was not successful");
+            _errorMessage = "Failed to load report.";
+        }
+    }
+
+    private void NavigateBack()
+    {
+        var navigateTo = "/";
+
+        switch (_reportId)
+        {
+            case ReportID.Parts:
+                navigateTo = "/part-list";
+                break;
+            case ReportID.InventoryCurrent:
+                navigateTo = "/inventory-home";
+                break;
+            case ReportID.InventoryHistory:
+                navigateTo = "/inventory-home";
+                break;
+            default:
+                break;
+        }
+
+        NavManager.NavigateTo(navigateTo);
+    }
+}

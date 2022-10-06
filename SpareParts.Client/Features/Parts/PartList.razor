@@ -5,7 +5,7 @@
 
 @inject IPartService PartService
 @inject IServiceWrapper ServiceWrapper
-@inject IJSRuntime jsRuntime
+@inject NavigationManager NavManager
 
 <h3>Part List</h3>
 
@@ -158,16 +158,8 @@
         _isDetailModalVisible = false;
     }
 
-    private async Task OpenReport()
+    private void OpenReport()
     {
-        var response = await ServiceWrapper.ServiceCall(() => PartService.Report(), "An error occurred loading report.");
-
-        if (response.IsSuccessStatusCode)
-        {
-            var reportData = await response.Content.ReadAsByteArrayAsync();
-            IJSObjectReference module;        
-            module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
-            await module.InvokeAsync<string>("openBlob", reportData);    
-        }
+        NavManager.NavigateTo($"/report/{ReportID.Parts}");
     }
 }

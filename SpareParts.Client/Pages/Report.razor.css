@@ -1,0 +1,9 @@
+﻿.pdf-container {
+    height: 90vh;
+    width: 100%;
+}
+
+.pdf-view {
+    height: 100%;
+    width: 100%;
+}
