@@ -27,14 +27,15 @@
     public int? PageSize { get; set; }
 
     [Parameter]
+    public int? CurrentPage { get; set; }
+
+    [Parameter]
     public EventCallback<int> OnPageChanged { get; set; }
 
     private List<int>? _pages;
-    private int _currentPage;
 
     protected override void OnInitialized()
     {
-        _currentPage = 1;
         BuildPageList();
     }
 
@@ -66,11 +67,11 @@
 
     private async Task HandlePageSelect(int pageNumber)
     {
-        if(_currentPage == pageNumber)
+        if(CurrentPage == pageNumber)
         {
             return;
         }
-        _currentPage = pageNumber;
+        CurrentPage = pageNumber;
         if (OnPageChanged.HasDelegate)
         {
             await OnPageChanged.InvokeAsync(pageNumber);    
@@ -79,6 +80,6 @@
 
     private string GetActiveClass(int pageNumber)
     {
-        return _currentPage == pageNumber ? "active" : "";
+        return CurrentPage == pageNumber ? "active" : "";
     }
 }

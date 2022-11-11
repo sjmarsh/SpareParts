@@ -3,6 +3,8 @@
 
 @using SpareParts.Shared.Models
 
+@inject IState<PartsState> PartsState
+@inject IDispatcher Dispatcher
 @inject IPartService PartService
 @inject IServiceWrapper ServiceWrapper
 @inject NavigationManager NavManager
@@ -45,7 +47,7 @@
         }
         </tbody>
     </table>   
-    <Pager TotalItemCount="_totalItemCount" PageSize="PageSize" OnPageChanged="HandlePageChanged"/>
+    <Pager TotalItemCount="_totalItemCount" PageSize="PageSize" CurrentPage="PartsState.Value.PartsPage" OnPageChanged="HandlePageChanged"/>
 }
 
 @if(_hasError)
@@ -61,30 +63,24 @@
     </div>
 }
 
-@if(_isDetailModalVisible)
+@if(PartsState.Value.IsDetailModeVisible)
 {
-    <Modal ShowModal="@_isDetailModalVisible" OnClose="OnCloseDetailModal">
-        <PartDetail PartID="_selectedPartId" OnValidSubmit="RefreshPartsList" />
+    <Modal ShowModal="@PartsState.Value.IsDetailModeVisible" OnClose="OnCloseDetailModal">
+        <PartDetail PartID="@PartsState.Value.SelectedPartId" OnValidSubmit="RefreshPartsList" />
     </Modal>
 }
 
 @code {
     private bool _hasDeleted;
     private bool _hasError;
-    private bool _isDetailModalVisible;
     private string? _errorMessage;
-    private int? _selectedPartId;
-
     private List<Part>? _parts;
 
-    private int _currentPage;
     private int _totalItemCount;
     private const int PageSize = 10;
 
     protected override async Task OnInitializedAsync()
     {
-        _isDetailModalVisible = false;
-        _currentPage = 1;
         _hasDeleted = false;
         _hasError = false;
         _errorMessage = "";
@@ -94,7 +90,7 @@
 
     private async Task RefreshPartsList()
     {        
-        var skip = (_currentPage - 1) * PageSize;
+        var skip = (PartsState.Value.PartsPage - 1) * PageSize;
 
         var partListResponse = await ServiceWrapper.ServiceCall(() => PartService.Index(false, skip, PageSize), "An error occurred retrieving part");
         if(partListResponse == null)
@@ -116,20 +112,20 @@
 
     private async Task HandlePageChanged(int page)
     {
-        _currentPage = page;
+        Dispatcher.Dispatch(new SetPartsPageAction(page));
         await RefreshPartsList();
     }
 
     private void AddPart()
     {
-        _selectedPartId = null;
-        _isDetailModalVisible = true;
+        Dispatcher.Dispatch(new SetSelectedPartIdAction(null));
+        Dispatcher.Dispatch(new SetPartsDetailVisibilityAction(true));
     }
 
     private void EditPart(int partID)
     {
-        _selectedPartId = partID;
-        _isDetailModalVisible = true;    
+        Dispatcher.Dispatch(new SetSelectedPartIdAction(partID));
+        Dispatcher.Dispatch(new SetPartsDetailVisibilityAction(true));
     }
 
     private async Task DeletePart(int partID)
@@ -155,7 +151,7 @@
 
     private void OnCloseDetailModal()
     {
-        _isDetailModalVisible = false;
+        Dispatcher.Dispatch(new SetPartsDetailVisibilityAction(false));
     }
 
     private void OpenReport()

@@ -1,4 +1,5 @@
 using Blazored.Toast;
+using Fluxor;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -24,5 +25,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddRefitClientFor<IUserService>(builder.HostEnvironment.BaseAddress);
 builder.Services.AddRefitClientFor<IPartService>(builder.HostEnvironment.BaseAddress);
 builder.Services.AddRefitClientFor<IInventoryService>(builder.HostEnvironment.BaseAddress);
+
+builder.Services.AddFluxor(o => o.ScanAssemblies(typeof(Program).Assembly));
 
 await builder.Build().RunAsync();
