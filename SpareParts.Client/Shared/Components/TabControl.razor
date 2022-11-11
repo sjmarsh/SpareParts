@@ -32,7 +32,11 @@
     [Parameter]
     public int DefaultTabIndex { get; set; }
 
+    [Parameter]
+    public EventCallback<int> OnTabChanged { get; set; }
+
     public TabPage? ActivePage { get; set; }
+
     List<TabPage> Pages = new List<TabPage>();
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -72,6 +76,10 @@
     async Task ActivatePage(TabPage page)
     {
         ActivePage = page;
+        if (OnTabChanged.HasDelegate)
+        {
+            await OnTabChanged.InvokeAsync(Pages.IndexOf(page));
+        }
         await page.SetFocus();
     }
 

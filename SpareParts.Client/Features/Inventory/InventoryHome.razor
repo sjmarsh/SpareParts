@@ -3,9 +3,12 @@
 
 @using SpareParts.Shared.Models
 
+@inject IState<InventoryState> InventoryState
+@inject IDispatcher Dispatcher
+
 <h3>Inventory</h3>
 
-<TabControl>
+<TabControl DefaultTabIndex="InventoryState.Value.SelectedInventoryTab" OnTabChanged="HandleTabChanged">
     <TabPage Text="Manual Stock Entry">
         <ManualStockEntry/>
     </TabPage>
@@ -22,4 +25,11 @@
 
 @code {
 
+    private async Task HandleTabChanged(int tabIndex)
+    {
+        await Task.Run(() =>
+        {
+            Dispatcher.Dispatch(new SetSelectedInventoryTabAction(tabIndex));
+        });
+    }
 }

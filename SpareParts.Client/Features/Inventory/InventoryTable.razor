@@ -1,5 +1,7 @@
 ﻿@using SpareParts.Shared.Models;
 
+@inject IState<InventoryState> InventoryState
+@inject IDispatcher Dispatcher
 @inject IInventoryService InventoryService
 @inject IServiceWrapper ServiceWrapper
 @inject NavigationManager NavManager
@@ -30,7 +32,7 @@
             }
         </tbody>
     </table>
-    <Pager TotalItemCount="_totalItemCount" PageSize="PageSize" OnPageChanged="HandlePageChanged"/>
+    <Pager TotalItemCount="_totalItemCount" PageSize="PageSize" CurrentPage="GetSelectedPage()" OnPageChanged="HandlePageChanged" />
 }
 @if(_hasError)
 {
@@ -48,8 +50,6 @@
     private bool _hasError;
     private string? _errorMessage;
     private List<InventoryItemDetail>? _inventoryItems;
-
-    private int _currentPage;
     private int _totalItemCount;
     private const int PageSize = 10;
 
@@ -57,14 +57,14 @@
     {
         _hasError = false;
         _errorMessage = string.Empty;
-        _currentPage = 1;
 
         await RefreshInventoryItemList();
     }
 
     private async Task RefreshInventoryItemList()
-    {        
-        var skip = (_currentPage - 1) * PageSize;
+    {
+        var selectedPage = IsCurrentOnly ? InventoryState.Value.CurrentInventoryPage : InventoryState.Value.HistoryPage;
+        var skip = (selectedPage - 1) * PageSize;
 
         var response = await ServiceWrapper.ServiceCall(() => InventoryService.IndexDetail(IsCurrentOnly, skip, PageSize), "An error occurred retrieving inventory items.");
 
@@ -87,8 +87,20 @@
 
     private async Task HandlePageChanged(int page)
     {
-        _currentPage = page;
+        if (IsCurrentOnly)
+        {
+            Dispatcher.Dispatch(new SetCurrentInventoryPageAction(page));
+        }
+        else
+        {
+            Dispatcher.Dispatch(new SetHistoryPageAction(page));
+        }
         await RefreshInventoryItemList();
+    }
+
+    private int GetSelectedPage()
+    {
+        return IsCurrentOnly ? InventoryState.Value.CurrentInventoryPage : InventoryState.Value.HistoryPage;
     }
 
     private void OpenReport()
