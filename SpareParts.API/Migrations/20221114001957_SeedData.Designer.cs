@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpareParts.API.Data;
 
@@ -11,9 +12,11 @@ using SpareParts.API.Data;
 namespace SpareParts.API.Migrations
 {
     [DbContext(typeof(SparePartsDbContext))]
-    partial class SparePartsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221114001957_SeedData")]
+    partial class SeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

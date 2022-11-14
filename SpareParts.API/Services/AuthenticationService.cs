@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
 using SpareParts.API.Entities;
 using SpareParts.API.Models;
+using Azure.Core;
 
 namespace SpareParts.API.Services
 {
@@ -87,6 +88,16 @@ namespace SpareParts.API.Services
         {
             // One-Off method to establish users and roles in the database (for the sake of demo).
             // Normally would be replaced by some role manager or 3rd party auth service
+            
+            // Check if users already created.  (Assume if admin exists then they all do).
+            var existing = await _userManager.FindByNameAsync("admin");
+            if(existing != null)
+            {
+                _logger.LogInformation("Users and Roles have already been created.");
+                return true;
+            }
+
+            _logger.LogInformation("Setting up users and roles.");
             var users = new List<UserInfo>
             {
                 new UserInfo { UserName = "admin", Password = "password", DisplayName = "Administrator", Roles = new []{ Role.Administrator } },

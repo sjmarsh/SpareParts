@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -43,7 +42,35 @@ namespace SpareParts.API.Data
             modelBuilder.Entity<Part>()
                 .HasMany<InventoryItem>()
                 .WithOne()
-                .HasForeignKey(i => i.PartID); 
+                .HasForeignKey(i => i.PartID);
+
+            SeedData(modelBuilder);
+        }
+
+        private static void SeedData(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Part>().HasData(
+                new[]
+                {
+                    new Part { ID = 1, Name = "Part 1", Description = "The first part", Price = 10.1, Weight = 1.11, StartDate = DateTime.Now.AddMonths(-6) },
+                    new Part { ID = 2, Name = "Part 2", Description = "The second part", Price = 12.22, Weight = 2.22,StartDate = DateTime.Now.AddMonths(-5) },
+                    new Part { ID = 3, Name = "Part 3", Description = "The third part", Price = 13.3, Weight = 3.33,StartDate = DateTime.Now.AddMonths(-4), EndDate = DateTime.Now.AddMonths(6) },
+                    new Part { ID = 4, Name = "Part 4", Description = "The fourth part", Price = 14.4, Weight = 4.44, StartDate = DateTime.Now.AddYears(-1), EndDate = DateTime.Now.AddMonths(-1) }
+                });
+
+            modelBuilder.Entity<InventoryItem>().HasData(
+                new[] 
+                {
+                    new InventoryItem { ID = 1, PartID = 1, Quantity = 11, DateRecorded = DateTime.Now.AddMonths(-6) },
+                    new InventoryItem { ID = 2, PartID = 1, Quantity = 13, DateRecorded = DateTime.Now.AddMonths(-5) },
+                    new InventoryItem { ID = 3, PartID = 1, Quantity = 5, DateRecorded = DateTime.Now.AddMonths(-4) },
+                    new InventoryItem { ID = 4, PartID = 2, Quantity = 22, DateRecorded = DateTime.Now.AddMonths(-5) },
+                    new InventoryItem { ID = 5, PartID = 2, Quantity = 16, DateRecorded = DateTime.Now.AddMonths(-4) },
+                    new InventoryItem { ID = 6, PartID = 2, Quantity = 1, DateRecorded = DateTime.Now.AddMonths(-3) },
+                    new InventoryItem { ID = 7, PartID = 3, Quantity = 33, DateRecorded = DateTime.Now.AddMonths(-4) },
+                    new InventoryItem { ID = 8, PartID = 3, Quantity = 50, DateRecorded = DateTime.Now.AddMonths(-3) },
+                    new InventoryItem { ID = 9, PartID = 3, Quantity = 40, DateRecorded = DateTime.Now.AddMonths(-2) }
+                }); 
         }
     }
 }

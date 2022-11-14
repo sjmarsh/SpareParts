@@ -46,9 +46,12 @@ try
 
     builder.Services.AddHttpContextAccessor();
 
+    // Entity Framework
+    builder.Services.AddDbContext<SparePartsDbContext>(options => options.UseSqlServer("name=ConnectionStrings:SparePartsDbConnection"));
+
     // Identity / Auth
     builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<SparePartsDbContext>();
+        .AddEntityFrameworkStores<SparePartsDbContext>();
 
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -81,9 +84,6 @@ try
 
     // Register MediatR
     builder.Services.AddMediatR(typeof(Program));
-
-    // Entity Framework
-    builder.Services.AddDbContext<SparePartsDbContext>(options => options.UseSqlServer("name=ConnectionStrings:SparePartsDbConnection"));
 
     // AutoMapper
     builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
@@ -154,6 +154,14 @@ try
 
     CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-AU");
     CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-AU");
+
+    if (app.Environment.IsDevelopment())
+    {
+        using var scope = app.Services.CreateScope();
+        Log.Information("Setup database");
+        var context = scope.ServiceProvider.GetRequiredService<SparePartsDbContext>();
+        context.Database.Migrate();
+    }
 
     if (!app.Environment.IsDevelopment() && !app.Environment.IsIntegrationTest())
     {

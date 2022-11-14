@@ -10,5 +10,8 @@ namespace SpareParts.Client.Services.Authentication
 
         [Post("/api/user/refresh")]
         public Task<AuthenticationResponse> Refresh();
+
+        [Get("/api/user/setup")]
+        public Task<bool> Setup();
     }
 }
