@@ -155,15 +155,16 @@ try
     CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-AU");
     CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-AU");
 
-    if (app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment() || app.Environment.IsProduction())  
     {
+        // Note: Production refers to app running in docker. Setting up database here for convenience in dev environment. TODO: use migration script if working in real prod.
         using var scope = app.Services.CreateScope();
         Log.Information("Setup database");
         var context = scope.ServiceProvider.GetRequiredService<SparePartsDbContext>();
         context.Database.Migrate();
     }
 
-    if (!app.Environment.IsDevelopment() && !app.Environment.IsIntegrationTest())
+    if (!app.Environment.IsDevelopment() && !app.Environment.IsIntegrationTest() && !app.Environment.IsProduction())
     {
         Log.Information("Starting default browser.");
         Process.Start(new ProcessStartInfo("http://localhost:5000") { UseShellExecute = true });
