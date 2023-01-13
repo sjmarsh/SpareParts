@@ -47,7 +47,21 @@ try
     builder.Services.AddHttpContextAccessor();
 
     // Entity Framework
-    builder.Services.AddDbContext<SparePartsDbContext>(options => options.UseSqlServer("name=ConnectionStrings:SparePartsDbConnection"));
+    string connectionString = "name=ConnectionStrings:SparePartsDbConnection";
+    if (builder.Environment.IsDockerDev())
+    {
+        var dockerSqlConnString = Environment.GetEnvironmentVariable("DOCKER_SQL_CONN_STRING");
+        if(dockerSqlConnString == null)
+        {
+            throw new ConfigurationException("The connection string for the Docker SQL instance has not been configured correctly.");
+        }
+        else
+        {
+            connectionString = dockerSqlConnString;
+        }
+    }
+    
+    builder.Services.AddDbContext<SparePartsDbContext>(options => options.UseSqlServer(connectionString));
 
     // Identity / Auth
     builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -155,7 +169,7 @@ try
     CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-AU");
     CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-AU");
 
-    if (app.Environment.IsDevelopment() || app.Environment.IsProduction())  
+    if (app.Environment.IsDevelopment() || app.Environment.IsDockerDev())  
     {
         // Note: Production refers to app running in docker. Setting up database here for convenience in dev environment. TODO: use migration script if working in real prod.
         using var scope = app.Services.CreateScope();
@@ -164,7 +178,7 @@ try
         context.Database.Migrate();
     }
 
-    if (!app.Environment.IsDevelopment() && !app.Environment.IsIntegrationTest() && !app.Environment.IsProduction())
+    if (!app.Environment.IsDevelopment() && !app.Environment.IsIntegrationTest() && !app.Environment.IsDockerDev())
     {
         Log.Information("Starting default browser.");
         Process.Start(new ProcessStartInfo("http://localhost:5000") { UseShellExecute = true });

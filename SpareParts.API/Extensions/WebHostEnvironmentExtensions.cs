@@ -7,9 +7,9 @@
             return environment.IsEnvironment("IntegrationTest");
         }
 
-        public static bool IsProduction(this IWebHostEnvironment environment)
+        public static bool IsDockerDev(this IWebHostEnvironment environment)
         {
-            return environment.IsEnvironment("Production");
+            return environment.IsEnvironment("DockerDev");
         }
     }
 }
