@@ -11,6 +11,7 @@ using SpareParts.API.Entities;
 using SpareParts.API.Extensions;
 using SpareParts.API.Infrastructure;
 using SpareParts.API.Services;
+using SpareParts.API.Services.PdfService;
 using SpareParts.Shared.Validators;
 using System.Diagnostics;
 using System.Globalization;
@@ -109,6 +110,14 @@ try
     // Other Services - DI Registration
     builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
     builder.Services.AddTransient<IDataService, DataService>();
+    if (builder.Environment.IsDockerDev())
+    {
+        builder.Services.AddTransient<IPdfService, LinuxPdfService>();
+    }
+    else
+    {
+        builder.Services.AddTransient<IPdfService, WindowsPdfService>();
+    }
     builder.Services.AddTransient<IReportService, ReportService>();
 
     builder.Services.AddCors(options =>

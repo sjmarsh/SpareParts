@@ -1,12 +1,11 @@
 ﻿using Ardalis.GuardClauses;
-using Humanizer;
-using OpenHtmlToPdf;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using SpareParts.API.Services.PdfService;
 
 namespace SpareParts.API.Services
 {
@@ -19,18 +18,21 @@ namespace SpareParts.API.Services
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRazorViewEngine _razorViewEngine;
+        private readonly IPdfService _pdfService;
         private readonly ITempDataProvider _tempDataProvider;
         private readonly ILogger<ReportService> _logger;
 
-        public ReportService(IHttpContextAccessor httpContextAccessor, IRazorViewEngine razorViewEngine, ITempDataProvider tempDataProvider, ILogger<ReportService> logger)
+        public ReportService(IHttpContextAccessor httpContextAccessor, IRazorViewEngine razorViewEngine, IPdfService pdfService, ITempDataProvider tempDataProvider, ILogger<ReportService> logger)
         {
             Guard.Against.Null(httpContextAccessor);
             Guard.Against.Null(razorViewEngine);
+            Guard.Against.Null(pdfService);
             Guard.Against.Null(tempDataProvider);
             Guard.Against.Null(logger);
 
             _httpContextAccessor = httpContextAccessor;
             _razorViewEngine = razorViewEngine;
+            _pdfService = pdfService;
             _tempDataProvider = tempDataProvider;
             _logger = logger;
         }
@@ -38,7 +40,7 @@ namespace SpareParts.API.Services
         public async Task<byte[]> GenerateReport(ReportName reportName, object model)
         {
             var htmlString = await RenderToHtmlStringAsync($"/Reports/{reportName}.cshtml", model);
-            return GeneratePdfFromHtmlString(reportName, htmlString);
+            return _pdfService.GeneratePdfFromHtmlString(reportName, htmlString);
         }
 
         private async Task<string> RenderToHtmlStringAsync(string razorViewName, object model)
@@ -73,25 +75,6 @@ namespace SpareParts.API.Services
 
             await razorView.View.RenderAsync(viewContext);
             return stringWriter.ToString();
-        }
-
-        private static byte[] GeneratePdfFromHtmlString(ReportName reportName, string html)
-        {
-            var reportNameTitle = reportName.ToString().Humanize(LetterCasing.Title);
-            // ref: https://github.com/vilppu/OpenHtmlToPdf
-            // ref: https://wkhtmltopdf.org/usage/wkhtmltopdf.txt
-            var pdf = Pdf.From(html)
-                .WithTitle(reportNameTitle)
-                .OfSize(PaperSize.A4)
-                .Portrait()
-                .WithObjectSetting("web.userStyleSheet", "./Reports/reports.css")
-                .WithObjectSetting("footer.left", "[title]")
-                .WithObjectSetting("footer.center", "[page]/[topage]")
-                .WithObjectSetting("footer.right", "[date] [time]")
-                .Comressed()
-                .Content();
-
-            return pdf;
         }
     }
 }

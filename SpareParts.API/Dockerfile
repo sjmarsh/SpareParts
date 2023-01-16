@@ -24,4 +24,4 @@ COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "SpareParts.API.dll"]
 
 # Install wkhtmltopdf
-#RUN apt-get update && apt-get -y install wkhtmltopdf
+RUN apt-get update && apt-get -y install wkhtmltopdf
