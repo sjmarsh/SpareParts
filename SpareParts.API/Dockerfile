@@ -24,4 +24,9 @@ COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "SpareParts.API.dll"]
 
 # Install wkhtmltopdf
-RUN apt-get update && apt-get -y install wkhtmltopdf
+#RUN apt-get update && apt-get -y install wkhtmltopdf
+# Note above command installs 0.12.2.4 with un-patched qt.  This doesn't work with options like page footer, size, etc.
+RUN apt-get update && apt-get -y install xz-utils && apt-get -y install wget && apt-get -y install libfontconfig1 libxrender1 libxtst6 libxi6
+RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz
+RUN tar vxf wkhtmltox-0.12.3_linux-generic-amd64.tar.xz
+RUN cp wkhtmltox/bin/wk* /usr/bin/

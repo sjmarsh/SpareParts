@@ -25,7 +25,7 @@ namespace SpareParts.API.Services.PdfService
             var startInfo = new ProcessStartInfo
             {
                 FileName = "wkhtmltopdf",
-                Arguments = $" -n {tempHtmlFileName} {tempPdfFileName}",
+                Arguments = $" -n --page-size A4 --orientation Portrait --title '{reportName}' --user-style-sheet ./Reports/reports.css --footer-left [title] --footer-center [page]/[topage] --footer-right [date] [time] {tempHtmlFileName} {tempPdfFileName}",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
