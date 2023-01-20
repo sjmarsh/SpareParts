@@ -8,7 +8,7 @@ if($dockerDesktopProcess -eq $null)
 
 $envFile = ".\dev.env"
 if((Test-Path -Path $envFile -PathType leaf) -eq $False){
-	Write-Error "dev.env file does not exist file does not exist. Cannot continue."
+	Write-Error "dev.env file does not exist. Cannot continue."
 	Exit
 }
 
