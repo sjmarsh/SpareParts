@@ -9,6 +9,7 @@ using Serilog;
 using SpareParts.API.Data;
 using SpareParts.API.Entities;
 using SpareParts.API.Extensions;
+using SpareParts.API.GraphQL;
 using SpareParts.API.Infrastructure;
 using SpareParts.API.Services;
 using SpareParts.API.Services.PdfService;
@@ -137,6 +138,10 @@ try
                 .AllowAnyHeader());
     });
 
+    builder.Services
+        .AddGraphQLServer()
+        .AddQueryType<Query>();
+
     var app = builder.Build();
 
     app.UseHttpsRedirection();
@@ -158,7 +163,8 @@ try
         // The default HSTS value is 30 days. Change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         app.UseHsts();
     }
-        
+
+    app.MapGraphQL();
         
     // For Blazor
     app.UseBlazorFrameworkFiles();
@@ -167,7 +173,8 @@ try
     app.MapRazorPages();
     app.MapFallbackToFile("index.html");
 
-    app.UseContentSecurityPolicy();
+    // Disabling CSP to enable Hot Chocolate web tool.  TODO: configure csp to ignore this.
+   // app.UseContentSecurityPolicy();
 
     app.UseAuthentication();
     app.UseAuthorization();
