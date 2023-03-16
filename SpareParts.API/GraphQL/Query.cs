@@ -1,10 +1,21 @@
-﻿namespace SpareParts.API.GraphQL
+﻿using MediatR;
+using SpareParts.API.Services;
+
+namespace SpareParts.API.GraphQL
 {
     public class Query
     {
-        public string Test()
+        [UseFiltering]
+        public async Task<List<Shared.Models.Part>> GetParts([Service]IMediator mediator)
         {
-            return "Hello GraphQL";
+            var partListResponse = await mediator.Send(new GetPartListRequest());
+            return partListResponse.Items;
+        }
+
+        public async Task<Shared.Models.Part> GetPartById([Service] IMediator mediator, int id)
+        {
+            var partResponse = await mediator.Send(new GetPartRequest(id));
+            return partResponse.Value;
         }
     }
 }

@@ -140,6 +140,7 @@ try
 
     builder.Services
         .AddGraphQLServer()
+        .AddFiltering()
         .AddQueryType<Query>();
 
     var app = builder.Build();
