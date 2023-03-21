@@ -10,6 +10,7 @@ Note. React based client app for this exists at [https://github.com/sjmarsh/spar
 - Blazor (WASM)
 - JWT Web Tokens / MS Identity platform
 - MediatR
+- HotChocolate (GraphQL)
 - Refit
 - Fluxor
 - FluentValidation
