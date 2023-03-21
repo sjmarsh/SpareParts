@@ -140,6 +140,7 @@ try
 
     builder.Services
         .AddGraphQLServer()
+        .AddAuthorization()
         .AddFiltering()
         .AddQueryType<Query>();
 
