@@ -1,0 +1,104 @@
+﻿@page "/part-search"
+@attribute [Authorize(Roles = Role.Administrator)]
+
+@using SpareParts.Shared.Models
+
+@inject IServiceWrapper ServiceWrapper
+@inject IPartService PartService
+
+<h3>Part Search</h3>
+
+@if (_parts != null && _parts.Any())
+{
+    <table id="partTable" class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Weight (kg)</th>
+                <th>Price</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var part in _parts)
+            {
+                <tr>
+                    <td>@part.Name</td>
+                    <td>@part.Description</td>
+                    <td>@part.Weight.ToString("F2")</td>
+                    <td>@part.Price.ToString("C2")</td>
+                    <td>@part.StartDate.ToString("dd/MM/yyyy")</td>
+                    <td>@part.EndDate?.ToString("dd/MM/yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (_hasError)
+{
+    <div class="alert alert-danger py-1">
+        @_errorMessage
+    </div>
+}
+
+
+@code {
+    private bool _hasDeleted;
+    private bool _hasError;
+    private string? _errorMessage;
+    private List<Part>? _parts;
+
+    private int _totalItemCount;
+    private const int PageSize = 10;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hasDeleted = false;
+        _hasError = false;
+        _errorMessage = "";
+
+        await RefreshPartsList();
+    }
+
+    private async Task RefreshPartsList()
+    {
+        _parts = new List<Part>();
+
+        var partRequest = new GraphQLRequest
+        {
+            query = @"{
+                parts (where: { price: {gt: 13}}) {
+                    name
+                    description
+                    weight
+                    price
+                    startDate
+                    endDate
+                }
+            }"
+        };
+
+
+        var partResponse = await ServiceWrapper.ServiceCall(() => PartService.Search(partRequest), "An error occurred searching for part.");
+
+        if(partResponse.Data != null && partResponse.Data.Parts != null)
+        {
+            _parts = partResponse.Data.Parts;
+        }
+
+    }
+
+    public class MyGraphQLResponse
+    {
+        public MyGraphQLData? Data { get; set; }
+    }
+
+    public class MyGraphQLData
+    {
+        public List<Part>? Parts { get; set; }
+    }
+
+}
