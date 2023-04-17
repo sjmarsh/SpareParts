@@ -1,0 +1,58 @@
+﻿@using System.Linq.Expressions;
+
+<div>
+    @if(FieldNames != null && Operators != null)
+    {
+        <InputSelect @bind-Value="SelectedField">
+            @foreach (var fieldName in FieldNames)
+            {
+                <option>@fieldName</option>
+            }
+        </InputSelect>
+        <InputSelect @bind-Value="SelectedOperator">
+            @foreach (var operatorName in Operators)
+            {
+                <option>@operatorName</option>
+            }
+        </InputSelect>
+        <InputText @bind-Value="Value" />
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<string>? FieldNames { get; set; }
+
+    [Parameter, EditorRequired]
+    public List<string>? Operators { get; set; }
+
+    [Parameter]
+    public virtual string? SelectedField { get; set; }
+
+    [Parameter]
+    public EventCallback<string> SelectedFieldChanged { get; set; }
+
+    [Parameter]
+    public Expression<Func<string>>? SelectedFieldExpression { get; set; }
+
+
+    [Parameter]
+    public virtual string? SelectedOperator { get; set; }
+
+    [Parameter]
+    public EventCallback<string> SelectedOperatorChanged { get; set; }
+
+    [Parameter]
+    public Expression<Func<string>>? SelectedOperatorExpression { get; set; }
+
+
+    
+    [Parameter]
+    public virtual string? Value { get; set; }
+    
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+    
+    [Parameter]
+    public Expression<Func<string>>? ValueExpression { get; set; }
+}
