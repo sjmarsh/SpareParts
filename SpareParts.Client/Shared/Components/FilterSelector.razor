@@ -1,24 +1,29 @@
 ﻿@using System.Linq.Expressions;
 
-<div>
+<div class="row">
     @if(FieldNames != null && Operators != null)
     {
-        <InputSelect @bind-Value="SelectedField">
-            @foreach (var fieldName in FieldNames)
-            {
-                <option>@fieldName</option>
-            }
-        </InputSelect>
-        <InputSelect @bind-Value="SelectedOperator">
-            @foreach (var operatorName in Operators)
-            {
-                <option>@operatorName</option>
-            }
-        </InputSelect>
-        <InputText @bind-Value="Value" />
+        <div class="col">
+            <InputSelect class="form-select" @bind-Value="@SelectedField">
+                @foreach (var fieldName in FieldNames)
+                {
+                    <option>@fieldName</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="col">
+            <InputSelect class="form-select" @bind-Value="@SelectedOperator">
+                @foreach (var operatorName in Operators)
+                {
+                    <option>@operatorName</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="col">
+            <InputText class="form-control" @bind-Value="@Value" />
+        </div>
     }
 </div>
-
 @code {
     [Parameter, EditorRequired]
     public List<string>? FieldNames { get; set; }
@@ -26,8 +31,20 @@
     [Parameter, EditorRequired]
     public List<string>? Operators { get; set; }
 
+    private string? _selectedField;
     [Parameter]
-    public virtual string? SelectedField { get; set; }
+    public virtual string? SelectedField 
+    { 
+        get => _selectedField;
+        set
+        {
+            if(value != _selectedField)
+            {
+                _selectedField = value;
+                SelectedFieldChanged.InvokeAsync(value);
+            }    
+        } 
+    }
 
     [Parameter]
     public EventCallback<string> SelectedFieldChanged { get; set; }
@@ -35,9 +52,20 @@
     [Parameter]
     public Expression<Func<string>>? SelectedFieldExpression { get; set; }
 
-
+    private string? _selectedOperator;
     [Parameter]
-    public virtual string? SelectedOperator { get; set; }
+    public virtual string? SelectedOperator 
+    { 
+        get => _selectedOperator;
+        set
+        {
+            if(value != _selectedOperator)
+            {
+                _selectedOperator = value;
+                SelectedOperatorChanged.InvokeAsync(value);
+            }    
+        } 
+    }
 
     [Parameter]
     public EventCallback<string> SelectedOperatorChanged { get; set; }
@@ -46,9 +74,20 @@
     public Expression<Func<string>>? SelectedOperatorExpression { get; set; }
 
 
-    
+    private string? _value;
     [Parameter]
-    public virtual string? Value { get; set; }
+    public virtual string? Value 
+    { 
+        get => _value; 
+        set
+        {
+            if(value != _value)
+            {
+                _value = value;
+                ValueChanged.InvokeAsync(value);
+            }    
+        } 
+    }
     
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }

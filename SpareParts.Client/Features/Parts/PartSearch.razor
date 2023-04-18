@@ -7,9 +7,10 @@
 @inject IPartService PartService
 
 <h3>Part Search</h3>
-
-<FilterSelector FieldNames="_fieldNames" Operators="_operators" SelectedField="@_selectedField" SelectedOperator="@_selectedOperator" Value="@_value" />
-<button class="btn btn-primary my-1" @onclick="Search" >Search</button>
+<EditForm Model="_filterLine" OnSubmit="Search">
+    <FilterSelector FieldNames="_fieldNames" Operators="_operators" @bind-SelectedField="@_filterLine.SelectedField" @bind-SelectedOperator="@_filterLine.SelectedOperator" @bind-Value="@_filterLine.Value" />
+    <button type="submit" class="btn btn-primary my-1">Search</button>
+</EditForm>
 
 @if (_parts != null && _parts.Any())
 {
@@ -56,9 +57,7 @@
 
     private List<String>? _fieldNames;
     private List<String>? _operators;
-    private string? _selectedField = "";
-    private string? _selectedOperator = "";
-    private string? _value = "";
+    private FilterLine? _filterLine;
 
     private int _totalItemCount;
     private const int PageSize = 10;
@@ -71,11 +70,18 @@
 
         _fieldNames = GetFieldNames();
         _operators = new List<string> { "eq", "ne", "regex", "glob", "gt", "gte", "lt", "lte" };
-                
-        await RefreshPartsList();
+        _filterLine = new FilterLine
+        {
+                SelectedField = "",
+                SelectedOperator = "gt",
+                Value = ""
+        };
+
+        //await RefreshPartsList();
+        _parts = new List<Part>();
     }
 
-    private async Task Search()
+    private async Task Search(EditContext context)
     {
         await RefreshPartsList();
     }
@@ -84,7 +90,7 @@
     {
         _parts = new List<Part>();
 
-        var filter = $"{{{_selectedField.ToLower()}: {{{_selectedOperator}: {_value}}}}}";
+        var filter = $"{{{_filterLine.SelectedField.ToLower()}: {{{_filterLine.SelectedOperator}: {_filterLine.Value}}}}}";
 
         var partRequest = new GraphQLRequest
         {
@@ -124,5 +130,12 @@
     {
         var props = typeof(Part).GetProperties();
         return props.Select(p => p.Name).ToList();
+    }
+
+    public class FilterLine
+    {
+        public string? SelectedField { get; set; }
+        public string? SelectedOperator { get; set; }
+        public string? Value { get; set; }
     }
 }
