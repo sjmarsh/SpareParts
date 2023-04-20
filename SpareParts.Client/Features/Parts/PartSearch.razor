@@ -7,10 +7,19 @@
 @inject IPartService PartService
 
 <h3>Part Search</h3>
-<EditForm Model="_filterLine" OnSubmit="Search">
-    <FilterSelector FieldNames="_fieldNames" Operators="_operators" @bind-SelectedField="@_filterLine.SelectedField" @bind-SelectedOperator="@_filterLine.SelectedOperator" @bind-Value="@_filterLine.Value" />
-    <button type="submit" class="btn btn-primary my-1">Search</button>
-</EditForm>
+@if (_filterLines != null)
+{
+    <EditForm Model="_filterLines" OnSubmit="Search">
+
+        @foreach (var filterLine in _filterLines)
+        {
+            <FilterSelector FieldNames="_fieldNames" Operators="_operators" @bind-SelectedField="filterLine.SelectedField" @bind-SelectedOperator="filterLine.SelectedOperator" @bind-Value="@filterLine.Value" />
+        }
+
+        <button type="button" class="btn btn-secondary my-1" @onclick="AddFilter">Add Filter</button>
+        <button type="submit" class="btn btn-primary my-1">Search</button>
+    </EditForm>
+}
 
 @if (_parts != null && _parts.Any())
 {
@@ -57,7 +66,8 @@
 
     private List<String>? _fieldNames;
     private List<String>? _operators;
-    private FilterLine? _filterLine;
+    private List<FilterLine>? _filterLines;
+    private const int MaxFilterLineCount = 5;
 
     private int _totalItemCount;
     private const int PageSize = 10;
@@ -70,14 +80,8 @@
 
         _fieldNames = GetFieldNames();
         _operators = new List<string> { "eq", "neq", "contains", "gt", "gte", "lt", "lte", "startsWith", "endsWith" };
-        _filterLine = new FilterLine
-        {
-                SelectedField = "",
-                SelectedOperator = "gt",
-                Value = ""
-        };
-
-        //await RefreshPartsList();
+        _filterLines = new List<FilterLine>();
+        _filterLines.Add(new FilterLine());
         _parts = new List<Part>();
     }
 
@@ -86,34 +90,68 @@
         await RefreshPartsList();
     }
 
+    private void AddFilter()
+    {
+        if (_filterLines != null && _filterLines.Count <= MaxFilterLineCount -1)
+        {
+            _filterLines?.Add(new FilterLine());
+        }
+    }
+
+    private string GetFilterString(FilterLine filterLine)
+    {
+        return $" {filterLine.SelectedField.ToLower()}: {{{filterLine.SelectedOperator}: {filterLine.Value} }}";
+    }
+
     private async Task RefreshPartsList()
     {
         _parts = new List<Part>();
 
-        var filter = $"{{{_filterLine.SelectedField.ToLower()}: {{{_filterLine.SelectedOperator}: {_filterLine.Value}}}}}";
-
-        var partRequest = new GraphQLRequest
+        if(_filterLines != null && _filterLines.Count > 0)
         {
-            query = $@"{{
-                parts (where: { filter }) {{
-                    name
-                    description
-                    weight
-                    price
-                    startDate
-                    endDate
-                }}
-            }}"
-        };
+            var filter = "";
+            if(_filterLines.Count == 1)
+            {
+                filter = GetFilterString(_filterLines.First());
+            }
+            else
+            {
+                const string filterAndPrefix = " and: {";
+
+                foreach(var filterLine in _filterLines)
+                {
+                    filter += filterAndPrefix + GetFilterString(filterLine);
+                }
+                filter = filter.Remove(0, filterAndPrefix.Length);
+            }
+
+            for (int i = 0; i < _filterLines.Count -1; i++)
+            {
+                filter += "}";
+            }
+
+            var partRequest = new GraphQLRequest
+                {
+                    query = $@"{{
+                        parts (where: {{{filter}}}) {{
+                            name
+                            description
+                            weight
+                            price
+                            startDate
+                            endDate
+                        }}
+                    }}"
+                };
 
 
-        var partResponse = await ServiceWrapper.ServiceCall(() => PartService.Search(partRequest), "An error occurred searching for part.");
+            var partResponse = await ServiceWrapper.ServiceCall(() => PartService.Search(partRequest), "An error occurred searching for part.");
 
-        if(partResponse.Data != null && partResponse.Data.Parts != null)
-        {
-            _parts = partResponse.Data.Parts;
+            if (partResponse.Data != null && partResponse.Data.Parts != null)
+            {
+                _parts = partResponse.Data.Parts;
+            }
         }
-
     }
 
     public class MyGraphQLResponse
@@ -130,12 +168,5 @@
     {
         var props = typeof(Part).GetProperties();
         return props.Select(p => p.Name).ToList();
-    }
-
-    public class FilterLine
-    {
-        public string? SelectedField { get; set; }
-        public string? SelectedOperator { get; set; }
-        public string? Value { get; set; }
     }
 }
