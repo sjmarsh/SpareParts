@@ -1,0 +1,253 @@
+﻿@typeparam T
+
+@using SpareParts.Shared.Models
+
+@inject IServiceWrapper ServiceWrapper
+@inject IPartService PartService
+
+<div>
+    <div>
+        @if (_filterLines != null)
+        {
+            <EditForm Model="_filterLines" OnSubmit="HandleSubmit">
+
+                @foreach (var filterLine in _filterLines)
+                {
+                    <FilterSelector Fields="_filterFields" Operators="_operators" FilterLine="filterLine" OnRemoveFilter="RemoveFilter" />
+                }
+
+                <button type="button" class="btn btn-secondary my-1" @onclick="AddFilter">Add Filter</button>
+                <button type="submit" class="btn btn-primary my-1">Search</button>
+            </EditForm>
+        }
+
+    </div>
+
+    @if(DataSource != null && _data != null && _data.Any())
+    {
+        <div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        @foreach (var heading in _data.First().Select(d => d.Key))
+                        {
+                            <th scope="col">@heading</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (_data != null)
+                    {
+                        @foreach (var row in _data)
+                        {
+                            <tr @onclick="() => HandleRowClick(row)">
+                                @foreach (var item in row)
+                                {
+                                    <td>@item.Value</td>
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+
+@code
+{
+    private List<Part>? DataSource { get; set; }
+
+    [Parameter]
+    public EventCallback<Dictionary<string, string>> OnRowClick { get; set; }
+
+    private List<Dictionary<string, string>>? _data;
+
+    private List<FilterField>? _filterFields;
+    private List<String>? _operators;
+    private List<FilterLine>? _filterLines;
+    private const int MaxFilterLineCount = 5;
+
+    // TODO PAGING
+    private int _totalItemCount;
+    private const int PageSize = 10;
+
+
+    protected override void OnInitialized()
+    {        
+        _data = new List<Dictionary<string, string>>();
+
+        RefreshResults();
+
+        _filterFields = GetFilterFields();
+        _operators = new List<string> { "eq", "neq", "contains", "gt", "gte", "lt", "lte", "startsWith", "endsWith" };
+        _filterLines = new List<FilterLine>();
+        _filterLines.Add(new FilterLine());
+    }
+
+    private void RefreshResults()
+    {
+        if (DataSource == null)
+        {
+            return;
+        }
+
+        _data.Clear();
+        foreach (var item in DataSource)
+        {
+            var props = item.GetType().GetProperties();
+            var row = new Dictionary<string, string>();
+            foreach (var prop in props)
+            {
+                var key = prop.Name;
+                var value = (prop.GetValue(item) ?? "").ToString();  // TODO - this could be expanded on to format types
+                row.Add(key, value);
+            }
+            _data.Add(row);
+        }
+
+    }
+
+    private List<FilterField> GetFilterFields()
+    {
+        var props = typeof(T).GetProperties();
+        return props.Select(p => new FilterField(p.Name, p.PropertyType)).ToList();
+    }
+
+    private async Task HandleSubmit(EditContext context)
+    {
+        await Search();
+    }
+
+    private void AddFilter()
+    {
+        if (_filterLines != null && _filterLines.Count <= MaxFilterLineCount - 1)
+        {
+            _filterLines?.Add(new FilterLine());
+        }
+    }
+
+    private bool ValueRequiresQuotes(FilterLine filterLine)
+    {
+        return typeof(string).IsAssignableFrom(filterLine.SelectedField.Type) ||
+                typeof(DateTime).IsAssignableFrom(filterLine.SelectedField.Type) ||
+                typeof(DateTime?).IsAssignableFrom(filterLine.SelectedField.Type);
+    }
+
+    private string GetFilterLineValue(FilterLine filterLine)
+    {
+        if (ValueRequiresQuotes(filterLine))
+        {
+            return $"\"{filterLine.Value}\"";
+        }
+
+        return filterLine.Value;
+    }
+
+    private string GetFilterString(FilterLine filterLine)
+    {
+        var filterLineValue = GetFilterLineValue(filterLine);
+        return $" {filterLine.SelectedField.Name.ToLower()}: {{{filterLine.SelectedOperator}:{filterLineValue} }}";
+    }
+
+    private async Task RemoveFilter(FilterLine filterLine)
+    {
+        if (_filterLines != null)
+        {
+            var itemToRemove = _filterLines.FirstOrDefault(f => f.Equals(filterLine));
+            if (itemToRemove != null)
+            {
+                _filterLines.Remove(itemToRemove);
+                await Search();
+            }
+        }
+    }
+
+    private string BuildQueryFilter()
+    {
+        var filter = "";
+        if(_filterLines != null)
+        {
+            if (_filterLines.Count == 1)
+            {
+                filter = GetFilterString(_filterLines.First());
+            }
+            else
+            {
+                const string filterAndPrefix = " and: {";
+
+                foreach (var filterLine in _filterLines)
+                {
+                    filter += filterAndPrefix + GetFilterString(filterLine);
+                }
+                filter = filter.Remove(0, filterAndPrefix.Length);
+            }
+
+            for (int i = 0; i < _filterLines.Count - 1; i++)
+            {
+                filter += "}";
+            }
+        }
+        return filter;
+    }
+
+    private async Task Search()
+    {
+        if (_filterLines != null)
+        {
+            if (_filterLines.Any())
+            {
+                var filter = BuildQueryFilter();
+
+                var partRequest = new GraphQLRequest
+                    {
+                        query = $@"{{
+                        parts (where: {{{filter}}}) {{
+                            name
+                            description
+                            weight
+                            price
+                            startDate
+                            endDate
+                        }}
+                    }}"
+                    };
+
+
+                var partResponse = await ServiceWrapper.ServiceCall(() => PartService.Search(partRequest), "An error occurred searching for part.");
+
+                if (partResponse.Data != null && partResponse.Data.Parts != null)
+                {
+                    DataSource = partResponse.Data.Parts;
+                    
+                }
+            }
+            else
+            {
+                DataSource = new List<Part>();
+            }
+
+            RefreshResults();
+        }
+    }
+
+    private async Task HandleRowClick(Dictionary<string, string> row)
+    {
+        if (OnRowClick.HasDelegate)
+        {
+            await OnRowClick.InvokeAsync(row);
+        }
+    }
+
+
+    public class MyGraphQLResponse
+    {
+        public MyGraphQLData? Data { get; set; }
+    }
+
+    public class MyGraphQLData
+    {
+        public List<T>? Parts { get; set; }
+    }
+}
