@@ -1,0 +1,26 @@
+﻿
+<div class="card">
+    <div class="card-body">
+    @if (ChipLabels != null && ChipLabels.Any())
+    {
+        @foreach (var chipLabel in ChipLabels)
+        {
+            <span class="badge rounded-pill bg-secondary text-bg-secondary badge-custom">@chipLabel<span class="chips-custom"><a @onclick="() => HandleRemoveChip(chipLabel)"> X</a></span></span>
+        }
+    }
+    </div>
+</div>
+
+@code{
+
+    [Parameter, EditorRequired]
+    public List<string>? ChipLabels { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnRemoveChip { get; set; }
+
+    private async Task HandleRemoveChip(string chipLabel)
+    {
+        await OnRemoveChip.InvokeAsync(chipLabel);
+    }
+}

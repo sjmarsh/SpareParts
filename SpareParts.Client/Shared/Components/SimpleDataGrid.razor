@@ -1,0 +1,97 @@
+﻿@typeparam T
+
+@if (DataSource != null && _data != null && _data.Any())
+{
+    <div>
+        <table class="table">
+            <thead>
+                <tr>
+                    @foreach (var heading in _data.First().Select(d => d.Key))
+                    {
+                        <th scope="col">@heading</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (_data != null)
+                {
+                    @foreach (var row in _data)
+                    {
+                        <tr @onclick="() => HandleRowClick(row)">
+                            @foreach (var item in row)
+                            {
+                                <td>@item.Value</td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code{
+
+    [Parameter, EditorRequired]
+    public List<T>? DataSource { get; set; }
+
+    [Parameter]
+    public List<string>? ColumnList { get; set; }
+
+    [Parameter]
+    public EventCallback<Dictionary<string, string>> OnRowClick { get; set; }
+
+    private List<Dictionary<string, string>>? _data;
+
+
+    protected override void OnInitialized()
+    {
+        RefreshGrid();
+    }
+
+    protected override void OnParametersSet()
+    {
+        RefreshGrid();
+    }
+
+    private void RefreshGrid()
+    {
+        if (DataSource == null)
+        {
+            return;
+        }
+
+        _data = new List<Dictionary<string, string>>();
+        foreach (var item in DataSource)
+        {
+            var props = item.GetType().GetProperties();
+            var row = new Dictionary<string, string>();
+            foreach (var prop in props)
+            {
+                var key = prop.Name;
+                if(ColumnList == null)
+                {
+                    var value = (prop.GetValue(item) ?? "").ToString();  // TODO - this could be expanded on to format types
+                    row.Add(key, value);
+                }
+                else
+                {
+                    if (ColumnList.Contains(key))
+                    {
+                        var value = (prop.GetValue(item) ?? "").ToString();  // TODO - this could be expanded on to format types
+                        row.Add(key, value);
+                    }
+                }
+            }
+            _data.Add(row);
+        }
+    }
+
+    private async Task HandleRowClick(Dictionary<string, string> row)
+    {
+        if (OnRowClick.HasDelegate)
+        {
+            await OnRowClick.InvokeAsync(row);
+        }
+    }
+}

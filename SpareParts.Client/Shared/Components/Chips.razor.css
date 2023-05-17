@@ -1,0 +1,8 @@
+﻿.badge-custom {
+    margin: 1px;
+    padding: 7px;
+}
+
+.chips-custom:hover {
+    cursor: pointer;
+}

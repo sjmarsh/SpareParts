@@ -7,6 +7,13 @@
 
 <div>
     <div>
+        @if(_filterFields != null && _filterFields.Any())
+        {
+            <Chips ChipLabels="_filterFields.Select(f => f.Name).ToList()" OnRemoveChip="HandleRemoveField"/>
+        }
+    </div>
+
+    <div>
         @if (_filterLines != null)
         {
             <EditForm Model="_filterLines" OnSubmit="HandleSubmit">
@@ -15,54 +22,27 @@
                 {
                     <FilterSelector Fields="_filterFields" Operators="_operators" FilterLine="filterLine" OnRemoveFilter="RemoveFilter" />
                 }
-
-                <button type="button" class="btn btn-secondary my-1" @onclick="AddFilter">Add Filter</button>
-                <button type="submit" class="btn btn-primary my-1">Search</button>
+                <div class="mt-2">
+                    <button type="button" class="btn btn-secondary my-1" @onclick="AddFilter">Add Filter</button>
+                    <button type="submit" class="btn btn-primary my-1">Search</button>
+                </div>
             </EditForm>
         }
-
     </div>
 
-    @if(DataSource != null && _data != null && _data.Any())
-    {
-        <div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        @foreach (var heading in _data.First().Select(d => d.Key))
-                        {
-                            <th scope="col">@heading</th>
-                        }
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (_data != null)
-                    {
-                        @foreach (var row in _data)
-                        {
-                            <tr @onclick="() => HandleRowClick(row)">
-                                @foreach (var item in row)
-                                {
-                                    <td>@item.Value</td>
-                                }
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        </div>
+    @if(_filterResults != null && _filterFields != null){
+        <SimpleDataGrid T="Part" DataSource="_filterResults" ColumnList="_filterFields.Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
     }
+        
 </div>
 
 
 @code
 {
-    private List<Part>? DataSource { get; set; }
-
     [Parameter]
     public EventCallback<Dictionary<string, string>> OnRowClick { get; set; }
 
-    private List<Dictionary<string, string>>? _data;
+    private List<Part>? _filterResults { get; set; }
 
     private List<FilterField>? _filterFields;
     private List<String>? _operators;
@@ -75,44 +55,32 @@
 
 
     protected override void OnInitialized()
-    {        
-        _data = new List<Dictionary<string, string>>();
-
-        RefreshResults();
-
+    {   
         _filterFields = GetFilterFields();
         _operators = new List<string> { "eq", "neq", "contains", "gt", "gte", "lt", "lte", "startsWith", "endsWith" };
         _filterLines = new List<FilterLine>();
         _filterLines.Add(new FilterLine());
     }
 
-    private void RefreshResults()
-    {
-        if (DataSource == null)
-        {
-            return;
-        }
-
-        _data.Clear();
-        foreach (var item in DataSource)
-        {
-            var props = item.GetType().GetProperties();
-            var row = new Dictionary<string, string>();
-            foreach (var prop in props)
-            {
-                var key = prop.Name;
-                var value = (prop.GetValue(item) ?? "").ToString();  // TODO - this could be expanded on to format types
-                row.Add(key, value);
-            }
-            _data.Add(row);
-        }
-
-    }
 
     private List<FilterField> GetFilterFields()
     {
         var props = typeof(T).GetProperties();
         return props.Select(p => new FilterField(p.Name, p.PropertyType)).ToList();
+    }
+
+    private async Task HandleRemoveField(string fieldName)
+    {
+        if(_filterFields != null && fieldName != null)
+        {
+            var itemToRemove = _filterFields.FirstOrDefault(f => f.Name == fieldName);
+            var filterAlreadyUsed = _filterLines.FirstOrDefault(f => f.SelectedField.Name == fieldName) != null;
+            if(itemToRemove != null && !filterAlreadyUsed)
+            {
+                _filterFields.Remove(itemToRemove);
+                await Search();
+            }
+        }
     }
 
     private async Task HandleSubmit(EditContext context)
@@ -214,32 +182,20 @@
                     }}"
                     };
 
-
                 var partResponse = await ServiceWrapper.ServiceCall(() => PartService.Search(partRequest), "An error occurred searching for part.");
 
                 if (partResponse.Data != null && partResponse.Data.Parts != null)
                 {
-                    DataSource = partResponse.Data.Parts;
+                    _filterResults = partResponse.Data.Parts;
                     
                 }
             }
             else
             {
-                DataSource = new List<Part>();
+                _filterResults = new List<Part>();
             }
-
-            RefreshResults();
         }
     }
-
-    private async Task HandleRowClick(Dictionary<string, string> row)
-    {
-        if (OnRowClick.HasDelegate)
-        {
-            await OnRowClick.InvokeAsync(row);
-        }
-    }
-
 
     public class MyGraphQLResponse
     {
