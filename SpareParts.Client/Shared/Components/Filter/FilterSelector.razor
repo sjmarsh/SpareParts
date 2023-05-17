@@ -34,8 +34,17 @@
     [Parameter, EditorRequired]
     public List<string>? Operators { get; set; }
 
+    [Parameter, EditorRequired]
+    public FilterLine? FilterLine { get; set; }
+
+    [Parameter]
+    public EventCallback<FilterLine> FilterLineChanged { get; set; }
+
+    [Parameter]
+    public Expression<Func<FilterLine>>? FilterLineExpression { get; set; }
+
     private string? _selectedFieldName;
-    private String SelectedFieldName
+    private string SelectedFieldName
     {
         get => _selectedFieldName;
         set
@@ -43,83 +52,50 @@
             if(value != _selectedFieldName)
             {
                 _selectedFieldName = value;
-                SelectedField = Fields.First(f => f.Name == value);
+                FilterLine.SelectedField = Fields.First(f => f.Name == value);
+                FilterLineChanged.InvokeAsync(FilterLine);
             }
         }
     }
 
-    private FilterField? _selectedField;
-    [Parameter]
-    public virtual FilterField? SelectedField
-    { 
-        get => _selectedField;
-        set
-        {
-            if(value != _selectedField)
-            {
-                _selectedField = value;
-                SelectedFieldChanged.InvokeAsync(value);
-            }    
-        } 
-    }
-
-    [Parameter]
-    public EventCallback<FilterField> SelectedFieldChanged { get; set; }
-
-    [Parameter]
-    public Expression<Func<FilterField>>? SelectedFieldExpression { get; set; }
-
     private string? _selectedOperator;
-    [Parameter]
-    public virtual string? SelectedOperator 
-    { 
+    private string? SelectedOperator
+    {
         get => _selectedOperator;
         set
         {
-            if(value != _selectedOperator)
+            if (value != _selectedOperator)
             {
                 _selectedOperator = value;
-                SelectedOperatorChanged.InvokeAsync(value);
-            }    
-        } 
+                FilterLine.SelectedOperator = value;
+                FilterLineChanged.InvokeAsync(FilterLine);
+            }
+        }
     }
-
-    [Parameter]
-    public EventCallback<string> SelectedOperatorChanged { get; set; }
-
-    [Parameter]
-    public Expression<Func<string>>? SelectedOperatorExpression { get; set; }
-
 
     private string? _value;
-    [Parameter]
-    public virtual string? Value 
-    { 
-        get => _value; 
+    private string? Value
+    {
+        get => _value;
         set
         {
-            if(value != _value)
+            if (value != _value)
             {
                 _value = value;
-                ValueChanged.InvokeAsync(value);
-            }    
-        } 
+                FilterLine.Value = value;
+                FilterLineChanged.InvokeAsync(FilterLine);
+            }
+        }
     }
-
-    [Parameter]
-    public EventCallback<string> ValueChanged { get; set; }
-
-    [Parameter]
-    public Expression<Func<string>>? ValueExpression { get; set; }
-
+    
     [Parameter]
     public EventCallback<FilterLine> OnRemoveFilter { get; set; }
 
     private async Task HandleRemoveFilter()
     {      
-        if(SelectedField != null && SelectedOperator != null && Value != null)
+        if(FilterLine != null)
         {
-            await OnRemoveFilter.InvokeAsync(new FilterLine(SelectedField, SelectedOperator, Value));
+            await OnRemoveFilter.InvokeAsync(FilterLine);
         }
     }
 }
