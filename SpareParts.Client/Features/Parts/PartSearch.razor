@@ -13,7 +13,7 @@
 
         @foreach (var filterLine in _filterLines)
         {
-            <FilterSelector FieldNames="_fieldNames" Operators="_operators" @bind-SelectedField="filterLine.SelectedField" @bind-SelectedOperator="filterLine.SelectedOperator" @bind-Value="@filterLine.Value" />
+            <FilterSelector Fields="_filterFields" Operators="_operators" @bind-SelectedField="filterLine.SelectedField"  @bind-SelectedOperator="filterLine.SelectedOperator" @bind-Value="@filterLine.Value" />
         }
 
         <button type="button" class="btn btn-secondary my-1" @onclick="AddFilter">Add Filter</button>
@@ -64,7 +64,7 @@
     private string? _errorMessage;
     private List<Part>? _parts;
 
-    private List<String>? _fieldNames;
+    private List<FilterField>? _filterFields;
     private List<String>? _operators;
     private List<FilterLine>? _filterLines;
     private const int MaxFilterLineCount = 5;
@@ -78,7 +78,7 @@
         _hasError = false;
         _errorMessage = "";
 
-        _fieldNames = GetFieldNames();
+        _filterFields = GetFilterFields();
         _operators = new List<string> { "eq", "neq", "contains", "gt", "gte", "lt", "lte", "startsWith", "endsWith" };
         _filterLines = new List<FilterLine>();
         _filterLines.Add(new FilterLine());
@@ -98,9 +98,27 @@
         }
     }
 
+    private bool ValueRequiresQuotes(FilterLine filterLine)
+    {
+        return typeof(string).IsAssignableFrom(filterLine.SelectedField.Type) ||
+                typeof(DateTime).IsAssignableFrom(filterLine.SelectedField.Type) ||
+                typeof(DateTime?).IsAssignableFrom(filterLine.SelectedField.Type);
+    }
+
+    private string GetFilterLineValue(FilterLine filterLine)
+    {
+        if(ValueRequiresQuotes(filterLine))
+        {
+            return $"\"{ filterLine.Value}\"";
+        }
+
+        return filterLine.Value;
+    }
+
     private string GetFilterString(FilterLine filterLine)
     {
-        return $" {filterLine.SelectedField.ToLower()}: {{{filterLine.SelectedOperator}: {filterLine.Value} }}";
+        var filterLineValue = GetFilterLineValue(filterLine);
+        return $" {filterLine.SelectedField.Name.ToLower()}: {{{filterLine.SelectedOperator}:{filterLineValue} }}";
     }
 
     private async Task RefreshPartsList()
@@ -164,9 +182,10 @@
         public List<Part>? Parts { get; set; }
     }
 
-    private List<string> GetFieldNames()
+    
+    private List<FilterField> GetFilterFields()
     {
         var props = typeof(Part).GetProperties();
-        return props.Select(p => p.Name).ToList();
+        return props.Select(p => new FilterField(p.Name, p.PropertyType)).ToList();
     }
 }

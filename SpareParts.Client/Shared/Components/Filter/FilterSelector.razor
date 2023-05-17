@@ -1,13 +1,13 @@
 ﻿@using System.Linq.Expressions;
 
 <div class="row">
-    @if(FieldNames != null && Operators != null)
+    @if(Fields != null && Operators != null)
     {
         <div class="col">
-            <InputSelect class="form-select" @bind-Value="@SelectedField">
-                @foreach (var fieldName in FieldNames)
+            <InputSelect class="form-select" @bind-Value="@SelectedFieldName">
+                @foreach (var field in Fields)
                 {
-                    <option>@fieldName</option>
+                    <option>@field.Name</option>
                 }
             </InputSelect>
         </div>
@@ -26,14 +26,28 @@
 </div>
 @code {
     [Parameter, EditorRequired]
-    public List<string>? FieldNames { get; set; }
+    public List<FilterField>? Fields { get; set; }
 
     [Parameter, EditorRequired]
     public List<string>? Operators { get; set; }
 
-    private string? _selectedField;
+    private string? _selectedFieldName;
+    private String SelectedFieldName
+    {
+        get => _selectedFieldName;
+        set
+        {
+            if(value != _selectedFieldName)
+            {
+                _selectedFieldName = value;
+                SelectedField = Fields.First(f => f.Name == value);
+            }
+        }
+    }
+
+    private FilterField? _selectedField;
     [Parameter]
-    public virtual string? SelectedField 
+    public virtual FilterField? SelectedField
     { 
         get => _selectedField;
         set
@@ -47,10 +61,10 @@
     }
 
     [Parameter]
-    public EventCallback<string> SelectedFieldChanged { get; set; }
+    public EventCallback<FilterField> SelectedFieldChanged { get; set; }
 
     [Parameter]
-    public Expression<Func<string>>? SelectedFieldExpression { get; set; }
+    public Expression<Func<FilterField>>? SelectedFieldExpression { get; set; }
 
     private string? _selectedOperator;
     [Parameter]
