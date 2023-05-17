@@ -172,7 +172,7 @@
         }           
     }
 
-    private void RemoveFilter(FilterLine filterLine)
+    private async Task RemoveFilter(FilterLine filterLine)
     {
         if(_filterLines != null)
         {
@@ -180,6 +180,7 @@
             if (itemToRemove != null)
             {
                 _filterLines.Remove(itemToRemove);
+                await RefreshPartsList();
             }
         }
     }
