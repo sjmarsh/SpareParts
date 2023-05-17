@@ -13,7 +13,7 @@
 
         @foreach (var filterLine in _filterLines)
         {
-            <FilterSelector Fields="_filterFields" Operators="_operators" @bind-SelectedField="filterLine.SelectedField"  @bind-SelectedOperator="filterLine.SelectedOperator" @bind-Value="@filterLine.Value" />
+            <FilterSelector Fields="_filterFields" Operators="_operators" @bind-SelectedField="filterLine.SelectedField"  @bind-SelectedOperator="filterLine.SelectedOperator" @bind-Value="@filterLine.Value" OnRemoveFilter="RemoveFilter" />
         }
 
         <button type="button" class="btn btn-secondary my-1" @onclick="AddFilter">Add Filter</button>
@@ -168,6 +168,18 @@
             if (partResponse.Data != null && partResponse.Data.Parts != null)
             {
                 _parts = partResponse.Data.Parts;
+            }
+        }           
+    }
+
+    private void RemoveFilter(FilterLine filterLine)
+    {
+        if(_filterLines != null)
+        {
+            var itemToRemove = _filterLines.FirstOrDefault(f => f.Equals(filterLine));
+            if (itemToRemove != null)
+            {
+                _filterLines.Remove(itemToRemove);
             }
         }
     }

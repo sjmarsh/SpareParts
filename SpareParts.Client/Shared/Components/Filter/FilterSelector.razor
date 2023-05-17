@@ -22,6 +22,9 @@
         <div class="col">
             <InputText class="form-control" @bind-Value="@Value" />
         </div>
+        <div class="col">
+            <a @onclick="() => HandleRemoveFilter()"><span class="oi oi-x"></span></a>
+        </div>
     }
 </div>
 @code {
@@ -102,10 +105,21 @@
             }    
         } 
     }
-    
+
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
-    
+
     [Parameter]
     public Expression<Func<string>>? ValueExpression { get; set; }
+
+    [Parameter]
+    public EventCallback<FilterLine> OnRemoveFilter { get; set; }
+
+    private async Task HandleRemoveFilter()
+    {      
+        if(SelectedField != null && SelectedOperator != null && Value != null)
+        {
+            await OnRemoveFilter.InvokeAsync(new FilterLine(SelectedField, SelectedOperator, Value));
+        }
+    }
 }

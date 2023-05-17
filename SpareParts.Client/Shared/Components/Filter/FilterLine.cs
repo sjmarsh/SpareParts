@@ -2,15 +2,33 @@
 {
     public class FilterLine
     {
-        public FilterLine()
+        public FilterLine() : this(new FilterField("", typeof(object)), "eq", "")
         {
-            SelectedField = new FilterField("", typeof(object));
-            SelectedOperator = "eq";
-            Value = "";
+            
+        }
+
+        public FilterLine(FilterField selectedField, string selectedOperator, string value)
+        {
+            SelectedField = selectedField;
+            SelectedOperator = selectedOperator;
+            Value = value;
         }
 
         public FilterField SelectedField { get; set; }
         public string SelectedOperator { get; set; }
         public string Value { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is FilterLine line &&
+                   EqualityComparer<FilterField>.Default.Equals(SelectedField, line.SelectedField) &&
+                   SelectedOperator == line.SelectedOperator &&
+                   Value == line.Value;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(SelectedField, SelectedOperator, Value);
+        }
     }
 }
