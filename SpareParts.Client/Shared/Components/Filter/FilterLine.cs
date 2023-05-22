@@ -2,7 +2,7 @@
 {
     public class FilterLine
     {
-        public FilterLine() : this(new FilterField("", typeof(object)), "eq", "")
+        public FilterLine() : this(new FilterField("", typeof(object), true), "eq", "")
         {
             
         }

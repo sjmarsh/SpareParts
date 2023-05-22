@@ -5,7 +5,7 @@
     {
         <div class="col">
             <InputSelect class="form-select" @bind-Value="@SelectedFieldName">
-                @foreach (var field in Fields)
+                @foreach (var field in Fields.Where(f => f.IsSelected))
                 {
                     <option>@field.Name</option>
                 }

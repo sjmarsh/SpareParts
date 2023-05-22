@@ -1,0 +1,40 @@
+﻿
+<div class="card">
+    <div class="card-body">
+    @if (Chips != null && Chips.Any())
+    {
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <h6 class="card-subtitle mb-2 text-muted">@Title</h6>
+        }
+            
+        @foreach (var chip in Chips)
+        {
+            <span class="badge rounded-pill @GetChipClass(chip) badge-custom">@chip.Name<span class="chips-custom"><a @onclick="() => HandleToggleChip(chip)"> X</a></span></span>
+        }
+    }
+    </div>
+</div>
+
+@code{
+
+    [Parameter, EditorRequired]
+    public List<Chip>? Chips { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public EventCallback<Chip> OnToggleChip { get; set; }
+
+    private string GetChipClass(Chip chip)
+    {
+        return chip.IsActive ? "bg-dark" : "bg-light text-dark";
+    }
+
+    private async Task HandleToggleChip(Chip chip)
+    {
+        chip.IsActive = !chip.IsActive;
+        await OnToggleChip.InvokeAsync(chip);
+    }
+}

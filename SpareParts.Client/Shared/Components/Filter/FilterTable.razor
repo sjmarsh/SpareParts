@@ -11,7 +11,7 @@
     <div>
         @if(_filterFields != null && _filterFields.Any())
         {
-            <Chips ChipLabels="_filterFields.Select(f => f.Name).ToList()" OnRemoveChip="HandleRemoveField"/>
+            <ChipsList Chips="_filterFields.Select(f => new Chip(f.Name, f.IsSelected)).ToList()" Title="Fields" OnToggleChip="HandleToggleField"/>
         }
     </div>
 
@@ -20,20 +20,25 @@
         {
             <EditForm Model="_filterLines" OnSubmit="HandleSubmit">
 
-                @foreach (var filterLine in _filterLines)
-                {
-                    <FilterSelector Fields="_filterFields" Operators="_operators" FilterLine="filterLine" OnRemoveFilter="RemoveFilter" />
-                }
-                <div class="mt-2">
-                    <button type="button" class="btn btn-secondary my-1" @onclick="AddFilter">Add Filter</button>
-                    <button type="submit" class="btn btn-primary my-1">Search</button>
+                <div class="card mt-2">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Filters</h6>
+                        @foreach (var filterLine in _filterLines)
+                        {
+                            <FilterSelector Fields="_filterFields" Operators="_operators" FilterLine="filterLine" OnRemoveFilter="RemoveFilter" />
+                        }
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-secondary my-1" @onclick="AddFilter">Add Filter</button>
+                            <button type="submit" class="btn btn-primary my-1">Search</button>
+                        </div>
+                    </div>
                 </div>
             </EditForm>
         }
     </div>
 
     @if(_filterResults != null && _filterFields != null){
-        <SimpleDataGrid T="Part" DataSource="_filterResults" ColumnList="_filterFields.Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
+        <SimpleDataGrid T="Part" DataSource="_filterResults" ColumnList="_filterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
     }
         
 </div>
@@ -68,19 +73,19 @@
     private List<FilterField> GetFilterFields()
     {
         var props = typeof(T).GetProperties();
-        var fields = props.Select(p => new FilterField(p.Name, p.PropertyType)).Where(f => f.Name.ToLower() != "id");
+        var fields = props.Select(p => new FilterField(p.Name, p.PropertyType, true)).Where(f => f.Name.ToLower() != "id");
         return fields.ToList();
     }
 
-    private async Task HandleRemoveField(string fieldName)
+    private async Task HandleToggleField(Chip chip)
     {
-        if(_filterFields != null && fieldName != null)
+        if(_filterFields != null && chip != null)
         {
-            var itemToRemove = _filterFields.FirstOrDefault(f => f.Name == fieldName);
-            var filterAlreadyUsed = _filterLines.FirstOrDefault(f => f.SelectedField.Name == fieldName) != null;
-            if(itemToRemove != null && !filterAlreadyUsed)
+            var itemToToggle = _filterFields.FirstOrDefault(f => f.Name == chip.Name);
+            var filterAlreadyUsed = _filterLines.FirstOrDefault(f => f.SelectedField.Name == chip.Name) != null;
+            if(itemToToggle != null && !filterAlreadyUsed)
             {
-                _filterFields.Remove(itemToRemove);
+                itemToToggle.IsSelected = chip.IsActive;
                 await Search();
             }
         }
@@ -180,7 +185,7 @@
     {
         if (_filterLines != null)
         {
-            if (_filterLines.Any())
+            if (_filterLines.Any() && _filterLines.All(f => !string.IsNullOrEmpty(f.Value)))
             {
                 var filter = BuildQueryFilter();
                 var fields = BuildFilterFields();
