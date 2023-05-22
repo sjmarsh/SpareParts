@@ -2,7 +2,7 @@
 {
     public class FilterLine
     {
-        public FilterLine() : this(new FilterField("", typeof(string), true), "eq", "")
+        public FilterLine() : this(new FilterField("", typeof(string), true), FilterOperator.Equal, "")
         {
             
         }

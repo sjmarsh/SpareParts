@@ -64,7 +64,7 @@
     protected override void OnInitialized()
     {   
         _filterFields = GetFilterFields();
-        _operators = new List<string> { "eq", "neq", "contains", "gt", "gte", "lt", "lte", "startsWith", "endsWith" };
+        _operators = FilterOperator.Operators().ToList();
         _filterLines = new List<FilterLine>();
         AddFilter();
     }
@@ -101,7 +101,7 @@
         if (_filterLines != null && _filterLines.Count <= MaxFilterLineCount - 1 
                 && _filterFields != null && _filterFields.Any())
         {
-            _filterLines?.Add(new FilterLine(_filterFields.First(), "eq", ""));
+            _filterLines?.Add(new FilterLine(_filterFields.First(), FilterOperator.Equal, ""));
         }
     }
 
