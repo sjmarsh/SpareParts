@@ -66,7 +66,7 @@
         _filterFields = GetFilterFields();
         _operators = new List<string> { "eq", "neq", "contains", "gt", "gte", "lt", "lte", "startsWith", "endsWith" };
         _filterLines = new List<FilterLine>();
-        _filterLines.Add(new FilterLine());
+        AddFilter();
     }
 
 
@@ -98,17 +98,18 @@
 
     private void AddFilter()
     {
-        if (_filterLines != null && _filterLines.Count <= MaxFilterLineCount - 1)
+        if (_filterLines != null && _filterLines.Count <= MaxFilterLineCount - 1 
+                && _filterFields != null && _filterFields.Any())
         {
-            _filterLines?.Add(new FilterLine());
+            _filterLines?.Add(new FilterLine(_filterFields.First(), "eq", ""));
         }
     }
 
     private bool ValueRequiresQuotes(FilterLine filterLine)
     {
-        return typeof(string).IsAssignableFrom(filterLine.SelectedField.Type) ||
-                typeof(DateTime).IsAssignableFrom(filterLine.SelectedField.Type) ||
-                typeof(DateTime?).IsAssignableFrom(filterLine.SelectedField.Type);
+        return filterLine.SelectedField.Type.IsAssignableFrom(typeof(string)) ||
+                filterLine.SelectedField.Type.IsAssignableFrom(typeof(DateTime)) ||
+                filterLine.SelectedField.Type.IsAssignableFrom(typeof(DateTime?));
     }
 
     private string GetFilterLineValue(FilterLine filterLine)
@@ -124,7 +125,7 @@
     private string GetFilterString(FilterLine filterLine)
     {
         var filterLineValue = GetFilterLineValue(filterLine);
-        return $" {filterLine.SelectedField.Name.ToLower()}: {{{filterLine.SelectedOperator}:{filterLineValue} }}";
+        return $" {filterLine.SelectedField.Name.Camelize()}: {{{filterLine.SelectedOperator}:{filterLineValue} }}";
     }
 
     private async Task RemoveFilter(FilterLine filterLine)
