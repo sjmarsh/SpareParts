@@ -1,6 +1,8 @@
 ﻿@typeparam T
 
 @using SpareParts.Shared.Models
+@using System.Text;
+@using Humanizer;
 
 @inject IServiceWrapper ServiceWrapper
 @inject IPartService PartService
@@ -66,7 +68,8 @@
     private List<FilterField> GetFilterFields()
     {
         var props = typeof(T).GetProperties();
-        return props.Select(p => new FilterField(p.Name, p.PropertyType)).ToList();
+        var fields = props.Select(p => new FilterField(p.Name, p.PropertyType)).Where(f => f.Name.ToLower() != "id");
+        return fields.ToList();
     }
 
     private async Task HandleRemoveField(string fieldName)
@@ -160,6 +163,19 @@
         return filter;
     }
 
+    private string BuildFilterFields()
+    {
+        var filterFieldStringBuilder = new StringBuilder();
+        if(_filterFields != null && _filterFields.Any())
+        {
+            foreach(var field in _filterFields)
+            {
+                filterFieldStringBuilder.AppendLine(field.Name.Camelize());
+            };
+        }
+        return filterFieldStringBuilder.ToString();
+    }
+
     private async Task Search()
     {
         if (_filterLines != null)
@@ -167,17 +183,13 @@
             if (_filterLines.Any())
             {
                 var filter = BuildQueryFilter();
+                var fields = BuildFilterFields();
 
                 var partRequest = new GraphQLRequest
                     {
                         query = $@"{{
                         parts (where: {{{filter}}}) {{
-                            name
-                            description
-                            weight
-                            price
-                            startDate
-                            endDate
+                            {fields}
                         }}
                     }}"
                     };
