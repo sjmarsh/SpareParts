@@ -91,7 +91,7 @@
 
     private async Task HandleToggleField(Chip chip)
     {
-        if(_filterFields != null && chip != null)
+        if(_filterFields != null && _filterLines != null && chip != null)
         {
             var itemToToggle = _filterFields.FirstOrDefault(f => f.Name == chip.Name);
             var filterAlreadyUsed = _filterLines.FirstOrDefault(f => f.SelectedField.Name == chip.Name) != null;

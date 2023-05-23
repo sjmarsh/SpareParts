@@ -4,6 +4,7 @@
     {
         public const string Equal = "eq";
         public const string NotEqual = "neq";
+        public const string Contains = "contains";
         public const string GreaterThan = "gt";
         public const string GreatherThanOrEqual = "gte";
         public const string LessThan = "lt";
