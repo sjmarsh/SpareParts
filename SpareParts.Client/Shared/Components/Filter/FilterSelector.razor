@@ -16,9 +16,9 @@
         <div class="col">
             <div class="form-group my-2">
                 <InputSelect class="form-select" @bind-Value="@SelectedOperator">
-                    @foreach (var operatorName in Operators)
+                    @foreach (var optr in Operators)
                     {
-                        <option>@operatorName</option>
+                        <option value="@optr.FilterOperator">@optr.Name</option>
                     }
                 </InputSelect>
             </div>
@@ -38,7 +38,7 @@
     public List<FilterField>? Fields { get; set; }
 
     [Parameter, EditorRequired]
-    public List<string>? Operators { get; set; }
+    public List<NamedFilterOperator>? Operators { get; set; }
 
     [Parameter, EditorRequired]
     public FilterLine? FilterLine { get; set; }
@@ -50,7 +50,7 @@
     public Expression<Func<FilterLine>>? FilterLineExpression { get; set; }
 
     private string? _selectedFieldName;
-    private string SelectedFieldName
+    private string? SelectedFieldName
     {
         get => _selectedFieldName;
         set

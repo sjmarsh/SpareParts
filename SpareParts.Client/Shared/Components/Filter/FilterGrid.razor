@@ -62,7 +62,7 @@
     private List<T>? _filterResults { get; set; }
 
     private List<FilterField>? _filterFields;
-    private List<String>? _operators;
+    private List<NamedFilterOperator>? _operators;
     private List<FilterLine>? _filterLines;
     private const int MaxFilterLineCount = 5;
 
@@ -77,7 +77,7 @@
     protected override void OnInitialized()
     {   
         _filterFields = GetFilterFields();
-        _operators = FilterOperator.Operators().ToList();
+        _operators = FilterOperator.NamedFilterOperators().ToList();
         _filterLines = new List<FilterLine>();
         AddFilter();
 

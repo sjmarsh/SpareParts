@@ -1,4 +1,6 @@
-﻿namespace SpareParts.Client.Shared.Components.Filter
+﻿using Humanizer;
+
+namespace SpareParts.Client.Shared.Components.Filter
 {
     public static class FilterOperator
     {
@@ -23,5 +25,30 @@
                 }
             }
         }
+
+        public static IEnumerable<NamedFilterOperator> NamedFilterOperators()
+        {
+            var flds = typeof(FilterOperator).GetFields().Where(fi => fi.IsLiteral && !fi.IsInitOnly);
+            foreach (var fld in flds)
+            {
+                if (fld.GetRawConstantValue() is string constValue)
+                {
+                    yield return new NamedFilterOperator(fld.Name.Humanize(), constValue);
+                }
+            }
+        }
+
+    }
+
+    public class NamedFilterOperator
+    {
+        public NamedFilterOperator(string name, string filterOperator)
+        {
+            Name = name;
+            FilterOperator = filterOperator;
+        }
+
+        public string Name { get; set; }
+        public string FilterOperator { get; set; }
     }
 }
