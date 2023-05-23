@@ -4,9 +4,6 @@
 @using System.Text;
 @using Humanizer;
 
-@inject IServiceWrapper ServiceWrapper
-@inject IPartService PartService
-
 <div>
     <div>
         @if(_filterFields != null && _filterFields.Any())
@@ -44,7 +41,7 @@
     }
 
     @if(_filterResults != null && _filterFields != null){
-        <SimpleDataGrid T="Part" DataSource="_filterResults" ColumnList="_filterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
+        <SimpleDataGrid T="T" DataSource="_filterResults" ColumnList="_filterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
     }
         
 </div>
@@ -55,7 +52,14 @@
     [Parameter]
     public EventCallback<Dictionary<string, string>> OnRowClick { get; set; }
 
-    private List<Part>? _filterResults { get; set; }
+    [Parameter]
+    public string? RootGraphQLField { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public Func<GraphQLRequest, Task<List<T>>>? ServiceCall { get; set; }
+
+    private List<T>? _filterResults { get; set; }
 
     private List<FilterField>? _filterFields;
     private List<String>? _operators;
@@ -204,28 +208,34 @@
             {
                 var filter = BuildQueryFilter();
                 var fields = BuildFilterFields();
+                var rootField = RootGraphQLField ?? $"{typeof(T).Name.ToLower()}s";
 
-                var partRequest = new GraphQLRequest
+                var graphQLRequest = new GraphQLRequest
                     {
                         query = $@"{{
-                        parts (where: {{{filter}}}) {{
+                        {rootField} (where: {{{filter}}}) {{
                             {fields}
                         }}
                     }}"
                     };
 
-                var partResponse = await ServiceWrapper.ServiceCall(() => PartService.Search(partRequest), "An error occurred searching for part.");
 
-                if (partResponse.Data != null && partResponse.Data.Parts != null)
+                if(ServiceCall != null)
                 {
-                    _filterResults = partResponse.Data.Parts;
-                    _hasError = false;
-                    _errorMessage = string.Empty;
-                }
-                else
-                {
-                    _hasError = true;
-                    _errorMessage = "No results found";
+                    var serviceResult = await ServiceCall.Invoke(graphQLRequest);
+
+                    if (serviceResult != null && serviceResult.Any())
+                    {
+                        _filterResults = serviceResult;
+                        _hasError = false;
+                        _errorMessage = string.Empty;
+                    }
+                    else
+                    {
+                        _filterResults = new List<T>();
+                        _hasError = true;
+                        _errorMessage = "No results found";
+                    }
                 }
             }
             else
@@ -239,20 +249,10 @@
                 }
                 _errorMessage = sb.ToString();
 
-                _filterResults = new List<Part>();
+                _filterResults = new List<T>();
 
                 return;
             }            
         }
-    }
-
-    public class MyGraphQLResponse
-    {
-        public MyGraphQLData? Data { get; set; }
-    }
-
-    public class MyGraphQLData
-    {
-        public List<T>? Parts { get; set; }
     }
 }
