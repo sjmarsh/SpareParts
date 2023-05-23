@@ -18,7 +18,7 @@
     <div>
         @if (_filterLines != null)
         {
-            <EditForm Model="_filterLines" OnSubmit="HandleSubmit">
+            <EditForm Model="_filterLines" OnValidSubmit="HandleValidSubmit">
 
                 <div class="card mt-2">
                     <div class="card-body">
@@ -36,6 +36,12 @@
             </EditForm>
         }
     </div>
+    @if (_hasError)
+    {
+        <div class="alert alert-danger py-1">
+            @_errorMessage
+        </div>
+    }
 
     @if(_filterResults != null && _filterFields != null){
         <SimpleDataGrid T="Part" DataSource="_filterResults" ColumnList="_filterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
@@ -56,6 +62,9 @@
     private List<FilterLine>? _filterLines;
     private const int MaxFilterLineCount = 5;
 
+    private bool _hasError;
+    private string? _errorMessage;
+
     // TODO PAGING
     private int _totalItemCount;
     private const int PageSize = 10;
@@ -67,6 +76,9 @@
         _operators = FilterOperator.Operators().ToList();
         _filterLines = new List<FilterLine>();
         AddFilter();
+
+        _hasError = false;
+        _errorMessage = string.Empty;
     }
 
 
@@ -91,7 +103,7 @@
         }
     }
 
-    private async Task HandleSubmit(EditContext context)
+    private async Task HandleValidSubmit(EditContext context)
     {
         await Search();
     }
@@ -186,7 +198,9 @@
     {
         if (_filterLines != null)
         {
-            if (_filterLines.Any() && _filterLines.All(f => !string.IsNullOrEmpty(f.Value)))
+            var validator = new FilterLinesValidator();
+            var validationResult = validator.Validate(_filterLines);
+            if (validationResult.IsValid)
             {
                 var filter = BuildQueryFilter();
                 var fields = BuildFilterFields();
@@ -205,13 +219,30 @@
                 if (partResponse.Data != null && partResponse.Data.Parts != null)
                 {
                     _filterResults = partResponse.Data.Parts;
-                    
+                    _hasError = false;
+                    _errorMessage = string.Empty;
+                }
+                else
+                {
+                    _hasError = true;
+                    _errorMessage = "No results found";
                 }
             }
             else
             {
+                _hasError = true;
+                var sb = new StringBuilder();
+                for (int i = 0; i < validationResult.Errors.Count; i++)
+                {
+                    var error = validationResult.Errors[i];
+                    sb.AppendLine($"Row {i} is invalid. {error.ErrorMessage}");
+                }
+                _errorMessage = sb.ToString();
+
                 _filterResults = new List<Part>();
-            }
+
+                return;
+            }            
         }
     }
 
