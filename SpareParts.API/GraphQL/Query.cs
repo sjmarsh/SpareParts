@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
 using SpareParts.API.Data;
 using SpareParts.API.Infrastructure;
 using SpareParts.Shared.Models;

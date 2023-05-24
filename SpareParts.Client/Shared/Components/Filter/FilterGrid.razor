@@ -190,7 +190,7 @@
         var filterFieldStringBuilder = new StringBuilder();
         if(_filterFields != null && _filterFields.Any())
         {
-            foreach(var field in _filterFields)
+            foreach(var field in _filterFields.Where(f => f.IsSelected))
             {
                 filterFieldStringBuilder.AppendLine(field.Name.Camelize());
             };
