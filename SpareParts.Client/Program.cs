@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SpareParts.Client;
 using SpareParts.Client.Services;
 using SpareParts.Client.Services.Authentication;
+using SpareParts.Client.Shared.Components.Filter;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -19,6 +20,7 @@ builder.Services.AddInMemoryAuthTokenStore();
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<AuthHeaderHandler>();
+builder.Services.AddScoped<IGraphQLRequestBuilder, GraphQLRequestBuilder>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

@@ -1,8 +1,10 @@
 ﻿@typeparam T
 
 @using SpareParts.Shared.Models
-@using System.Text;
-@using Humanizer;
+@using System.Text
+@using Humanizer
+
+@inject IGraphQLRequestBuilder graphQLRequestBuilder
 
 <div>
     <div>
@@ -93,6 +95,28 @@
         return fields.ToList();
     }
 
+    private void AddFilter()
+    {
+        if (_filterLines != null && _filterLines.Count <= MaxFilterLineCount - 1
+                && _filterFields != null && _filterFields.Any())
+        {
+            _filterLines?.Add(new FilterLine(_filterFields.First(), FilterOperator.Equal, ""));
+        }
+    }
+
+    private async Task RemoveFilter(FilterLine filterLine)
+    {
+        if (_filterLines != null)
+        {
+            var itemToRemove = _filterLines.FirstOrDefault(f => f.Equals(filterLine));
+            if (itemToRemove != null)
+            {
+                _filterLines.Remove(itemToRemove);
+                await Search();
+            }
+        }
+    }
+
     private async Task HandleToggleField(Chip chip)
     {
         if(_filterFields != null && _filterLines != null && chip != null)
@@ -112,113 +136,15 @@
         await Search();
     }
 
-    private void AddFilter()
-    {
-        if (_filterLines != null && _filterLines.Count <= MaxFilterLineCount - 1 
-                && _filterFields != null && _filterFields.Any())
-        {
-            _filterLines?.Add(new FilterLine(_filterFields.First(), FilterOperator.Equal, ""));
-        }
-    }
-
-    private bool ValueRequiresQuotes(FilterLine filterLine)
-    {
-        return filterLine.SelectedField.Type.IsAssignableFrom(typeof(string)) ||
-                filterLine.SelectedField.Type.IsAssignableFrom(typeof(DateTime)) ||
-                filterLine.SelectedField.Type.IsAssignableFrom(typeof(DateTime?));
-    }
-
-    private string GetFilterLineValue(FilterLine filterLine)
-    {
-        if (ValueRequiresQuotes(filterLine))
-        {
-            return $"\"{filterLine.Value}\"";
-        }
-
-        return filterLine.Value;
-    }
-
-    private string GetFilterString(FilterLine filterLine)
-    {
-        var filterLineValue = GetFilterLineValue(filterLine);
-        return $" {filterLine.SelectedField.Name.Camelize()}: {{{filterLine.SelectedOperator}:{filterLineValue} }}";
-    }
-
-    private async Task RemoveFilter(FilterLine filterLine)
-    {
-        if (_filterLines != null)
-        {
-            var itemToRemove = _filterLines.FirstOrDefault(f => f.Equals(filterLine));
-            if (itemToRemove != null)
-            {
-                _filterLines.Remove(itemToRemove);
-                await Search();
-            }
-        }
-    }
-
-    private string BuildQueryFilter()
-    {
-        var filter = "";
-        if(_filterLines != null)
-        {
-            if (_filterLines.Count == 1)
-            {
-                filter = GetFilterString(_filterLines.First());
-            }
-            else
-            {
-                const string filterAndPrefix = " and: {";
-
-                foreach (var filterLine in _filterLines)
-                {
-                    filter += filterAndPrefix + GetFilterString(filterLine);
-                }
-                filter = filter.Remove(0, filterAndPrefix.Length);
-            }
-
-            for (int i = 0; i < _filterLines.Count - 1; i++)
-            {
-                filter += "}";
-            }
-        }
-        return filter;
-    }
-
-    private string BuildFilterFields()
-    {
-        var filterFieldStringBuilder = new StringBuilder();
-        if(_filterFields != null && _filterFields.Any())
-        {
-            foreach(var field in _filterFields.Where(f => f.IsSelected))
-            {
-                filterFieldStringBuilder.AppendLine(field.Name.Camelize());
-            };
-        }
-        return filterFieldStringBuilder.ToString();
-    }
-
     private async Task Search()
     {
-        if (_filterLines != null)
+        if (_filterLines != null && _filterFields != null)
         {
             var validator = new FilterLinesValidator();
             var validationResult = validator.Validate(_filterLines);
             if (validationResult.IsValid)
             {
-                var filter = BuildQueryFilter();
-                var fields = BuildFilterFields();
-                var rootField = RootGraphQLField ?? $"{typeof(T).Name.ToLower()}s";
-
-                var graphQLRequest = new GraphQLRequest
-                    {
-                        query = $@"{{
-                        {rootField} (where: {{{filter}}}) {{
-                            {fields}
-                        }}
-                    }}"
-                    };
-
+                var graphQLRequest = graphQLRequestBuilder.Build<T>(_filterLines, _filterFields);
 
                 if(ServiceCall != null)
                 {
