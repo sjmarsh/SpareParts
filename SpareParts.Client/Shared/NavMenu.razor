@@ -50,13 +50,11 @@
             </div>
             </Authorized>
         </AuthorizeView>
-
-        @*TODO move this to a tab under the existing parts view*@
         <AuthorizeView Roles="@Role.Administrator">
             <Authorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="part-search">
-                        <span class="oi oi-list" aria-hidden="true"></span> Parts Search
+                        <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Search
                     </NavLink>
                 </div>
             </Authorized>
