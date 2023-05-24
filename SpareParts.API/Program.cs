@@ -142,6 +142,7 @@ try
         .AddGraphQLServer()
         .AddAuthorization()
         .AddFiltering()
+        .RegisterDbContext<SparePartsDbContext>()
         .AddQueryType<Query>();
 
     var app = builder.Build();

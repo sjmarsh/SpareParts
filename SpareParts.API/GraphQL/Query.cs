@@ -1,25 +1,26 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
+using SpareParts.API.Data;
 using SpareParts.API.Infrastructure;
-using SpareParts.API.Services;
 using SpareParts.Shared.Models;
 
 namespace SpareParts.API.GraphQL
 {
     public class Query
     {
-        [UseFiltering]
-        [AuthorizeByRoleHotChoc(Role.Administrator, Role.StocktakeUser)]
-        public async Task<List<Shared.Models.Part>> GetParts([Service]IMediator mediator)
+        private readonly IMapper _mapper;
+
+        public Query(IMapper mapper)
         {
-            var partListResponse = await mediator.Send(new GetPartListRequest());
-            return partListResponse.Items;
+            _mapper = mapper;
         }
 
+        [UseFiltering]
         [AuthorizeByRoleHotChoc(Role.Administrator, Role.StocktakeUser)]
-        public async Task<Shared.Models.Part> GetPartById([Service] IMediator mediator, int id)
+        public IQueryable<Part> GetParts([Service] SparePartsDbContext dbContext)
         {
-            var partResponse = await mediator.Send(new GetPartRequest(id));
-            return partResponse.Value;
+            return dbContext.Parts.ProjectTo<Part>(_mapper.ConfigurationProvider);
         }
     }
 }
