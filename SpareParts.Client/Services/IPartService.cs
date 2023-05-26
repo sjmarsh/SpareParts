@@ -1,5 +1,4 @@
 ﻿using Refit;
-using SpareParts.Client.Features.Parts;
 using SpareParts.Shared.Models;
 
 namespace SpareParts.Client.Services
@@ -23,9 +22,5 @@ namespace SpareParts.Client.Services
 
         [Delete("/api/part")]
         Task<PartResponse> Delete(int id);
-
-        // GraphQL
-        [Post("/graphql")]
-        Task<PartGraphQLResponse> Search(GraphQLRequest request);
     }
 }

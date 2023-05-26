@@ -27,6 +27,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddRefitClientFor<IUserService>(builder.HostEnvironment.BaseAddress);
 builder.Services.AddRefitClientFor<IPartService>(builder.HostEnvironment.BaseAddress);
 builder.Services.AddRefitClientFor<IInventoryService>(builder.HostEnvironment.BaseAddress);
+builder.Services.AddRefitClientFor<ISearchService>(builder.HostEnvironment.BaseAddress);
 
 builder.Services.AddFluxor(o => o.ScanAssemblies(typeof(Program).Assembly));
 

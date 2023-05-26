@@ -1,6 +1,6 @@
 ﻿using SpareParts.Shared.Models;
 
-namespace SpareParts.Client.Features.Parts
+namespace SpareParts.Client.Features.Search
 {
     public class PartGraphQLResponse
     {
