@@ -175,9 +175,8 @@ try
 
     app.MapRazorPages();
     app.MapFallbackToFile("index.html");
-
-    // Disabling CSP to enable Hot Chocolate web tool.  TODO: configure csp to ignore this.
-   // app.UseContentSecurityPolicy();
+        
+    app.UseContentSecurityPolicy();
 
     app.UseAuthentication();
     app.UseAuthorization();
