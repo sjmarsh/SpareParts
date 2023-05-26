@@ -106,12 +106,12 @@
 
     private async Task RemoveFilter(FilterLine filterLine)
     {
-        if (_filterLines != null)
+        if (HasFilterLines())
         {
-            var itemToRemove = _filterLines.FirstOrDefault(f => f.Equals(filterLine));
+            var itemToRemove = _filterLines?.FirstOrDefault(f => f.Equals(filterLine));
             if (itemToRemove != null)
             {
-                _filterLines.Remove(itemToRemove);
+                _filterLines?.Remove(itemToRemove);
                 await Search();
             }
         }
@@ -138,7 +138,8 @@
 
     private async Task Search()
     {
-        if (_filterLines != null && _filterFields != null)
+        ClearFilterResults();
+        if (HasFilterLines() && HasFilterFields())
         {
             var validator = new FilterLinesValidator();
             var validationResult = validator.Validate(_filterLines);
@@ -158,7 +159,6 @@
                     }
                     else
                     {
-                        _filterResults = new List<T>();
                         _hasError = true;
                         _errorMessage = "No results found";
                     }
@@ -174,11 +174,24 @@
                     sb.AppendLine($"Row {i} is invalid. {error.ErrorMessage}");
                 }
                 _errorMessage = sb.ToString();
-
-                _filterResults = new List<T>();
-
+                
                 return;
             }            
         }
+    }
+
+    private bool HasFilterFields()
+    {
+        return _filterFields != null && _filterFields.Any();
+    }
+
+    private bool HasFilterLines()
+    {
+        return _filterLines != null && _filterLines.Any();
+    }
+
+    private void ClearFilterResults()
+    {
+        _filterResults = new List<T>();
     }
 }

@@ -32,7 +32,7 @@ namespace SpareParts.Client.Shared.Components.Filter
         private string BuildQueryFilter(List<FilterLine> filterLines)
         {
             var filter = "";
-            if (filterLines != null)
+            if (filterLines != null && filterLines.Any())
             {
                 if (filterLines.Count == 1)
                 {
