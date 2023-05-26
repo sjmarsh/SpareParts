@@ -5,33 +5,34 @@
 @using Humanizer
 
 @inject IGraphQLRequestBuilder graphQLRequestBuilder
+@inject IState<SearchState> SearchState
+@inject IDispatcher Dispatcher
 
 <div>
     <div>
-        @if(_filterFields != null && _filterFields.Any())
+        @if (SearchState.Value.FilterFields != null)
         {
-            <ChipsList Chips="_filterFields.Select(f => new Chip(f.Name, f.IsSelected)).ToList()" Title="Fields" OnToggleChip="HandleToggleField"/>
+            <ChipsList Chips="SearchState.Value.FilterFields.Select(f => new Chip(f.Name, f.IsSelected)).ToList()" Title="Fields" OnToggleChip="HandleToggleField"/>
         }
     </div>
 
     <div>
-        @if (_filterLines != null)
+        @if (SearchState.Value.FilterLines != null && SearchState.Value.FilterFields != null)
         {
-            <EditForm Model="_filterLines" OnValidSubmit="HandleValidSubmit">
-
-                <div class="card mt-2">
+            <EditForm Model="SearchState.Value.FilterLines" OnValidSubmit="HandleValidSubmit">
+                 <div class="card mt-2">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">Filters</h6>
-                        @foreach (var filterLine in _filterLines)
+                        @foreach (var filterLine in SearchState.Value.FilterLines)
                         {
-                            <FilterSelector Fields="_filterFields" Operators="_operators" FilterLine="filterLine" OnRemoveFilter="RemoveFilter" />
+                            <FilterSelector Fields="SearchState.Value.FilterFields.ToList()" Operators="_operators" FilterLine="filterLine" OnRemoveFilter="RemoveFilter" />
                         }
                         <div class="mt-2">
-                            <button type="button" class="btn btn-secondary my-1" @onclick="AddFilter">Add Filter</button>
+                            <button type="button" class="btn btn-secondary my-1" @onclick="AddEmptyFilter">Add Filter</button>
                             <button type="submit" class="btn btn-primary my-1">Search</button>
                         </div>
                     </div>
-                </div>
+                 </div>
             </EditForm>
         }
     </div>
@@ -42,8 +43,8 @@
         </div>
     }
 
-    @if(_filterResults != null && _filterFields != null){
-        <SimpleDataGrid T="T" DataSource="_filterResults" ColumnList="_filterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
+    @if(_filterResults != null && SearchState.Value.FilterFields != null){
+        <SimpleDataGrid T="T" DataSource="_filterResults" ColumnList="SearchState.Value.FilterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
     }
         
 </div>
@@ -63,9 +64,9 @@
 
     private List<T>? _filterResults { get; set; }
 
-    private List<FilterField>? _filterFields;
+    //private List<FilterField>? _filterFields;
     private List<NamedFilterOperator>? _operators;
-    private List<FilterLine>? _filterLines;
+    //private List<FilterLine>? _filterLines;
     private const int MaxFilterLineCount = 5;
 
     private bool _hasError;
@@ -77,12 +78,19 @@
 
 
     protected override void OnInitialized()
-    {   
-        _filterFields = GetFilterFields();
-        _operators = FilterOperator.NamedFilterOperators().ToList();
-        _filterLines = new List<FilterLine>();
-        AddFilter();
+    {
+        Dispatcher.Dispatch(new InitializeFilterFieldsAction(GetFilterFields()));
+        //_filterFields = GetFilterFields();
+        var x = SearchState.Value.FilterFields;
 
+        _operators = FilterOperator.NamedFilterOperators().ToList();
+        //_filterLines = new List<FilterLine>();
+
+        if (!HasFilterLines())
+        {
+            AddEmptyFilter();
+        }
+        
         _hasError = false;
         _errorMessage = string.Empty;
     }
@@ -95,12 +103,13 @@
         return fields.ToList();
     }
 
-    private void AddFilter()
+    private void AddEmptyFilter()
     {
-        if (_filterLines != null && _filterLines.Count <= MaxFilterLineCount - 1
-                && _filterFields != null && _filterFields.Any())
+        if (SearchState.Value.FilterLines != null && SearchState.Value.FilterLines.Count <= MaxFilterLineCount - 1
+                && SearchState.Value.FilterFields != null)
         {
-            _filterLines?.Add(new FilterLine(_filterFields.First(), FilterOperator.Equal, ""));
+            //_filterLines?.Add(new FilterLine(_filterFields.First(), FilterOperator.Equal, ""));
+            Dispatcher.Dispatch(new AddFilterLineAction(new FilterLine(SearchState.Value.FilterFields.First(), FilterOperator.Equal, "")));
         }
     }
 
@@ -108,24 +117,26 @@
     {
         if (HasFilterLines())
         {
-            var itemToRemove = _filterLines?.FirstOrDefault(f => f.Equals(filterLine));
-            if (itemToRemove != null)
-            {
-                _filterLines?.Remove(itemToRemove);
-                await Search();
-            }
+            //var itemToRemove = _filterLines?.FirstOrDefault(f => f.Equals(filterLine));
+            //if (itemToRemove != null)
+            //{
+            //    _filterLines?.Remove(itemToRemove);
+            //    await Search();
+            //}
+            Dispatcher.Dispatch(new RemoveFilterLineAction(filterLine));
+            await Search();
         }
     }
 
     private async Task HandleToggleField(Chip chip)
     {
-        if(_filterFields != null && _filterLines != null && chip != null)
+        if(HasFilterFields() && SearchState.Value.FilterLines != null && chip != null)
         {
-            var itemToToggle = _filterFields.FirstOrDefault(f => f.Name == chip.Name);
-            var filterAlreadyUsed = _filterLines.FirstOrDefault(f => f.SelectedField.Name == chip.Name) != null;
-            if(itemToToggle != null && !filterAlreadyUsed)
+            //var itemToToggle = _filterFields.FirstOrDefault(f => f.Name == chip.Name);
+            var filterAlreadyUsed = SearchState.Value.FilterLines.FirstOrDefault(f => f.SelectedField.Name == chip.Name) != null;
+            if(!filterAlreadyUsed)
             {
-                itemToToggle.IsSelected = chip.IsActive;
+                Dispatcher.Dispatch(new ToggleFilterFieldAction(chip.Name));
                 await Search();
             }
         }
@@ -142,10 +153,11 @@
         if (HasFilterLines() && HasFilterFields())
         {
             var validator = new FilterLinesValidator();
-            var validationResult = validator.Validate(_filterLines);
+            var filterFieldsList = SearchState.Value.FilterLines.ToList();
+            var validationResult = validator.Validate(filterFieldsList);
             if (validationResult.IsValid)
             {
-                var graphQLRequest = graphQLRequestBuilder.Build<T>(_filterLines, _filterFields);
+                var graphQLRequest = graphQLRequestBuilder.Build<T>(filterFieldsList, SearchState.Value.FilterFields.ToList());
 
                 if(ServiceCall != null)
                 {
@@ -182,12 +194,12 @@
 
     private bool HasFilterFields()
     {
-        return _filterFields != null && _filterFields.Any();
+        return SearchState.Value.FilterFields != null && SearchState.Value.FilterFields.Any();
     }
 
     private bool HasFilterLines()
     {
-        return _filterLines != null && _filterLines.Any();
+        return SearchState.Value.FilterLines != null && SearchState.Value.FilterLines.Any();
     }
 
     private void ClearFilterResults()
