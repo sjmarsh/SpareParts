@@ -44,6 +44,13 @@ namespace SpareParts.Client.Features.Search.Store
         }
     }
 
+    public class UpdateFilterLineAction : StateChangeAction<FilterLine>
+    {
+        public UpdateFilterLineAction(FilterLine payload) : base(payload)
+        {
+        }
+    }
+
     public class RemoveFilterLineAction : StateChangeAction<FilterLine>
     {
         public RemoveFilterLineAction(FilterLine payload) : base(payload)

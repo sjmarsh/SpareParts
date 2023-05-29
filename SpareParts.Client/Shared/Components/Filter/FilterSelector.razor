@@ -40,8 +40,19 @@
     [Parameter, EditorRequired]
     public List<NamedFilterOperator>? Operators { get; set; }
 
+    private FilterLine? _filterLine;
     [Parameter, EditorRequired]
-    public FilterLine? FilterLine { get; set; }
+    public FilterLine? FilterLine 
+    { 
+        get => _filterLine;
+        set
+        {
+            _filterLine = value;
+            SelectedFieldName = _filterLine.SelectedField.Name;
+            SelectedOperator = _filterLine.SelectedOperator;
+            Value = _filterLine.Value;
+        } 
+    }
 
     [Parameter]
     public EventCallback<FilterLine> FilterLineChanged { get; set; }
@@ -93,15 +104,15 @@
             }
         }
     }
-    
+
     [Parameter]
     public EventCallback<FilterLine> OnRemoveFilter { get; set; }
-
+        
     private async Task HandleRemoveFilter()
     {      
         if(FilterLine != null)
         {
             await OnRemoveFilter.InvokeAsync(FilterLine);
         }
-    }
+    }    
 }

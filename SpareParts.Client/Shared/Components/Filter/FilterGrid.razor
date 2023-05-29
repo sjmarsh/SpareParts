@@ -25,7 +25,8 @@
                         <h6 class="card-subtitle mb-2 text-muted">Filters</h6>
                         @foreach (var filterLine in SearchState.Value.FilterLines)
                         {
-                            <FilterSelector Fields="SearchState.Value.FilterFields.ToList()" Operators="_operators" FilterLine="filterLine" OnRemoveFilter="RemoveFilter" />
+                            <FilterSelector Fields="SearchState.Value.FilterFields.ToList()" Operators="_operators" FilterLine="filterLine"
+                                    FilterLineChanged="HandleFilterLineChanged" OnRemoveFilter="HandleRemoveFilter"/>
                         }
                         <div class="mt-2">
                             <button type="button" class="btn btn-secondary my-1" @onclick="AddEmptyFilter">Add Filter</button>
@@ -62,11 +63,8 @@
     [EditorRequired]
     public Func<GraphQLRequest, Task<List<T>>>? ServiceCall { get; set; }
 
-    private List<T>? _filterResults { get; set; }
-
-    //private List<FilterField>? _filterFields;
+    private List<T>? _filterResults { get; set; }   
     private List<NamedFilterOperator>? _operators;
-    //private List<FilterLine>? _filterLines;
     private const int MaxFilterLineCount = 5;
 
     private bool _hasError;
@@ -80,17 +78,13 @@
     protected override void OnInitialized()
     {
         Dispatcher.Dispatch(new InitializeFilterFieldsAction(GetFilterFields()));
-        //_filterFields = GetFilterFields();
-        var x = SearchState.Value.FilterFields;
-
         _operators = FilterOperator.NamedFilterOperators().ToList();
-        //_filterLines = new List<FilterLine>();
 
         if (!HasFilterLines())
         {
             AddEmptyFilter();
         }
-        
+
         _hasError = false;
         _errorMessage = string.Empty;
     }
@@ -108,21 +102,19 @@
         if (SearchState.Value.FilterLines != null && SearchState.Value.FilterLines.Count <= MaxFilterLineCount - 1
                 && SearchState.Value.FilterFields != null)
         {
-            //_filterLines?.Add(new FilterLine(_filterFields.First(), FilterOperator.Equal, ""));
             Dispatcher.Dispatch(new AddFilterLineAction(new FilterLine(SearchState.Value.FilterFields.First(), FilterOperator.Equal, "")));
         }
     }
 
-    private async Task RemoveFilter(FilterLine filterLine)
+    private void HandleFilterLineChanged(FilterLine filterLine)
+    {
+        Dispatcher.Dispatch(new UpdateFilterLineAction(filterLine));
+    }
+
+    private async Task HandleRemoveFilter(FilterLine filterLine)
     {
         if (HasFilterLines())
         {
-            //var itemToRemove = _filterLines?.FirstOrDefault(f => f.Equals(filterLine));
-            //if (itemToRemove != null)
-            //{
-            //    _filterLines?.Remove(itemToRemove);
-            //    await Search();
-            //}
             Dispatcher.Dispatch(new RemoveFilterLineAction(filterLine));
             await Search();
         }
