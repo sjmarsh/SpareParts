@@ -75,12 +75,15 @@
     private const int PageSize = 10;
 
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         Dispatcher.Dispatch(new InitializeFilterFieldsAction(GetFilterFields()));
         _operators = FilterOperator.NamedFilterOperators().ToList();
 
-        if (!HasFilterLines())
+        if(HasFilterLines()){
+            await Search();
+        }
+        else
         {
             AddEmptyFilter();
         }
