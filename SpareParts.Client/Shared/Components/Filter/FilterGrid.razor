@@ -127,7 +127,6 @@
     {
         if(HasFilterFields() && SearchState.Value.FilterLines != null && chip != null)
         {
-            //var itemToToggle = _filterFields.FirstOrDefault(f => f.Name == chip.Name);
             var filterAlreadyUsed = SearchState.Value.FilterLines.FirstOrDefault(f => f.SelectedField.Name == chip.Name) != null;
             if(!filterAlreadyUsed)
             {
