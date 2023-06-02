@@ -5,10 +5,12 @@
 
 @inject IServiceWrapper ServiceWrapper
 @inject ISearchService SearchService
+@inject IState<SearchState> SearchState
+@inject IDispatcher Dispatcher
 
 <div>
     <h3>Part Search</h3>
-    <FilterGrid T="Part" ServiceCall="@((request) => HandleServiceCall(request))" />
+    <FilterGrid T="Part" ServiceCall="@((request) => HandleServiceCall(request))" FilterGridState="SearchState.Value.FilterGridState" OnFilterStateChanged="HandleFilterStateChanged" />
 </div>
 
 @code 
@@ -21,5 +23,10 @@
             return partResponse.Data.Parts;
         }
         return new List<Part>(); // TODO use generic result object
+    }
+
+    private void HandleFilterStateChanged(FilterGridState updatedState)
+    {
+        Dispatcher.Dispatch(new UpdateSearchStateAction(updatedState));
     }
 }

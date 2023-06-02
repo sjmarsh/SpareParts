@@ -1,42 +1,45 @@
 ﻿@typeparam T
 
-@using SpareParts.Shared.Models
+@using System.Collections.Immutable;
 @using System.Text
 @using Humanizer
+@using SpareParts.Shared.Models
 
 @inject IGraphQLRequestBuilder graphQLRequestBuilder
-@inject IState<SearchState> SearchState
-@inject IDispatcher Dispatcher
 
 <div>
-    <div>
-        @if (SearchState.Value.FilterFields != null)
-        {
-            <ChipsList Chips="SearchState.Value.FilterFields.Select(f => new Chip(f.Name, f.IsSelected)).ToList()" Title="Fields" OnToggleChip="HandleToggleField"/>
-        }
-    </div>
+    @if(FilterGridState != null)
+    {
+        <div>
+            @if (FilterGridState.FilterFields != null)
+            {
+                <ChipsList Chips="FilterGridState.FilterFields.Select(f => new Chip(f.Name, f.IsSelected)).ToList()" Title="Fields" OnToggleChip="HandleToggleField" />
+            }
+        </div>
 
-    <div>
-        @if (SearchState.Value.FilterLines != null && SearchState.Value.FilterFields != null)
-        {
-            <EditForm Model="SearchState.Value.FilterLines" OnValidSubmit="HandleValidSubmit">
-                 <div class="card mt-2">
-                    <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">Filters</h6>
-                        @foreach (var filterLine in SearchState.Value.FilterLines)
-                        {
-                            <FilterSelector Fields="SearchState.Value.FilterFields.ToList()" Operators="_operators" FilterLine="filterLine"
-                                    FilterLineChanged="HandleFilterLineChanged" OnRemoveFilter="HandleRemoveFilter"/>
-                        }
-                        <div class="mt-2">
-                            <button type="button" class="btn btn-outline-dark tool-button" @onclick="AddEmptyFilter"><span class="oi oi-plus tool-button-image" title="Add Filter" aria-hidden="true" /><span>Add Filter</span></button>
-                            <button type="submit" class="btn btn-outline-dark tool-button"><span class="oi oi-magnifying-glass tool-button-image" title="Search" aria-hidden="true" /><span>Search</span></button>
+        <div>
+            @if (FilterGridState.FilterLines != null && FilterGridState.FilterFields != null)
+            {
+                <EditForm Model="FilterGridState.FilterLines" OnValidSubmit="HandleValidSubmit">
+                    <div class="card mt-2">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Filters</h6>
+                            @foreach (var filterLine in FilterGridState.FilterLines)
+                            {
+                                <FilterSelector Fields="FilterGridState.FilterFields.ToList()" Operators="_operators" FilterLine="filterLine"
+                                    FilterLineChanged="HandleFilterLineChanged" OnRemoveFilter="HandleRemoveFilter" />
+                            }
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-outline-dark tool-button" @onclick="AddEmptyFilter"><span class="oi oi-plus tool-button-image" title="Add Filter" aria-hidden="true" /><span>Add Filter</span></button>
+                                <button type="submit" class="btn btn-outline-dark tool-button"><span class="oi oi-magnifying-glass tool-button-image" title="Search" aria-hidden="true" /><span>Search</span></button>
+                            </div>
                         </div>
                     </div>
-                 </div>
-            </EditForm>
-        }
-    </div>
+                </EditForm>
+            }
+        </div>
+    }
+    
     @if (_hasError)
     {
         <div class="alert alert-danger py-1">
@@ -44,8 +47,9 @@
         </div>
     }
 
-    @if(_filterResults != null && SearchState.Value.FilterFields != null){
-        <SimpleDataGrid T="T" DataSource="_filterResults" ColumnList="SearchState.Value.FilterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
+    @if(_filterResults != null && FilterGridState != null && FilterGridState.FilterFields != null)
+    {
+        <SimpleDataGrid T="T" DataSource="_filterResults" ColumnList="FilterGridState.FilterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
     }
         
 </div>
@@ -63,6 +67,13 @@
     [EditorRequired]
     public Func<GraphQLRequest, Task<List<T>>>? ServiceCall { get; set; }
 
+    [Parameter]
+    public FilterGridState? FilterGridState { get; set; }
+
+    [Parameter]
+    public EventCallback<FilterGridState> OnFilterStateChanged { get; set; }
+
+
     private List<T>? _filterResults { get; set; }   
     private List<NamedFilterOperator>? _operators;
     private const int MaxFilterLineCount = 5;
@@ -77,7 +88,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Dispatcher.Dispatch(new InitializeFilterFieldsAction(GetFilterFields()));
+        FilterGridState = FilterGridState ?? new FilterGridState();
+        await InitializeFilterFields();
         _operators = FilterOperator.NamedFilterOperators().ToList();
 
         if(HasFilterLines()){
@@ -85,52 +97,110 @@
         }
         else
         {
-            AddEmptyFilter();
+            await AddEmptyFilter();
         }
 
         _hasError = false;
         _errorMessage = string.Empty;
     }
 
-
-    private List<FilterField> GetFilterFields()
+    private async Task UpdateFilterGridState()
     {
-        var props = typeof(T).GetProperties();
-        var fields = props.Select(p => new FilterField(p.Name, p.PropertyType, true)).Where(f => f.Name.ToLower() != "id");
-        return fields.ToList();
-    }
-
-    private void AddEmptyFilter()
-    {
-        if (SearchState.Value.FilterLines != null && SearchState.Value.FilterLines.Count <= MaxFilterLineCount - 1
-                && SearchState.Value.FilterFields != null)
+        if (OnFilterStateChanged.HasDelegate)
         {
-            Dispatcher.Dispatch(new AddFilterLineAction(new FilterLine(SearchState.Value.FilterFields.First(), FilterOperator.Equal, "")));
+            await OnFilterStateChanged.InvokeAsync(FilterGridState);
         }
     }
 
-    private void HandleFilterLineChanged(FilterLine filterLine)
+    private async Task InitializeFilterFields()
     {
-        Dispatcher.Dispatch(new UpdateFilterLineAction(filterLine));
+        if (FilterGridState != null && !FilterGridState.FilterFields.Any())
+        {
+            FilterGridState = FilterGridState with
+            {
+                FilterFields = ImmutableList.Create(GetFilterFields())
+            };
+
+            await UpdateFilterGridState();   
+        }
+    }
+
+    private FilterField[] GetFilterFields()
+    {
+        var props = typeof(T).GetProperties();
+        var fields = props.Select(p => new FilterField(p.Name, p.PropertyType, true)).Where(f => f.Name.ToLower() != "id");
+        return fields.ToArray();
+    }
+
+    private async Task AddEmptyFilter()
+    {
+        if (FilterGridState != null && FilterGridState.FilterLines != null && FilterGridState.FilterLines.Count <= MaxFilterLineCount - 1
+                && FilterGridState.FilterFields != null)
+        {
+            FilterGridState = FilterGridState with
+            {
+                FilterLines = FilterGridState.FilterLines.Add(new FilterLine(FilterGridState.FilterFields.First(), FilterOperator.Equal, ""))
+            };
+
+            await UpdateFilterGridState();
+        }
+    }
+
+    private async Task HandleFilterLineChanged(FilterLine filterLine)
+    {
+        if (FilterGridState != null)
+        {
+            var filterToUpdate = FilterGridState.FilterLines.FirstOrDefault(f => f.ID == filterLine.ID);
+            if (filterToUpdate != null)
+            {
+                FilterGridState = FilterGridState with
+                    {
+                        FilterLines = FilterGridState.FilterLines.Replace(filterToUpdate, filterLine)
+                    };
+            }
+
+            await UpdateFilterGridState();
+        }
     }
 
     private async Task HandleRemoveFilter(FilterLine filterLine)
     {
-        if (HasFilterLines())
+        if (FilterGridState != null && HasFilterLines())
         {
-            Dispatcher.Dispatch(new RemoveFilterLineAction(filterLine));
+
+            var filterLineToRemove = FilterGridState.FilterLines.FirstOrDefault(f => f.ID == filterLine.ID);
+
+            if (filterLineToRemove != null)
+            {
+                FilterGridState = FilterGridState with
+                {
+                    FilterLines = FilterGridState.FilterLines.Remove(filterLineToRemove)
+                };
+            }
+
+            await UpdateFilterGridState();
             await Search();
         }
     }
 
     private async Task HandleToggleField(Chip chip)
     {
-        if(HasFilterFields() && SearchState.Value.FilterLines != null && chip != null)
+        if(FilterGridState != null && HasFilterFields() && FilterGridState.FilterLines != null && chip != null)
         {
-            var filterAlreadyUsed = SearchState.Value.FilterLines.FirstOrDefault(f => f.SelectedField.Name == chip.Name) != null;
-            if(!filterAlreadyUsed)
+            var isFilterSelected = FilterGridState.FilterLines.FirstOrDefault(f => f.SelectedField.Name == chip.Name) != null;
+            if(!isFilterSelected)  // don't toggle chip if the filter is in use
             {
-                Dispatcher.Dispatch(new ToggleFilterFieldAction(chip.Name));
+                var itemToToggle = FilterGridState.FilterFields.FirstOrDefault(f => f.Name == chip.Name);
+
+                if (itemToToggle != null)
+                {
+                    FilterGridState = FilterGridState with
+                    {
+                        FilterFields = FilterGridState.FilterFields.Replace(itemToToggle, new FilterField(itemToToggle.Name, itemToToggle.Type, !itemToToggle.IsSelected))
+                    };
+                }
+
+                await UpdateFilterGridState();
                 await Search();
             }
         }
@@ -144,14 +214,14 @@
     private async Task Search()
     {
         ClearFilterResults();
-        if (HasFilterLines() && HasFilterFields())
+        if (FilterGridState != null && HasFilterLines() && HasFilterFields())
         {
             var validator = new FilterLinesValidator();
-            var filterFieldsList = SearchState.Value.FilterLines.ToList();
+            var filterFieldsList = FilterGridState.FilterLines.ToList();
             var validationResult = validator.Validate(filterFieldsList);
             if (validationResult.IsValid)
             {
-                var graphQLRequest = graphQLRequestBuilder.Build<T>(filterFieldsList, SearchState.Value.FilterFields.ToList());
+                var graphQLRequest = graphQLRequestBuilder.Build<T>(filterFieldsList, FilterGridState.FilterFields.ToList());
 
                 if(ServiceCall != null)
                 {
@@ -188,12 +258,12 @@
 
     private bool HasFilterFields()
     {
-        return SearchState.Value.FilterFields != null && SearchState.Value.FilterFields.Any();
+        return FilterGridState != null && FilterGridState.FilterFields != null && FilterGridState.FilterFields.Any();
     }
 
     private bool HasFilterLines()
     {
-        return SearchState.Value.FilterLines != null && SearchState.Value.FilterLines.Any();
+        return FilterGridState != null && FilterGridState.FilterLines != null && FilterGridState.FilterLines.Any();
     }
 
     private void ClearFilterResults()
