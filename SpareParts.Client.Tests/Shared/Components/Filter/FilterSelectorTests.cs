@@ -36,8 +36,8 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             var fieldSelect = inputSelects[0] as IHtmlSelectElement;
             fieldSelect.Should().NotBeNull();
-            fieldSelect.Options.Should().HaveCount(2);
-            fieldSelect.Options.Select(o => o.GetInnerText()).Should().BeEquivalentTo(new[] { "Field1", "Field2" });
+            fieldSelect!.Options.Should().HaveCount(2);
+            fieldSelect!.Options.Select(o => o.GetInnerText()).Should().BeEquivalentTo(new[] { "Field1", "Field2" });
         }
 
         [Fact]
@@ -69,8 +69,8 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             var operatorSelect = inputSelects[1] as IHtmlSelectElement;
             operatorSelect.Should().NotBeNull();
-            operatorSelect.Options.Should().HaveCount(2);
-            operatorSelect.Options.Select(o => o.GetInnerText()).Should().BeEquivalentTo(new[] { "Equals", "Contains" });
+            operatorSelect!.Options.Should().HaveCount(2);
+            operatorSelect!.Options.Select(o => o.GetInnerText()).Should().BeEquivalentTo(new[] { "Equals", "Contains" });
         }
 
         [Fact]
@@ -96,8 +96,10 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
                           .Add(p => p.FilterLine, theFilterLine)
             );
 
-            var inputValue = cut.Find("#value");
-            inputValue.GetInnerText().Should().Be(TheValue);
+            var inputValues = cut.FindAll(".form-control");
+            inputValues.Should().HaveCount(1);
+            var inputValue = inputValues[0] as IHtmlInputElement;
+            inputValue!.Value.Should().Be(TheValue);
         }
 
         [Fact]
