@@ -66,6 +66,12 @@
         {
             var inventoryNav = _page.Locator(".nav-link >> text=Inventory");
             await inventoryNav.ClickAsync();
-        }        
+        }
+        
+        public async Task ClickSearchNav()
+        {
+            var searchNav = _page.Locator(".nav-link >> text=Search");
+            await searchNav.ClickAsync();
+        }
     }
 }

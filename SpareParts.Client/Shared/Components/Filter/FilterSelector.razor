@@ -5,7 +5,7 @@
     {
         <div class="col">
             <div class="form-group my-2">
-                <InputSelect class="form-select" @bind-Value="@SelectedFieldName">
+                <InputSelect id="field" class="form-select" @bind-Value="@SelectedFieldName">
                     @foreach (var field in Fields.Where(f => f.IsSelected))
                     {
                         <option>@field.Name</option>
@@ -15,7 +15,7 @@
         </div>
         <div class="col">
             <div class="form-group my-2">
-                <InputSelect class="form-select" @bind-Value="@SelectedOperator">
+                <InputSelect id="operator" class="form-select" @bind-Value="@SelectedOperator">
                     @foreach (var optr in Operators)
                     {
                         <option value="@optr.FilterOperator">@optr.Name</option>

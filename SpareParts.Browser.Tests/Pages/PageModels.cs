@@ -20,5 +20,7 @@
         public PartsPage Parts => new(_page, _baseUrl);
 
         public InventoryPage Inventory => new(_page, _baseUrl);
+
+        public SearchPage Search => new(_page, _baseUrl);
     }
 }
