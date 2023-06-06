@@ -100,7 +100,7 @@ try
     builder.Services.AddSwaggerGen();
 
     // Register MediatR
-    builder.Services.AddMediatR(typeof(Program));
+    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
     // AutoMapper
     builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
