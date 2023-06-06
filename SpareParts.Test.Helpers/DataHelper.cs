@@ -40,8 +40,8 @@ namespace SpareParts.Test.Helpers
                         .RuleFor(p => p.ID, 0)
                         .RuleFor(p => p.Name, f => f.Name.JobTitle())
                         .RuleFor(p => p.Description, f => f.Name.JobDescriptor())
-                        .RuleFor(p => p.Weight, f => f.Random.Number(0, 20))
-                        .RuleFor(p => p.Price, f => f.Random.Number(0, 20))
+                        .RuleFor(p => p.Weight, f => f.Random.Number(0, 99))
+                        .RuleFor(p => p.Price, f => f.Random.Number(0, 99))
                         .RuleFor(p => p.StartDate, f => f.Date.Between(new DateTime(2000, 1, 1), DateTime.Today));
         }
 
