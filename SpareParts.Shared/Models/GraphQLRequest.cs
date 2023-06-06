@@ -1,4 +1,4 @@
-﻿namespace SpareParts.Client.Services
+﻿namespace SpareParts.Shared.Models
 {
     public class GraphQLRequest
     {

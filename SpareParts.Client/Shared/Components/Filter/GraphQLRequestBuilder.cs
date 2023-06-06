@@ -1,6 +1,6 @@
-﻿using Humanizer;
-using SpareParts.Client.Services;
-using System.Text;
+﻿using System.Text;
+using Humanizer;
+using SpareParts.Shared.Models;
 
 namespace SpareParts.Client.Shared.Components.Filter
 {

@@ -1,5 +1,5 @@
 ﻿using Refit;
-using SpareParts.Client.Features.Search;
+using SpareParts.Shared.Models;
 
 namespace SpareParts.Client.Services
 {
