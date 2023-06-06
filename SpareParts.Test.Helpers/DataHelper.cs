@@ -47,8 +47,9 @@ namespace SpareParts.Test.Helpers
 
         public async Task<API.Entities.InventoryItem> CreateInventoryItemInDatabase()
         {
-            await AddPartsIfNeeded();
+            var parts = await AddPartsIfNeeded();
             var inventoryItemEntity = GetInventoryItemFakerConfig().Generate(1).First();
+            inventoryItemEntity.PartID = parts[0].ID;
             _dbContext.InventoryItems.Add(inventoryItemEntity);
             await _dbContext.SaveChangesAsync();
             return inventoryItemEntity;

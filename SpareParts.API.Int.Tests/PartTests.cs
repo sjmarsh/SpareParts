@@ -15,8 +15,12 @@ namespace SpareParts.API.Int.Tests
             _dataHelper = new DataHelper(_testFixture.DbContext);
 
             // clear parts table between tests
-            _testFixture.DbContext.Parts.RemoveRange(_testFixture.DbContext.Parts);
-            _testFixture.DbContext.SaveChanges();
+            if (_testFixture.DbContext.Parts.Any())
+            {
+                _testFixture.DbContext.InventoryItems.RemoveRange(_testFixture.DbContext.InventoryItems);
+                _testFixture.DbContext.Parts.RemoveRange(_testFixture.DbContext.Parts);
+                _testFixture.DbContext.SaveChanges();
+            }
             _testFixture.DbContext.ChangeTracker.Clear();
 
             // ensure client has Auth Header set
