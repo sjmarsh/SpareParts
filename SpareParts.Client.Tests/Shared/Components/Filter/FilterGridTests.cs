@@ -1,7 +1,7 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using Microsoft.Extensions.DependencyInjection;
-using SpareParts.Client.Services;
+using SpareParts.Shared.Models;
 using SpareParts.Client.Shared.Components.Filter;
 
 namespace SpareParts.Client.Tests.Shared.Components.Filter
