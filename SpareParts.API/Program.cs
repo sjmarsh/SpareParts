@@ -1,3 +1,4 @@
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -91,8 +92,8 @@ try
     });
 
     // Validation
-    builder.Services.AddMvc()
-      .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PartValidator>());
+    builder.Services.AddFluentValidationAutoValidation();
+    builder.Services.AddValidatorsFromAssemblyContaining<PartValidator>();
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();

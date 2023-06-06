@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Blazored.FluentValidation" Version="2.0.3" />
-	<PackageReference Include="FluentValidation" Version="11.3.0" />
+	<PackageReference Include="Blazored.FluentValidation" Version="2.1.0" />
+	<PackageReference Include="FluentValidation" Version="11.5.2" />
     <PackageReference Include="bunit" Version="1.12.6" />
     <PackageReference Include="FluentAssertions" Version="6.8.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.5" />
