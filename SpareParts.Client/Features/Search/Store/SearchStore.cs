@@ -5,6 +5,11 @@ namespace SpareParts.Client.Features.Search.Store
 {
     public record SearchState
     {
+        public SearchState(FilterGridState filterGridState)
+        {
+            FilterGridState = filterGridState;
+        }
+
         public FilterGridState FilterGridState { get; set; }
     }
 
@@ -14,10 +19,7 @@ namespace SpareParts.Client.Features.Search.Store
         
         protected override SearchState GetInitialState()
         {
-            return new SearchState
-            {
-                FilterGridState = new FilterGridState()
-            };
+            return new SearchState(new FilterGridState());
         }
     }
 }
