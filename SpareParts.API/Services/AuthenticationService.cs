@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
 using SpareParts.API.Entities;
 using SpareParts.API.Models;
-using Azure.Core;
 
 namespace SpareParts.API.Services
 {
@@ -45,15 +44,22 @@ namespace SpareParts.API.Services
             }
 
             var user = await _userManager.FindByNameAsync(request.UserName);
-
-            var isValidPassword = await _userManager.CheckPasswordAsync(user, request.Password);
-            if (user == null || !isValidPassword)
+            if(user == null)
             {
-                _logger.LogWarning($"User: {request.UserName} is not a valid user or password is invalid.");
+                _logger.LogWarning($"User: {request.UserName} is not a valid user.");
                 return new AuthenticationDetails(new AuthenticationResponse(false, "Invalid credentials"));
             }
+            else
+            {
+                var isValidPassword = await _userManager.CheckPasswordAsync(user, request.Password);
+                if (!isValidPassword)
+                {
+                    _logger.LogWarning($"Password is invalid for User: {request.UserName}.");
+                    return new AuthenticationDetails(new AuthenticationResponse(false, "Invalid credentials"));
+                }
 
-            return await BuildSuccessfulAuthenticationDetails(user);
+                return await BuildSuccessfulAuthenticationDetails(user);
+            }
         }
         
         public async Task<AuthenticationDetails> Refresh(RefreshRequest refreshRequest)
@@ -73,6 +79,11 @@ namespace SpareParts.API.Services
             }
             
             var userName = principal?.Identity?.Name;
+            if(userName == null)
+            {
+                _logger.LogError("Unable to extract user name from the Principal Identity");
+                return new AuthenticationDetails(new AuthenticationResponse(false, "Unable to identify user name."));
+            }
             var user = await _userManager.FindByNameAsync(userName);
             
             if(user == null || user.RefreshToken != refreshRequest.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
@@ -105,15 +116,15 @@ namespace SpareParts.API.Services
                 new UserInfo { UserName = "guest", Password = "password", DisplayName = "Guest User", Roles = new []{Role.Guest } }
             };
 
-            foreach (var user in users)
+            foreach (var userInfo in users)
             {
-                var identityUser = new ApplicationUser { UserName = user.UserName, DisplayName = user.DisplayName };
-                identityUser.PasswordHash = _userManager.PasswordHasher.HashPassword(identityUser, user.Password);
+                var identityUser = new ApplicationUser { UserName = userInfo.UserName, DisplayName = userInfo.DisplayName };
+                identityUser.PasswordHash = _userManager.PasswordHasher.HashPassword(identityUser, userInfo.Password!);
                 await _userManager.CreateAsync(identityUser);
 
-                if(user.Roles != null && user.Roles.Any())
+                if(userInfo.Roles != null && userInfo.Roles.Any())
                 {
-                    foreach (var roleName in user.Roles)
+                    foreach (var roleName in userInfo.Roles)
                     {                        
                         var identityRole = new IdentityRole(roleName);
                         await _roleManager.CreateAsync(identityRole);
@@ -153,6 +164,12 @@ namespace SpareParts.API.Services
 
         private async Task<List<Claim>> GetClaims(ApplicationUser user)
         {
+            if(user.UserName == null)
+            {
+                _logger.LogWarning("Unable to get claims for user as UserName was not provided.");
+                return new List<Claim>();
+            }
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName)
