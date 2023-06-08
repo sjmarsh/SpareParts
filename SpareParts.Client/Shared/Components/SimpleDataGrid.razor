@@ -71,14 +71,14 @@
                 var key = prop.Name;
                 if(ColumnList == null)
                 {
-                    var value = (prop.GetValue(item) ?? "").ToString();  // TODO - this could be expanded on to format types
+                    string value = prop.GetValue(item) as string ?? "";  // TODO - this could be expanded on to format types
                     row.Add(key, value);
                 }
                 else
                 {
                     if (ColumnList.Contains(key))
                     {
-                        var value = (prop.GetValue(item) ?? "").ToString();  // TODO - this could be expanded on to format types
+                        var value = prop.GetValue(item) as string ?? "";  // TODO - this could be expanded on to format types
                         row.Add(key, value);
                     }
                 }
