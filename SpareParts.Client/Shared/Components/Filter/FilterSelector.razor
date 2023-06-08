@@ -40,9 +40,13 @@
     [Parameter, EditorRequired]
     public List<NamedFilterOperator>? Operators { get; set; }
 
-    private FilterLine? _filterLine;
+#pragma warning disable CS8618 
+    private FilterLine _filterLine;
+#pragma warning restore CS8618
+#pragma warning disable BL0007
     [Parameter, EditorRequired]
-    public FilterLine? FilterLine 
+    public FilterLine FilterLine
+#pragma warning restore BL0007
     { 
         get => _filterLine;
         set
@@ -69,7 +73,7 @@
             if(value != _selectedFieldName)
             {
                 _selectedFieldName = value;
-                FilterLine.SelectedField = Fields.First(f => f.Name == value);
+                FilterLine.SelectedField = Fields!.First(f => f.Name == value);
                 FilterLineChanged.InvokeAsync(FilterLine);
             }
         }
@@ -84,7 +88,7 @@
             if (value != _selectedOperator)
             {
                 _selectedOperator = value;
-                FilterLine.SelectedOperator = value;
+                FilterLine.SelectedOperator = value!;
                 FilterLineChanged.InvokeAsync(FilterLine);
             }
         }
@@ -99,7 +103,7 @@
             if (value != _value)
             {
                 _value = value;
-                FilterLine.Value = value;
+                FilterLine.Value = value!;
                 FilterLineChanged.InvokeAsync(FilterLine);
             }
         }
