@@ -60,8 +60,10 @@
 
             if (waitForNav)
             {
+                // NOTE: WaitForNavigationAsync is obsolete due to it being "too racey".  However suggested use of WaitForURL is not working in this instance. Requires further investigation. 
                 await _page.WaitForNavigationAsync(new PageWaitForNavigationOptions { WaitUntil = WaitUntilState.NetworkIdle });
-                //await _page.WaitForSelectorAsync("h1 >> Spare Parts");
+                //await _page.WaitForURLAsync(_baseUrl);
+                
             }
         }
 
