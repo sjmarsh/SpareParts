@@ -72,6 +72,15 @@ try
 
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    if(jwtSettings == null)
+    {
+        throw new ConfigurationException("JWT Settings have not been configured in appsettings.");
+    }
+    var signInKey = jwtSettings["SigninKey"];
+    if(signInKey == null)
+    {
+        throw new ConfigurationException("JWT SigninKey has not been configured.");
+    }
     builder.Services.AddAuthentication(opt =>
     {
         opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -87,7 +96,7 @@ try
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["ValidIssuer"],
             ValidAudience = jwtSettings["ValidAudience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SigninKey"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signInKey))
         };
     });
 
