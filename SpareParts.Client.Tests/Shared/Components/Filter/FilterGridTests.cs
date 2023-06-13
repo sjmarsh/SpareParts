@@ -77,7 +77,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             const string fakeQuery = "the built query";
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
-            GraphQLRequest theRequest = null;
+            GraphQLRequest? theRequest = null;
             Func<GraphQLRequest, Task<List<ThingToFilter>>> theServiceCall = (request) => { 
                 theRequest = request;
                 return Task.FromResult(new List<ThingToFilter>());
@@ -116,7 +116,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             const string fakeQuery = "the built query";
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
-            GraphQLRequest theRequest = null;
+            GraphQLRequest? theRequest = null;
             Func<GraphQLRequest, Task<List<ThingToFilter>>> theServiceCall = (request) => {
                 theRequest = request;
                 return Task.FromResult(new List<ThingToFilter>());

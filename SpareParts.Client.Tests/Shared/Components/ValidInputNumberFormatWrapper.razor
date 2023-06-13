@@ -20,7 +20,7 @@
     public string? StringFormat { get; set; }
 
     [Parameter, EditorRequired]
-    public TestModel? TestModel { get; set; }
+    public TestModel TestModel { get; set; } = new TestModel();
 
     private EditContext? _editContext;
 
