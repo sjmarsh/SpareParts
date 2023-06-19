@@ -1,10 +1,10 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using SpareParts.API.Data;
@@ -155,6 +155,9 @@ try
         .RegisterDbContext<SparePartsDbContext>()
         .AddQueryType<Query>();
 
+    builder.Services.AddHealthChecks()
+        .AddDbContextCheck<SparePartsDbContext>();
+
     var app = builder.Build();
 
     app.UseHttpsRedirection();
@@ -192,7 +195,8 @@ try
     app.UseAuthorization();
 
     app.MapControllers();
-    
+
+    app.MapHealthChecks("/healthy");
 
     CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-AU");
     CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-AU");
