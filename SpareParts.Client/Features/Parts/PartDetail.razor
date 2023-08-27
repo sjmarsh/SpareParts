@@ -19,6 +19,35 @@
         <ValidInputDate Id="endDate" DisplayName="End Date" @bind-Value="_part.EndDate" />
 
         <div class="my-3">
+            <h6>Attributes</h6>
+            <button type="button" class="btn btn-outline-dark" @onclick="AddAttribute"><span class="oi oi-plus tool-button-image" title="Add Part" aria-hidden="true" /><span>Add</span></button>
+            @if(_part.Attributes != null && _part.Attributes.Any())
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Value</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var attrib in _part.Attributes)
+                        {
+                            <tr>
+                                <td><InputText DisplayName="Name" @bind-Value="@attrib.Name"/></td>
+                                <td><InputText DisplayName="Description" @bind-Value="@attrib.Description" /></td>
+                                <td><InputText DisplayName="Value" @bind-Value="@attrib.Value" /></td>
+                                <td><button class="btn btn-link" @onclick="() => DeleteAttribute(attrib.ID)">Delete</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="my-3">
             <button type="submit" class="btn btn-primary my-1" >Submit</button>
         </div>
 
@@ -56,7 +85,7 @@
     protected async override Task OnInitializedAsync()
     {       
         _isEdit = PartID.HasValue && PartID > 0;
-        
+
         _hasError = false;
         _hasSubmitted = false;
 
@@ -81,6 +110,24 @@
         {
             _part = new Part();    
         }        
+    }
+
+    private void AddAttribute()
+    {
+        if(_part!.Attributes == null)
+        {
+            _part.Attributes = new List<PartAttribute>();
+        }
+        _part.Attributes.Add(new PartAttribute());
+    }
+
+    private void DeleteAttribute(int attributeId)
+    {
+        var attributeToDelete = _part!.Attributes!.FirstOrDefault(a => a.ID == attributeId);
+        if(attributeToDelete != null)
+        {
+            _part!.Attributes!.Remove(attributeToDelete);
+        }
     }
 
     private async Task SubmitValidForm(EditContext context)

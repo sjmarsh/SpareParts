@@ -12,9 +12,9 @@
 <h3>Part List</h3>
 
 <div class="tool-container">
-        <button class="btn btn-outline-dark tool-button" @onclick="OpenReport"><span class="oi oi-print tool-button-image" title="Report" aria-hidden="true"/><span>Report</span></button>
-        <button class="btn btn-outline-dark tool-button" @onclick="AddPart"><span class="oi oi-plus tool-button-image" title="Add Part" aria-hidden="true"/><span>Add Part</span></button>
-    </div>
+    <button class="btn btn-outline-dark tool-button" @onclick="OpenReport"><span class="oi oi-print tool-button-image" title="Report" aria-hidden="true"/><span>Report</span></button>
+    <button class="btn btn-outline-dark tool-button" @onclick="AddPart"><span class="oi oi-plus tool-button-image" title="Add Part" aria-hidden="true"/><span>Add Part</span></button>
+</div>
 
 @if(_parts != null && _parts.Any())
 {
@@ -65,7 +65,7 @@
 
 @if(PartsState.Value.IsDetailModeVisible)
 {
-    <Modal ShowModal="@PartsState.Value.IsDetailModeVisible" OnClose="OnCloseDetailModal">
+    <Modal ShowModal="@PartsState.Value.IsDetailModeVisible" ModalClass="modal-lg" OnClose="OnCloseDetailModal">
         <PartDetail PartID="@PartsState.Value.SelectedPartId" OnValidSubmit="RefreshPartsList" />
     </Modal>
 }

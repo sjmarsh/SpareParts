@@ -25,7 +25,8 @@ namespace SpareParts.API.Services
         {
             try
             {
-                return await _dataService.GetItem<PartResponse, Entities.Part, Part>(request.PartID, cancellationToken);
+                var referencedCollections = new[] { nameof(Part.Attributes) }; 
+                return await _dataService.GetItem<PartResponse, Entities.Part, Part>(request.PartID, cancellationToken, referencedCollections);
             }
             catch(Exception ex)
             {

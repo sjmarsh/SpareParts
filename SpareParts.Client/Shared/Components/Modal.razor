@@ -1,7 +1,7 @@
 ﻿@if (ShowModal)
 {
     <div class="modal fade show custom-modal" aria-modal="true" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog @ModalClass">
             <div class="modal-content">
 
                 @if(HeaderText != null)
@@ -29,6 +29,9 @@
 
     [Parameter]
     public bool ShowModal { get; set; }
+
+    [Parameter]
+    public string? ModalClass { get; set; }
 
     [Parameter]
     public string? HeaderText { get; set; }

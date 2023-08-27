@@ -25,7 +25,7 @@ namespace SpareParts.API.Services
            where TEntity : class
            where TModel : ModelBase;
 
-        Task<TResponse> GetItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken)
+        Task<TResponse> GetItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken, string[]? references = null)
             where TResponse : ResponseBase<TModel>, new()
             where TEntity : class
             where TModel : ModelBase;
@@ -114,7 +114,7 @@ namespace SpareParts.API.Services
             return new TResponse { Value = model };
         }
 
-        public async Task<TResponse> GetItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken)
+        public async Task<TResponse> GetItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken, string[]? referencedCollections = null)
             where TResponse : ResponseBase<TModel>, new()
             where TEntity : class
             where TModel : ModelBase
@@ -126,6 +126,13 @@ namespace SpareParts.API.Services
             }
             else
             {
+                if(referencedCollections != null)
+                {
+                    foreach(var reference in referencedCollections)
+                    {
+                        await DbContext.Entry(entity).Collection(reference).LoadAsync();
+                    }
+                }
                 var model = _mapper.Map<TModel>(entity);
                 return new TResponse { Value = model };
             }

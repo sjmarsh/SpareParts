@@ -2,8 +2,8 @@
 {
     public class PartAttribute : ModelBase
     {
-        public required string Name { get; set; }
+        public string? Name { get; set; }
         public string? Description { get; set; }
-        public required string Value { get; set; }
+        public string? Value { get; set; }
     }
 }
