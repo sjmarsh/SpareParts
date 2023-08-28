@@ -112,41 +112,78 @@ namespace SpareParts.API.Services
             var dbEntry = DbContext.Entry(existingEntity);
             dbEntry.State = EntityState.Modified;
 
-            _mapper.Map(model, existingEntity);
-            
-
-            if (referencedCollectionsToUpdate != null) 
+            if (referencedCollectionsToUpdate is null)
             {
+                _mapper.Map(model, existingEntity);
+            }
+            else
+            {
+                // TODO auto-map model without the referencedCollection
+                //_mapper.Map(model, existingEntity, );
+
                 foreach (var referencedCollection in referencedCollectionsToUpdate)
                 {
-                    var dbCollection = dbEntry.Collection(referencedCollection);
-                    var dbCollectionAccessor = dbCollection.Metadata.GetCollectionAccessor();
-
-                    await dbCollection.LoadAsync();
-
-                    if (dbCollection != null && dbCollection.CurrentValue != null && dbCollectionAccessor != null)
+                    var modelCollection = typeof(TModel).GetProperty(referencedCollection);
+                    if(modelCollection == null)
                     {
-                        var dbItemsMap = ((IEnumerable<EntityBase>)dbCollection.CurrentValue).ToDictionary(e => e.ID);
-                        var items = (IEnumerable<EntityBase>)dbCollectionAccessor.GetOrCreate(existingEntity, false);
-
-                        foreach (var item in items)
+                        // model has null collection - should not happen
+                    }
+                    else
+                    {
+                        var modelItemsValue = modelCollection.GetValue(model);
+                        if(modelItemsValue != null)
                         {
-                            if (!dbItemsMap.TryGetValue(item.ID, out var oldItem)) // doesn't exist
-                            {
-                                dbCollectionAccessor.Add(existingEntity, item, false);  // add it
-                            }
-                            else
-                            {
-                                DbContext.Entry(oldItem).CurrentValues.SetValues(item);  // update
-                                dbItemsMap.Remove(item.ID);
-                            }
-                        }
+                            var modelItems = (IEnumerable<ModelBase>)modelItemsValue;
 
-                        foreach (var oldItem in dbItemsMap.Values)
-                        {
-                            dbCollectionAccessor.Remove(existingEntity, oldItem);
+                            var dbCollection = dbEntry.Collection(referencedCollection);
+                            var dbCollectionAccessor = dbCollection.Metadata.GetCollectionAccessor();
+                            await dbCollection.LoadAsync();
+
+                            if (dbCollection != null && dbCollection.CurrentValue != null && dbCollectionAccessor != null)
+                            {
+                                var existingDbItems = (IEnumerable<EntityBase>)dbCollection.CurrentValue;
+                                var items = (IEnumerable<EntityBase>)dbCollectionAccessor.GetOrCreate(existingEntity, false);
+
+                                if (modelItems.Any())
+                                {
+                                    var itemsFromModelToAdd = modelItems.Where(m => m.ID == 0);
+                                    var itemsFromModelToUpdate = modelItems.Where (m => existingDbItems.Select(d => d.ID).Contains(m.ID));
+                                    var itemsFromExistingEntityToDelete = items.Where(d => !modelItems.Select(m => m.ID).Contains(d.ID));
+
+                                    foreach(var item in itemsFromModelToAdd)
+                                    {
+                                        dbCollectionAccessor.Add(existingEntity, item, false);
+                                    }
+
+                                    foreach (var item in itemsFromModelToUpdate)
+                                    {
+                                        var existingItem = existingDbItems.First(e => e.ID == item.ID);
+                                        DbContext.Entry(existingItem).CurrentValues.SetValues(item);
+                                    }
+
+                                    foreach (var item in itemsFromExistingEntityToDelete.ToList())
+                                    {
+                                        
+                                        dbCollectionAccessor.Remove(existingEntity, item);
+                                        
+                                        // TODO - REMOVE ORPHANS
+                                    }
+                                }
+                                else
+                                {
+                                    // delete all
+                                    if (existingDbItems.Any())
+                                    {
+                                        foreach(var item in existingDbItems)
+                                        {
+                                            dbCollectionAccessor.Remove(existingEntity, item);
+                                        }
+                                    }
+                                }
+                            }                            
                         }
                     }
+
                 }
             }
 
