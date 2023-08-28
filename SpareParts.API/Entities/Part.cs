@@ -1,8 +1,7 @@
 ﻿namespace SpareParts.API.Entities
 {
-    public class Part
+    public class Part : EntityBase
     {
-        public int ID { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }
         public double? Price { get; set; }

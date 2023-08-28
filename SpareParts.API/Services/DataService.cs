@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using SpareParts.API.Data;
 using SpareParts.Shared.Models;
+using SpareParts.API.Entities;
 
 namespace SpareParts.API.Services
 {
@@ -20,12 +21,12 @@ namespace SpareParts.API.Services
             where TEntity : class
             where TModel : ModelBase;
 
-        Task<TResponse> UpdateItem<TResponse, TEntity, TModel>(TModel? model, CancellationToken cancellationToken)
+        Task<TResponse> UpdateItem<TResponse, TEntity, TModel>(TModel? model, CancellationToken cancellationToken, string[]? referencedCollectionsToUpdate = null)
            where TResponse : ResponseBase<TModel>, new()
-           where TEntity : class
+           where TEntity : EntityBase
            where TModel : ModelBase;
 
-        Task<TResponse> GetItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken, string[]? references = null)
+        Task<TResponse> GetItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken, string[]? referencedCollections = null)
             where TResponse : ResponseBase<TModel>, new()
             where TEntity : class
             where TModel : ModelBase;
@@ -93,9 +94,9 @@ namespace SpareParts.API.Services
             return new TResponse { Items = items };
         }
 
-        public async Task<TResponse> UpdateItem<TResponse, TEntity, TModel>(TModel? model, CancellationToken cancellationToken)
+        public async Task<TResponse> UpdateItem<TResponse, TEntity, TModel>(TModel? model, CancellationToken cancellationToken, string[]? referencedCollectionsToUpdate = null)
             where TResponse : ResponseBase<TModel>, new()
-            where TEntity : class
+            where TEntity : EntityBase
             where TModel : ModelBase
         {
             if(model == null)
@@ -108,8 +109,49 @@ namespace SpareParts.API.Services
             {
                 return new TResponse { HasError = true, Message = $"Unable to find existing {typeof(TModel).Name} record to be updated." };
             }
-            DbContext.Entry(existingEntity).State = EntityState.Modified;
+            var dbEntry = DbContext.Entry(existingEntity);
+            dbEntry.State = EntityState.Modified;
+
             _mapper.Map(model, existingEntity);
+            
+
+            if (referencedCollectionsToUpdate != null) 
+            {
+                foreach (var referencedCollection in referencedCollectionsToUpdate)
+                {
+                    var dbCollection = dbEntry.Collection(referencedCollection);
+                    var dbCollectionAccessor = dbCollection.Metadata.GetCollectionAccessor();
+
+                    await dbCollection.LoadAsync();
+
+                    if (dbCollection != null && dbCollection.CurrentValue != null && dbCollectionAccessor != null)
+                    {
+                        var dbItemsMap = ((IEnumerable<EntityBase>)dbCollection.CurrentValue).ToDictionary(e => e.ID);
+                        var items = (IEnumerable<EntityBase>)dbCollectionAccessor.GetOrCreate(existingEntity, false);
+
+                        foreach (var item in items)
+                        {
+                            if (!dbItemsMap.TryGetValue(item.ID, out var oldItem)) // doesn't exist
+                            {
+                                dbCollectionAccessor.Add(existingEntity, item, false);  // add it
+                            }
+                            else
+                            {
+                                DbContext.Entry(oldItem).CurrentValues.SetValues(item);  // update
+                                dbItemsMap.Remove(item.ID);
+                            }
+                        }
+
+                        foreach (var oldItem in dbItemsMap.Values)
+                        {
+                            dbCollectionAccessor.Remove(existingEntity, oldItem);
+                        }
+                    }
+                }
+            }
+
+            
+
             await DbContext.SaveChangesAsync(cancellationToken);
             return new TResponse { Value = model };
         }

@@ -53,7 +53,8 @@ namespace SpareParts.API.Services
         {
             try
             {
-                return await _dataService.UpdateItem<PartResponse, Entities.Part, Part>(request.Part, cancellationToken);
+                var referencedCollectionsToUpdate = new[] { nameof(Part.Attributes) };
+                return await _dataService.UpdateItem<PartResponse, Entities.Part, Part>(request.Part, cancellationToken, referencedCollectionsToUpdate);
             }
             catch(Exception ex)
             {
