@@ -19,32 +19,36 @@
         <ValidInputDate Id="endDate" DisplayName="End Date" @bind-Value="_part.EndDate" />
 
         <div class="my-3">
-            <h6>Attributes</h6>
-            <button type="button" class="btn btn-outline-dark" @onclick="AddAttribute"><span class="oi oi-plus tool-button-image" title="Add Part" aria-hidden="true" /><span>Add</span></button>
-            @if(_part.Attributes != null && _part.Attributes.Any())
-            {
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Value</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach(var attrib in _part.Attributes)
-                        {
-                            <tr>
-                                <td><InputText DisplayName="Name" @bind-Value="@attrib.Name"/></td>
-                                <td><InputText DisplayName="Description" @bind-Value="@attrib.Description" /></td>
-                                <td><InputText DisplayName="Value" @bind-Value="@attrib.Value" /></td>
-                                <td><button class="btn btn-link" @onclick="() => DeleteAttribute(attrib.ID)">Delete</button></td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            }
+            <details>
+                <summary>Attributes</summary>
+                <div class="card card-body">
+                    <button type="button" class="btn btn-outline-dark w-25" @onclick="AddAttribute"><span class="oi oi-plus tool-button-image" title="Add Attribute" aria-hidden="true" /><span>Add Attribute</span></button>
+                    @if(_part.Attributes != null && _part.Attributes.Any())
+                    {
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Value</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach(var attrib in _part.Attributes)
+                                {
+                                    <tr>
+                                        <td><InputText DisplayName="Name" @bind-Value="@attrib.Name"/></td>
+                                        <td><InputText DisplayName="Description" @bind-Value="@attrib.Description" /></td>
+                                        <td><InputText DisplayName="Value" @bind-Value="@attrib.Value" /></td>
+                                        <td><button class="btn btn-link" @onclick="() => DeleteAttribute(attrib.ID)">Delete</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </details>
         </div>
 
         <div class="my-3">
