@@ -118,17 +118,10 @@ namespace SpareParts.API.Services
             }
             else
             {
-                // TODO auto-map model without the referencedCollection
-                //_mapper.Map(model, existingEntity, );
-
                 foreach (var referencedCollection in referencedCollectionsToUpdate)
                 {
                     var modelCollection = typeof(TModel).GetProperty(referencedCollection);
-                    if(modelCollection == null)
-                    {
-                        // model has null collection - should not happen
-                    }
-                    else
+                    if(modelCollection != null)
                     {
                         var modelItemsValue = modelCollection.GetValue(model);
                         if(modelItemsValue != null)
@@ -142,52 +135,29 @@ namespace SpareParts.API.Services
                             if (dbCollection != null && dbCollection.CurrentValue != null && dbCollectionAccessor != null)
                             {
                                 var existingDbItems = (IEnumerable<EntityBase>)dbCollection.CurrentValue;
-                                var items = (IEnumerable<EntityBase>)dbCollectionAccessor.GetOrCreate(existingEntity, false);
+                                //var existingDbItemType = dbCollection.CurrentValue.GetType().GetTypeInfo().GenericTypeArguments[0];
 
-                                if (modelItems.Any())
+                                if (existingDbItems.Any())
                                 {
-                                    var itemsFromModelToAdd = modelItems.Where(m => m.ID == 0);
-                                    var itemsFromModelToUpdate = modelItems.Where (m => existingDbItems.Select(d => d.ID).Contains(m.ID));
-                                    var itemsFromExistingEntityToDelete = items.Where(d => !modelItems.Select(m => m.ID).Contains(d.ID));
-
-                                    foreach(var item in itemsFromModelToAdd)
+                                    foreach (var item in existingDbItems.ToList())
                                     {
-                                        dbCollectionAccessor.Add(existingEntity, item, false);
-                                    }
-
-                                    foreach (var item in itemsFromModelToUpdate)
-                                    {
-                                        var existingItem = existingDbItems.First(e => e.ID == item.ID);
-                                        DbContext.Entry(existingItem).CurrentValues.SetValues(item);
-                                    }
-
-                                    foreach (var item in itemsFromExistingEntityToDelete.ToList())
-                                    {
-                                        
                                         dbCollectionAccessor.Remove(existingEntity, item);
-                                        
-                                        // TODO - REMOVE ORPHANS
                                     }
                                 }
-                                else
-                                {
-                                    // delete all
-                                    if (existingDbItems.Any())
-                                    {
-                                        foreach(var item in existingDbItems)
-                                        {
-                                            dbCollectionAccessor.Remove(existingEntity, item);
-                                        }
-                                    }
-                                }
-                            }                            
+                            }
                         }
                     }
-
                 }
-            }
 
-            
+                await DbContext.SaveChangesAsync(cancellationToken);
+                DbContext.ChangeTracker.Clear();
+
+                existingEntity = await DbContext.Set<TEntity>().FindAsync(new object?[] { model.ID }, cancellationToken);
+                _mapper.Map(model, existingEntity);
+
+                // TODO - REMOVE Orphans
+            }
+                       
 
             await DbContext.SaveChangesAsync(cancellationToken);
             return new TResponse { Value = model };

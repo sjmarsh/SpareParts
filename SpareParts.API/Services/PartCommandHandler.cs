@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using SpareParts.API.Data;
 using SpareParts.Shared.Models;
 
 namespace SpareParts.API.Services

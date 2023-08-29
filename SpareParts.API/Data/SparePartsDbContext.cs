@@ -11,7 +11,11 @@ namespace SpareParts.API.Data
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         
         public DbSet<Part> Parts { get; set; }
+
+        public DbSet<PartAttribute> PartAttribute { get; set; }
+
         public DbSet<InventoryItem> InventoryItems { get; set; }
+
         public SparePartsDbContext(DbContextOptions<SparePartsDbContext> options) : base(options)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
