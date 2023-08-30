@@ -82,7 +82,8 @@ namespace SpareParts.API.Services
         {
             try
             {
-                return await _dataService.DeleteItem<PartResponse, Entities.Part, Part>(request.PartID, cancellationToken);
+                var referencedCollectionsToDelete = new[] { nameof(Part.Attributes) };
+                return await _dataService.DeleteItem<PartResponse, Entities.Part, Part>(request.PartID, cancellationToken, referencedCollectionsToDelete);
             }
             catch(Exception ex)
             {

@@ -36,9 +36,9 @@ namespace SpareParts.API.Services
             where TEntity : class
             where TModel : ModelBase;
 
-        Task<TResponse> DeleteItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken)
+        Task<TResponse> DeleteItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken, string[]? referencedCollectionsToDelete = null)
             where TResponse : ResponseBase<TModel>, new()
-            where TEntity : class
+            where TEntity : EntityBase
             where TModel : ModelBase;
 
         bool HasRelatedItems<T>(Expression<Func<T, bool>> matchPredicate) where T : class;
@@ -200,14 +200,37 @@ namespace SpareParts.API.Services
             return new TResponse { Items = items, TotalItemCount =  totalCount };
         }
 
-        public async Task<TResponse> DeleteItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken)
+        public async Task<TResponse> DeleteItem<TResponse, TEntity, TModel>(int id, CancellationToken cancellationToken, string[]? referencedCollectionsToDelete = null)
             where TResponse : ResponseBase<TModel>, new()
-            where TEntity : class
+            where TEntity : EntityBase
             where TModel : ModelBase
         {
             var existingEntity = await DbContext.Set<TEntity>().FindAsync(new object?[] { id }, cancellationToken: cancellationToken);
             if (existingEntity != null)
             {
+                if (referencedCollectionsToDelete != null)
+                {
+                    var dbEntry = DbContext.Entry(existingEntity);
+                    foreach (var referencedCollection in referencedCollectionsToDelete)
+                    {
+                        var dbCollection = dbEntry.Collection(referencedCollection);
+                        var dbCollectionAccessor = dbCollection.Metadata.GetCollectionAccessor();
+                        await dbCollection.LoadAsync();
+
+                        if(dbCollection != null && dbCollection.CurrentValue != null && dbCollectionAccessor != null)
+                        {
+                            var existingDbItems = (IEnumerable<EntityBase>)dbCollection.CurrentValue;
+                            if(existingDbItems != null && existingDbItems.Any())
+                            {
+                                foreach (var existingDbItem in existingDbItems)
+                                {
+                                    DbContext.Entry(existingDbItem).State = EntityState.Deleted;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 DbContext.Remove(existingEntity);
                 await DbContext.SaveChangesAsync(cancellationToken);
                 return new TResponse();
