@@ -11,6 +11,7 @@ namespace SpareParts.Shared.Validators
             RuleFor(p => p.Price).GreaterThan(0);
             RuleFor(p => p.Weight).GreaterThan(0);
             RuleFor(p => p.StartDate).GreaterThanOrEqualTo(new DateTime(2000, 01, 01));
+            RuleForEach(p => p.Attributes).SetValidator(new PartAttributeValidator());
         }
     }
 }
