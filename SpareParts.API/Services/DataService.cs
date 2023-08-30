@@ -135,13 +135,16 @@ namespace SpareParts.API.Services
                             if (dbCollection != null && dbCollection.CurrentValue != null && dbCollectionAccessor != null)
                             {
                                 var existingDbItems = (IEnumerable<EntityBase>)dbCollection.CurrentValue;
-                                //var existingDbItemType = dbCollection.CurrentValue.GetType().GetTypeInfo().GenericTypeArguments[0];
-
+                                
                                 if (existingDbItems.Any())
                                 {
-                                    foreach (var item in existingDbItems.ToList())
+                                    foreach (var existingDbItem in existingDbItems.ToList())
                                     {
-                                        dbCollectionAccessor.Remove(existingEntity, item);
+                                        dbCollectionAccessor.Remove(existingEntity, existingDbItem);
+                                        if(!modelItems.Select(m => m.ID).Contains(existingDbItem.ID))
+                                        {
+                                            DbContext.Entry(existingDbItem).State = EntityState.Deleted;
+                                        }
                                     }
                                 }
                             }
@@ -154,10 +157,7 @@ namespace SpareParts.API.Services
 
                 existingEntity = await DbContext.Set<TEntity>().FindAsync(new object?[] { model.ID }, cancellationToken);
                 _mapper.Map(model, existingEntity);
-
-                // TODO - REMOVE Orphans
-            }
-                       
+            }  
 
             await DbContext.SaveChangesAsync(cancellationToken);
             return new TResponse { Value = model };

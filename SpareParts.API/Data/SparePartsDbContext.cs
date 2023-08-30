@@ -48,6 +48,11 @@ namespace SpareParts.API.Data
                 .WithOne()
                 .HasForeignKey(i => i.PartID);
 
+            modelBuilder.Entity<PartAttribute>()
+                .HasOne<Part>()
+                .WithMany(p => p.Attributes)
+                .OnDelete(DeleteBehavior.ClientCascade);
+
             SeedData(modelBuilder);
         }
 
