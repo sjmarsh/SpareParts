@@ -78,5 +78,19 @@ namespace SpareParts.Shared.Tests.Validators
             var result = _validator.TestValidate(new Part { StartDate = new DateTime(2000, 01, 01) });
             result.ShouldNotHaveValidationErrorFor(x => x.StartDate);
         }
+
+        [Fact]
+        public void ShouldHaveValidationErrorForInvalidAttribute()
+        {
+            var result = _validator.TestValidate(new Part { Attributes = new List<PartAttribute> { new PartAttribute() } });
+            result.ShouldHaveValidationErrorFor(x => x.Attributes[0].Name);
+        }
+
+        [Fact]
+        public void ShouldNotHaveValidationErrorForValidAttribute()
+        {
+            var result = _validator.TestValidate(new Part { Name = "Part1", Attributes = new List<PartAttribute> { new PartAttribute { Name = "Colour", Value = "Red" } } });
+            result.ShouldNotHaveValidationErrorFor(x => x.Attributes[0].Name);
+        }
     }
 }
