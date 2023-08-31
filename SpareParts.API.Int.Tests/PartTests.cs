@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SpareParts.Shared.Models;
 using SpareParts.Test.Helpers;
 
@@ -14,10 +15,11 @@ namespace SpareParts.API.Int.Tests
             _testFixture = testFixture;
             _dataHelper = new DataHelper(_testFixture.DbContext);
 
-            // clear parts table between tests
+            // clear parts tables between tests
             if (_testFixture.DbContext.Parts.Any())
             {
                 _testFixture.DbContext.InventoryItems.RemoveRange(_testFixture.DbContext.InventoryItems);
+                _testFixture.DbContext.PartAttribute.RemoveRange(_testFixture.DbContext.PartAttribute);
                 _testFixture.DbContext.Parts.RemoveRange(_testFixture.DbContext.Parts);
                 _testFixture.DbContext.SaveChanges();
             }
@@ -64,7 +66,7 @@ namespace SpareParts.API.Int.Tests
             result.Should().NotBeNull();
             result.Items.Should().NotBeNull();
             result.Items.Should().HaveCount(5);
-            result.Items.Should().BeEquivalentTo(parts);
+            result.Items.Should().BeEquivalentTo(parts, opt => opt.Excluding(p => p.Attributes));
         }
 
         [Fact]
@@ -101,14 +103,16 @@ namespace SpareParts.API.Int.Tests
             result.Should().NotBeNull();
             result.Items.Should().NotBeNull();
             result.Items.Should().HaveCount(1);
-            result?.Items?[0].Should().BeEquivalentTo(parts[0]);
+            result?.Items?[0].Should().BeEquivalentTo(parts[0], opt => opt.Excluding(p => p.Attributes));
         }
 
 
         [Fact]
         public async Task Post_Should_CreatePartRecord()
         {
-            var part = new Part { Name = "Part 1", Description = "One", Weight = 1.1, Price = 2.2, StartDate = DateTime.Today.AddYears(-1) };
+            var part = new Part { Name = "Part 1", Description = "One", Weight = 1.1, Price = 2.2, StartDate = DateTime.Today.AddYears(-1), 
+                Attributes = new List<PartAttribute> { new PartAttribute { Name = "Colour", Description = "The colour of the part", Value = "Green" }}
+            };
                         
             var result = await _testFixture.PostRequest<Part, PartResponse>("/api/part", part);
             
@@ -117,18 +121,30 @@ namespace SpareParts.API.Int.Tests
             
             var partId = result?.Value?.ID;
             Assert.True(partId > 0);
-            var savedPart = await _testFixture.DbContext.Parts.FindAsync(partId);
+            var savedPart = await _testFixture.DbContext.Parts.Include(p => p.Attributes).FirstOrDefaultAsync(p => p.ID == partId);
             
             savedPart.Should().NotBeNull();
-            savedPart.Should().BeEquivalentTo(part, opt => opt.Excluding(p => p.ID));
+            savedPart.Should().BeEquivalentTo(part, opt => opt.Excluding(p => p.ID).Excluding(p => p.Attributes));
+            savedPart!.Attributes.Should().BeEquivalentTo(part.Attributes, opt => opt.Excluding(a => a.ID));
         }
 
         [Fact]
         public async Task Put_Should_UpdatePartRecord()
         {
-            var savedPart = await _dataHelper.CreatePartInDatabase();
-            savedPart?.ID.Should().BeGreaterThan(0);
-            var partModel = new Part { ID = savedPart!.ID, Name = "Other Name", Description = "Other Descritpion", Weight = savedPart.Weight, Price = savedPart!.Price!.Value, StartDate = savedPart.StartDate };
+            const int attributeCount = 2;
+            var savedPart = await _dataHelper.CreatePartInDatabase(attributeCount);
+            savedPart!.ID.Should().BeGreaterThan(0);
+            savedPart!.Attributes.Should().HaveCount(attributeCount);
+            var firstAttribute = savedPart!.Attributes![0];
+            var secondAttribute = savedPart!.Attributes![1];
+            var partModel = new Part { ID = savedPart!.ID, Name = "Other Name", Description = "Other Descritpion", Weight = savedPart.Weight, Price = savedPart!.Price!.Value, StartDate = savedPart.StartDate,
+                Attributes = new List<PartAttribute> { 
+                    new PartAttribute { ID = firstAttribute.ID, Name = "Other attribute name", Description = firstAttribute.Description, Value = firstAttribute.Value },
+                    // don't include existing 2nd attribute with the udpate to ensure it is deleted
+                    // add a new attribute to ensure it gets created
+                    new PartAttribute { ID = 0, Name = "A new attribute with this update", Value = "NewValue" }
+                }
+            };
             _testFixture.DbContext.ChangeTracker.Clear();
 
             var result = await _testFixture.PutRequest<Part, PartResponse>("/api/part", partModel);
@@ -138,17 +154,24 @@ namespace SpareParts.API.Int.Tests
 
             var partId = result?.Value?.ID;
             Assert.True(partId > 0);
-            var updatedPart = await _testFixture.DbContext.Parts.FindAsync(partId);
+            var updatedPart = await _testFixture.DbContext.Parts.Include(p => p.Attributes).FirstOrDefaultAsync(p => p.ID == savedPart.ID);
 
             updatedPart.Should().NotBeNull();
-            updatedPart.Should().BeEquivalentTo(partModel, opt => opt.Excluding(p => p.ID));
+            updatedPart.Should().BeEquivalentTo(partModel, opt => opt.Excluding(p => p.Attributes));
+            updatedPart!.Attributes.Should().HaveCount(2);
+            updatedPart!.Attributes!.Single(a => a.ID == firstAttribute.ID).Should().BeEquivalentTo(partModel.Attributes.Single(a => a.ID == firstAttribute.ID));
+            updatedPart!.Attributes!.Single(a => a.ID != firstAttribute.ID).Should().BeEquivalentTo(partModel.Attributes.Single(a => a.ID != firstAttribute.ID), opt => opt.Excluding(a => a.ID));
+            var deletedAttribute = await _testFixture.DbContext.PartAttribute.FindAsync(secondAttribute.ID);
+            deletedAttribute.Should().BeNull();
         }
 
         [Fact]
-        public async Task Delete_Should_DeletePartRecord()
+        public async Task Delete_Should_DeletePartRecords()
         {
             var savedPart = await _dataHelper.CreatePartInDatabase();
             savedPart?.ID.Should().BeGreaterThan(0);
+            savedPart!.Attributes.Should().NotBeEmpty();
+            var firstAttribute = savedPart!.Attributes![0];
             _testFixture.DbContext.ChangeTracker.Clear();
 
             var result = await _testFixture.DeleteRequest<PartResponse>($"/api/part/?id={savedPart!.ID}");
@@ -157,6 +180,8 @@ namespace SpareParts.API.Int.Tests
             result.HasError.Should().BeFalse();
             var deletedPart = await _testFixture.DbContext.Parts.FindAsync(savedPart.ID);
             deletedPart.Should().BeNull();
+            var deletedAttribute = await _testFixture.DbContext.PartAttribute.FindAsync(firstAttribute.ID);
+            deletedAttribute.Should().BeNull();  
         }        
     }
 }
