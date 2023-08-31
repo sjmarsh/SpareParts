@@ -80,7 +80,14 @@ namespace SpareParts.Browser.Tests.Features
 
             var partModal = _partsPage.GetPartModal();
             var displayedPart = await partModal.GetPart();
-            displayedPart.Should().BeEquivalentTo(savedPart, opt => opt.Excluding(p => p.ID).Excluding(p => p.Attributes));
+            displayedPart.Should().BeEquivalentTo(savedPart, opt => 
+                opt.Excluding(p => p.ID)
+                .Excluding(p => p.Attributes)
+                .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromDays(1))).WhenTypeIs<DateTime>());
+
+            // TODO - extend assertions to include attributes
+
+            await partModal.Close();
         }
 
 

@@ -167,6 +167,8 @@ namespace SpareParts.Browser.Tests.Pages
         public async Task<double> GetPrice()
         {
             var price = await GetValue(nameof(Part.Price).ToLower());
+            if (string.IsNullOrEmpty(price)) return 0.0;
+            price = price.Replace("$", "");
             var parsed = double.TryParse(price, out var result);
             return parsed ? result : 0.0;
         }
@@ -190,7 +192,7 @@ namespace SpareParts.Browser.Tests.Pages
 
         private async Task<DateTime?> GetEndDate()
         {
-            var endDate = await GetValue(nameof(Part.StartDate).Camelize());
+            var endDate = await GetValue(nameof(Part.EndDate).Camelize());
             if(string.IsNullOrEmpty(endDate)) return null;
             var parsed = DateTime.TryParse(endDate, out var result);
             return parsed ? result : DateTime.MinValue;
