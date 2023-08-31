@@ -24,6 +24,7 @@ namespace SpareParts.Browser.Tests.Features
         {
             // clear parts table between tests
             _dbContext.InventoryItems.RemoveRange(_dbContext.InventoryItems);
+            _dbContext.PartAttribute.RemoveRange(_dbContext.PartAttribute);
             await _dbContext.SaveChangesAsync();
             _dbContext.Parts.RemoveRange(_dbContext.Parts);
             await _dbContext.SaveChangesAsync();
@@ -56,13 +57,32 @@ namespace SpareParts.Browser.Tests.Features
         public async Task AddPart_Should_AddPartToList()
         {
             (await _partsPage.IsPartTableVisible()).Should().BeFalse();
-            var part = new Shared.Models.Part { Name = "Part 1", Description = "The first one", Weight = 2.2, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2) };
+            var part = new Shared.Models.Part { Name = "Part 1", Description = "The first one", Weight = 2.2, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2),
+                Attributes = new List<Shared.Models.PartAttribute> { new Shared.Models.PartAttribute { Name = "Colour", Description = "The Colour", Value = "Orange" } }
+            };
             await _partsPage.ClickAddButton();
             
-            await EnterPart(part);
+            await EnterPart(part, isEditingExistingAttrutes: false);
                         
             (await _partsPage.PartListItemCount()).Should().Be(1);
         }
+
+        [Fact]
+        public async Task EditPart_Should_DisplayPartDetails()
+        {
+            var savedPart = await _dataHelper.CreatePartInDatabase();
+            savedPart.ID.Should().BeGreaterThan(0);
+            await _partsPage.InitializePage();
+            (await _partsPage.IsPartTableVisible()).Should().BeTrue();
+            (await _partsPage.PartListItemCount()).Should().Be(1);
+
+            await _partsPage.ClickEditButtonForRow(0);
+
+            var partModal = _partsPage.GetPartModal();
+            var displayedPart = await partModal.GetPart();
+            displayedPart.Should().BeEquivalentTo(savedPart, opt => opt.Excluding(p => p.ID).Excluding(p => p.Attributes));
+        }
+
 
         [Fact]
         public async Task EditPart_Should_UpdatePartInList()
@@ -73,16 +93,18 @@ namespace SpareParts.Browser.Tests.Features
             (await _partsPage.PartListItemCount()).Should().Be(1);
             
             await _partsPage.ClickEditButtonForRow(0);
-            var updatedPart = new Shared.Models.Part { Name = "Part 1", Description = "This is one part", Weight = 1.2, Price = 1.33, StartDate = DateTime.Today.AddYears(-3), EndDate = DateTime.Today.AddYears(3) };
-            await EnterPart(updatedPart);
+            var updatedPart = new Shared.Models.Part { Name = "Part 1", Description = "This is one part", Weight = 1.2, Price = 1.33, StartDate = DateTime.Today.AddYears(-3), EndDate = DateTime.Today.AddYears(3),
+                Attributes = new List<Shared.Models.PartAttribute> { new Shared.Models.PartAttribute { Name = "Colour", Description = "The Colour", Value = "Orange" } }
+            };
+            await EnterPart(updatedPart, isEditingExistingAttrutes: true);
 
             (await _partsPage.IsPartTableVisible()).Should().BeTrue();
             (await _partsPage.PartListItemCount()).Should().Be(1);
             var rowPart = await _partsPage.GetPartFromRow(0); 
             rowPart.Should().NotBeNull();
-            rowPart.Should().BeEquivalentTo(updatedPart);
+            rowPart.Should().BeEquivalentTo(updatedPart, opt => opt.Excluding(p => p.Attributes));
         }
-
+                
         [Fact]
         public async Task DeletePart_Should_RemovePartFromList()
         {
@@ -99,11 +121,12 @@ namespace SpareParts.Browser.Tests.Features
             rowPart.Should().NotBeNull();
             rowPart.Should().BeEquivalentTo(parts[1], opt => opt
                     .Excluding(p => p.ID)
+                    .Excluding(p => p.Attributes)
                     .Using<DateTime>(ctx => ctx.Subject.Date.Should().Be(ctx.Expectation.Date))
                     .WhenTypeIs<DateTime>());
         }
 
-        private async Task EnterPart(Shared.Models.Part part)
+        private async Task EnterPart(Shared.Models.Part part, bool isEditingExistingAttrutes)
         {
             var partModal = _partsPage.GetPartModal();
             await partModal.EnterName(part.Name);
@@ -112,6 +135,13 @@ namespace SpareParts.Browser.Tests.Features
             await partModal.EnterPrice(part.Price);
             await partModal.EnterStartDate(part.StartDate);
             await partModal.EnterEndDate(part.EndDate);
+
+            await partModal.ClickShowAttributes();
+            if(!isEditingExistingAttrutes)
+            {
+                await partModal.ClickAddAttribute();
+            }
+            await partModal.EnterAttributes(part.Attributes!);
 
             await partModal.Submit();
             await partModal.Close();

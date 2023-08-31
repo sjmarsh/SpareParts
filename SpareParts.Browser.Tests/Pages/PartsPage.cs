@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using SpareParts.Shared.Models;
+using System.Text.RegularExpressions;
+using Humanizer;
 
 namespace SpareParts.Browser.Tests.Pages
 {
@@ -115,10 +117,33 @@ namespace SpareParts.Browser.Tests.Pages
             _page = page;
         }
 
+        public async Task<Part> GetPart()
+        {
+            return new Part
+            {
+                Name = await GetName(),
+                Description = await GetDescription(),
+                Weight = await GetWeight(),
+                Price = await GetPrice(),
+                StartDate = await GetStartDate(),
+                EndDate = await GetEndDate()
+            };
+        }
+
+        public async Task<string> GetName()
+        {
+            return await GetValue("partName");
+        }
+
         public async Task EnterName(string? partName)
         {
             if (partName == null) return;
             await EnterValue(nameof(partName), partName);
+        }
+
+        public async Task<string> GetDescription()
+        {
+            return await GetValue("partDescription");
         }
 
         public async Task EnterDescription(string? partDescription)
@@ -127,9 +152,23 @@ namespace SpareParts.Browser.Tests.Pages
             await EnterValue(nameof(partDescription), partDescription);
         }
 
+        public async Task<double> GetWeight()
+        {
+            var weight = await GetValue(nameof(Part.Weight).ToLower());
+            var parsed = double.TryParse(weight, out var result);
+            return parsed ? result : 0.0;
+        }
+
         public async Task EnterWeight(double weight)
         {
             await EnterValue(nameof(weight), weight.ToString());
+        }
+
+        public async Task<double> GetPrice()
+        {
+            var price = await GetValue(nameof(Part.Price).ToLower());
+            var parsed = double.TryParse(price, out var result);
+            return parsed ? result : 0.0;
         }
 
         public async Task EnterPrice(double price)
@@ -137,9 +176,24 @@ namespace SpareParts.Browser.Tests.Pages
             await EnterValue(nameof(price), price.ToString());
         }
 
+        private async Task<DateTime> GetStartDate()
+        {
+            var startDate = await GetValue(nameof(Part.StartDate).Camelize());
+            var parsed = DateTime.TryParse(startDate, out var result);
+            return parsed ? result : DateTime.MinValue;
+        }
+
         public async Task EnterStartDate(DateTime startDate)
         {
             await EnterValue(nameof(startDate), startDate.ToString("yyyy-MM-dd"));
+        }
+
+        private async Task<DateTime?> GetEndDate()
+        {
+            var endDate = await GetValue(nameof(Part.StartDate).Camelize());
+            if(string.IsNullOrEmpty(endDate)) return null;
+            var parsed = DateTime.TryParse(endDate, out var result);
+            return parsed ? result : DateTime.MinValue;
         }
 
         public async Task EnterEndDate(DateTime? endDate)
@@ -148,9 +202,87 @@ namespace SpareParts.Browser.Tests.Pages
             await EnterValue(nameof(endDate), endDate.Value.ToString("yyyy-MM-dd"));
         }
 
+        private async Task<string> GetValue(string id)
+        {            
+            return await _page.Locator($"#{id}").InputValueAsync();
+        }
+
         private async Task EnterValue(string id, string value)
         {
             await _page.Locator($"#{id}").FillAsync(value);
+        }
+
+        public async Task ClickShowAttributes()
+        {
+            var attributesButton = _page.Locator("text=Attributes");
+            attributesButton.Should().NotBeNull();
+            await attributesButton.ClickAsync();
+        }
+
+        public async Task ClickAddAttribute()
+        {
+            var addAttributeButton = _page.Locator("text=Add Attribute");
+            addAttributeButton.Should().NotBeNull();
+            await addAttributeButton.ClickAsync();
+        }
+
+        public async Task EnterAttributes(List<PartAttribute> attributes)
+        {
+            for (int i = 0; i < attributes.Count; i++)
+            {
+                var attribute = attributes[i];
+                if (attribute != null)
+                {
+                    await EnterAttribute(i, attribute);
+                }
+            }
+        }
+
+        public async Task EnterAttribute(int row, PartAttribute attribute)
+        {
+            attribute.Should().NotBeNull();
+            if(attribute != null)
+            {
+                await EnterAttributeName(row, attribute.Name!);
+                await EnterAttributeDescription(row, attribute.Description!);
+                await EnterAttributeValue(row, attribute.Value!);
+            }
+        }
+
+        public async Task EnterAttributeName(int row, string name)
+        {
+            await EnterAttributeComponent(row, 0, name);
+        }
+
+        public async Task EnterAttributeDescription(int row, string description)
+        {
+            await EnterAttributeComponent(row, 1, description);
+        }
+
+        public async Task EnterAttributeValue(int row, string value)
+        {
+            await EnterAttributeComponent(row, 2, value);
+        }
+
+        private async Task EnterAttributeComponent(int row, int column, string componentValue)
+        {
+            var attributeSection = _page.Locator("details").Nth(0);
+            attributeSection.Should().NotBeNull();
+
+            var attributeRow = attributeSection.Locator("tr").Nth(row + 1);
+            var cells = attributeRow.Locator("td");
+            var input = cells.Nth(column).Locator("input");
+            input.Should().NotBeNull();
+            await input.FillAsync(componentValue);
+        }
+
+        public async Task DeleteAttribute(int row)
+        {
+            var deleteButtons = await _page.QuerySelectorAllAsync("text=Delete");
+            deleteButtons.Should().NotBeNullOrEmpty();
+            await deleteButtons[row].FocusAsync();
+            await deleteButtons[row].ClickAsync(new ElementHandleClickOptions { ClickCount = 1, Delay = 200 });
+            await _page.WaitForResponseAsync(r => r.Status == 200);
         }
 
         public async Task Submit()
