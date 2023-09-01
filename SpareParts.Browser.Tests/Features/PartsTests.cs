@@ -79,13 +79,15 @@ namespace SpareParts.Browser.Tests.Features
             await _partsPage.ClickEditButtonForRow(0);
 
             var partModal = _partsPage.GetPartModal();
+            await partModal.ClickShowAttributes();
+
             var displayedPart = await partModal.GetPart();
             displayedPart.Should().BeEquivalentTo(savedPart, opt => 
                 opt.Excluding(p => p.ID)
                 .Excluding(p => p.Attributes)
                 .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromDays(1))).WhenTypeIs<DateTime>());
 
-            // TODO - extend assertions to include attributes
+            displayedPart.Attributes.Should().BeEquivalentTo(savedPart.Attributes, opt => opt.Excluding(a => a.ID));
 
             await partModal.Close();
         }

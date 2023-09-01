@@ -1,6 +1,7 @@
 ﻿using SpareParts.Shared.Models;
 using System.Text.RegularExpressions;
 using Humanizer;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace SpareParts.Browser.Tests.Pages
 {
@@ -126,7 +127,8 @@ namespace SpareParts.Browser.Tests.Pages
                 Weight = await GetWeight(),
                 Price = await GetPrice(),
                 StartDate = await GetStartDate(),
-                EndDate = await GetEndDate()
+                EndDate = await GetEndDate(),
+                Attributes = await GetAttributes()
             };
         }
 
@@ -226,6 +228,47 @@ namespace SpareParts.Browser.Tests.Pages
             var addAttributeButton = _page.Locator("text=Add Attribute");
             addAttributeButton.Should().NotBeNull();
             await addAttributeButton.ClickAsync();
+        }
+
+        public async Task<List<PartAttribute>> GetAttributes()
+        {
+            var partAttributes = new List<PartAttribute>();
+            var attributeSection = _page.Locator("details").Nth(0);
+            attributeSection.Should().NotBeNull();
+                        
+            var attributeRows = await attributeSection.Locator("tr").AllAsync();
+            if(attributeRows.Count > 1)
+            {
+                var numberOfAttributeColumns = typeof(PartAttribute).GetProperties().Count(p => p.Name != "ID");
+                var rowCount = 0;
+                foreach (var row in attributeRows)
+                {
+                    rowCount++;
+                    if (rowCount == 1) continue; // don't include header row
+                    var partAttribute = new PartAttribute();
+                    var cells = row.Locator("td");
+                    for (int i = 0; i < numberOfAttributeColumns; i++)
+                    {
+                        var input = cells.Nth(i).Locator("input");
+                        switch (i)
+                        {
+                            case 0:
+                                partAttribute.Name = await input.InputValueAsync(); 
+                                break;
+                            case 1:
+                                partAttribute.Description = await input.InputValueAsync();
+                                break;
+                            case 2:
+                                partAttribute.Value = await input.InputValueAsync();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    partAttributes.Add(partAttribute);
+                }
+            }
+            return partAttributes;
         }
 
         public async Task EnterAttributes(List<PartAttribute> attributes)

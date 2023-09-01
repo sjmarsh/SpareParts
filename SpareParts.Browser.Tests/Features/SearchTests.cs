@@ -26,6 +26,7 @@ namespace SpareParts.Browser.Tests.Features
         {
             // clear parts table between tests
             _dbContext.InventoryItems.RemoveRange(_dbContext.InventoryItems);
+            _dbContext.PartAttribute.RemoveRange(_dbContext.PartAttribute);
             await _dbContext.SaveChangesAsync();
             _dbContext.Parts.RemoveRange(_dbContext.Parts);
             await _dbContext.SaveChangesAsync();
