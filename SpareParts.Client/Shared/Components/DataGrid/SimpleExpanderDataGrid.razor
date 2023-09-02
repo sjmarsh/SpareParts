@@ -1,0 +1,114 @@
+﻿@typeparam T
+
+@using System.Linq;
+@using System.Reflection;
+@using Humanizer;
+
+@if (DataSource != null && _dataRows != null && _dataRows.Any())
+{
+    <div class="mud-table mud-simple-table mud-table-hover mud-table-striped mud-elevation-1">
+        <div class="mud-table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        @if (_dataRows.First() != null && _dataRows.First().Data != null)
+                        {
+                            @foreach (var heading in _dataRows.First().Data.Select(d => d.Key))
+                            {
+                                <th scope="col">@heading.Humanize(LetterCasing.Title)</th>
+                            }
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (_dataRows != null && _dataRows.Any())
+                    {
+                        @foreach (var row in _dataRows)
+                        {
+                            <tr @onclick="() => HandleRowClick(row)">
+                                <td>
+                                    @if (row.IsDetailsVisible)
+                                    {
+                                        <button type="button" class="btn" @onclick="() => HandleShowDetail(row)"><span class="oi oi-chevron-bottom" title="Hide Details" aria-hidden="true" /></button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn" @onclick="() => HandleShowDetail(row)"><span class="oi oi-chevron-top" title="Show Details" aria-hidden="true" /></button>
+                                    }
+                                </td>
+                                @if(row.Data != null)
+                                {
+                                    @foreach (var item in row.Data)
+                                    {
+                                        <td>@item.Value</td>
+                                    }
+                                }
+                            </tr>
+                            @if (row.IsDetailsVisible)
+                            {
+                                <tr>
+                                    <td colspan="@(_dataRows.First().Data.Count)">
+                                        <SimpleExpanderDetailSection DetailRows="@row.DetailRows" />
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code{
+
+    [Parameter, EditorRequired]
+    public List<T>? DataSource { get; set; }
+
+    [Parameter, EditorRequired]
+    public List<string>? ColumnList { get; set; }
+
+    [Parameter]
+    public EventCallback<DataRow<T>> OnRowClick { get; set; }
+
+    private List<DataRow<T>>? _dataRows;
+
+    protected override void OnInitialized()
+    {
+        RefreshGrid();
+    }
+
+    protected override void OnParametersSet()
+    {
+        RefreshGrid();
+    }
+
+    private void RefreshGrid()
+    {
+        if (DataSource is null || ColumnList is null)
+        {
+            return;
+        }
+
+        _dataRows = new List<DataRow<T>>();
+
+        foreach (var item in DataSource)
+        {
+            _dataRows.Add(new DataRow<T>(item, ColumnList));
+        }
+    }
+
+    private void HandleShowDetail(DataRow<T> row)
+    {
+        row.IsDetailsVisible = !row.IsDetailsVisible;
+    }
+
+    private async Task HandleRowClick(DataRow<T> row)
+    {
+        if (OnRowClick.HasDelegate)
+        {
+            await OnRowClick.InvokeAsync(row);
+        }
+    }
+}

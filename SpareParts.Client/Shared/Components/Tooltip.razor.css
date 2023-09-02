@@ -1,0 +1,47 @@
+﻿.blazor-tooltip {
+    position: relative;
+}
+
+    .blazor-tooltip:before {
+        content: attr(data-text); 
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 100%;
+        margin-top: 30px;
+        margin-left: 0px; 
+        padding: 2px 6px;
+        background: #FFF;
+        color: #000;
+        text-align: center;
+        font-size:small;
+        border-style: solid;
+        border-width: 0.5px;
+        z-index: 1000;
+        display: none; /* hide by default */
+        opacity: 0;
+        transition: .3s opacity;
+    }
+
+    .blazor-tooltip:after {
+        opacity: 0;
+        transition: .3s;
+    }
+
+    .blazor-tooltip:hover:before {
+        display: block;
+        opacity: 1;
+    }
+
+    .blazor-tooltip:hover:after {
+        opacity: 1;
+    }
+
+    .blazor-tooltip.left:before {
+        /* reset defaults */
+        left: initial;
+        margin: initial;
+        /* set new values */
+        right: 100%;
+        margin-right: 15px;
+    }

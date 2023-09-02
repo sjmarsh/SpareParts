@@ -1,11 +1,11 @@
 ﻿@using System.Linq.Expressions;
 
 <div class="row mt-2">
-    @if(Fields != null && Operators != null)
+    @if(Fields != null && _operators != null)
     {
         <div class="col">
             <div class="form-group my-2">
-                <InputSelect id="field" class="form-select" @bind-Value="@SelectedFieldName">
+                <InputSelect id="field" class="form-select" Value="@SelectedFieldName" ValueExpression="() => SelectedFieldName" ValueChanged="(string value) => HandleFieldSelectedValueChanged(value)" >
                     @foreach (var field in Fields.Where(f => f.IsSelected))
                     {
                         <option>@field.Name</option>
@@ -15,16 +15,28 @@
         </div>
         <div class="col">
             <div class="form-group my-2">
-                <InputSelect id="operator" class="form-select" @bind-Value="@SelectedOperator">
-                    @foreach (var optr in Operators)
+                <InputSelect id="operator" class="form-select" @bind-Value="SelectedOperatorName">
+                    @foreach (var optr in _operators)
                     {
-                        <option value="@optr.FilterOperator">@optr.Name</option>
+                        <option value="@optr.Name">@optr.Name</option>
                     }
                 </InputSelect>
             </div>
         </div>
         <div class="col">
-            <ValidInputText Id="value" @bind-Value="@Value" />
+            @if (_isEnumField)
+            {
+                <InputSelect id="valueSelect" class="form-select" @bind-Value="@Value">
+                    @foreach (var item in _enumValues)
+                    {
+                        <option value="@item">@item</option>
+                    }
+                </InputSelect>
+            }
+            else
+            {
+                <ValidInputText Id="value" @bind-Value="@Value" />
+            }            
         </div>
         <div class="col">
             <div class="form-group my-2">
@@ -37,25 +49,21 @@
     [Parameter, EditorRequired]
     public List<FilterField>? Fields { get; set; }
 
-    [Parameter, EditorRequired]
-    public List<NamedFilterOperator>? Operators { get; set; }
-
-#pragma warning disable CS8618 
+#pragma warning disable CS8618
     private FilterLine _filterLine;
 #pragma warning restore CS8618
 #pragma warning disable BL0007
     [Parameter, EditorRequired]
     public FilterLine FilterLine
 #pragma warning restore BL0007
-    { 
+    {
         get => _filterLine;
         set
         {
             _filterLine = value;
             SelectedFieldName = _filterLine.SelectedField.Name;
-            SelectedOperator = _filterLine.SelectedOperator;
-            Value = _filterLine.Value;
-        } 
+            UpdateSelectedOperatorAndValue(SelectedFieldName, _filterLine.SelectedOperator, _filterLine.Value);
+        }
     }
 
     [Parameter]
@@ -70,26 +78,24 @@
         get => _selectedFieldName;
         set
         {
-            if(value != _selectedFieldName)
+            if (value != _selectedFieldName)
             {
                 _selectedFieldName = value;
                 FilterLine.SelectedField = Fields!.First(f => f.Name == value);
-                FilterLineChanged.InvokeAsync(FilterLine);
             }
         }
     }
 
-    private string? _selectedOperator;
-    private string? SelectedOperator
+    private string? _selectedOperatorName;
+    private string? SelectedOperatorName
     {
-        get => _selectedOperator;
+        get => _selectedOperatorName;
         set
         {
-            if (value != _selectedOperator)
+            if (value != _selectedOperatorName)
             {
-                _selectedOperator = value;
-                FilterLine.SelectedOperator = value!;
-                FilterLineChanged.InvokeAsync(FilterLine);
+                _selectedOperatorName = value;
+                FilterLine.SelectedOperator = GetOperatorForName(value);
             }
         }
     }
@@ -104,19 +110,82 @@
             {
                 _value = value;
                 FilterLine.Value = value!;
-                FilterLineChanged.InvokeAsync(FilterLine);
             }
         }
     }
 
     [Parameter]
     public EventCallback<FilterLine> OnRemoveFilter { get; set; }
-        
+
+    private bool _isEnumField;
+    private string _selectedValue = "";
+    private List<string> _enumValues = new List<string>();
+    private List<NamedFilterOperator> _operators = new List<NamedFilterOperator>();
+
+    protected override void OnInitialized()
+    {
+        _isEnumField = false;
+    }
+
+    private string GetOperatorForName(string? operatorName)
+    {
+        var oprtr = "eq";
+        if (operatorName != null)
+        {
+            var op = _operators.FirstOrDefault(o => o.Name == operatorName);
+            if (op != null)
+            {
+                oprtr = op.FilterOperator;
+            }
+        }
+        return oprtr;
+    }
+
     private async Task HandleRemoveFilter()
-    {      
-        if(FilterLine != null)
+    {
+        if (FilterLine != null)
         {
             await OnRemoveFilter.InvokeAsync(FilterLine);
         }
-    }    
+    }
+
+    private void HandleFieldSelectedValueChanged(string fieldName)
+    {
+        if (fieldName != null)
+        {
+            UpdateSelectedOperatorAndValue(fieldName);
+        }
+    }
+
+    private void UpdateSelectedOperatorAndValue(string selectedFieldName, string? selectedOperator = null, string? value = null)
+    {
+        SelectedFieldName = selectedFieldName;
+        var selectedField = Fields!.First(f => f.Name == selectedFieldName);
+        
+        _isEnumField = selectedField.Type.IsEnum;
+        if (_isEnumField)
+        {
+            _enumValues = Enum.GetNames(selectedField.Type).ToList();
+        }
+
+        if (selectedField.Type.IsNumericType() || selectedField.Type.IsDateType())
+        {
+            _operators = FilterOperator.NamedFilterOperatorsForDatesAndNumbers().ToList();
+        }
+        else
+        {
+            _operators = FilterOperator.NamedFilterOperatorsForStrings().ToList();
+        }
+
+        if (selectedOperator != null)
+        {
+            SelectedOperatorName = _operators.First(o => o.FilterOperator == selectedOperator).Name;
+        }
+        else
+        {
+            SelectedOperatorName = _operators.First().Name;
+        }
+
+        Value = value;
+    }
 }

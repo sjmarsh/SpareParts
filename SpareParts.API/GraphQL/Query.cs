@@ -15,11 +15,13 @@ namespace SpareParts.API.GraphQL
             _mapper = mapper;
         }
 
+        [UseOffsetPaging(IncludeTotalCount = true)]
         [UseFiltering]
+        [UseSorting]
         [AuthorizeByRoleHotChoc(Role.Administrator, Role.StocktakeUser)]
-        public IQueryable<Part> GetParts([Service] SparePartsDbContext dbContext)
+        public IQueryable<PartGraphQLObject> GetParts([Service] SparePartsDbContext dbContext)
         {
-            return dbContext.Parts.ProjectTo<Part>(_mapper.ConfigurationProvider);
+            return dbContext.Parts.ProjectTo<PartGraphQLObject>(_mapper.ConfigurationProvider);
         }
     }
 }

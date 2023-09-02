@@ -17,7 +17,7 @@ namespace SpareParts.Client.Shared.Components.Filter
         public static IEnumerable<string> Operators()
         {
             var flds = typeof(FilterOperator).GetFields().Where(fi => fi.IsLiteral && !fi.IsInitOnly);
-            foreach(var fld in  flds)
+            foreach (var fld in flds)
             {
                 if (fld.GetRawConstantValue() is string constValue)
                 {
@@ -38,6 +38,17 @@ namespace SpareParts.Client.Shared.Components.Filter
             }
         }
 
+        public static IEnumerable<NamedFilterOperator> NamedFilterOperatorsForStrings()
+        {
+            var stringOperators = new[] { Equal, NotEqual, StartsWith, EndsWith, Contains };
+            return NamedFilterOperators().Where(f => stringOperators.Contains(f.FilterOperator));
+        }
+
+        public static IEnumerable<NamedFilterOperator> NamedFilterOperatorsForDatesAndNumbers()
+        {
+            var numberOperators = new[] { Equal, NotEqual, LessThan, LessThanOrEqual, GreaterThan, GreatherThanOrEqual };
+            return NamedFilterOperators().Where(f => numberOperators.Contains(f.FilterOperator));
+        }
     }
 
     public class NamedFilterOperator

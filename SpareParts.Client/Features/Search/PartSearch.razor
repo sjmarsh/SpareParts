@@ -10,19 +10,20 @@
 
 <div>
     <h3>Part Search</h3>
-    <FilterGrid T="Part" ServiceCall="@((request) => HandleServiceCall(request))" FilterGridState="SearchState.Value.FilterGridState" OnFilterStateChanged="HandleFilterStateChanged" />
+    <FilterGrid T="PartGraphQLObject" RootGraphQLField="parts" ServiceCall="@((request) => HandleServiceCall(request))" 
+        FilterGridState="SearchState.Value.FilterGridState" OnFilterStateChanged="HandleFilterStateChanged" />
 </div>
 
 @code 
 {
-    private async Task<List<Part>> HandleServiceCall(GraphQLRequest request)
+    private async Task<IPagedData<PartGraphQLObject>> HandleServiceCall(GraphQLRequest request)
     {
         var partResponse = await ServiceWrapper.ServiceCall(() => SearchService.Search(request), "An error occurred searching for part.");
         if(partResponse != null && partResponse.Data != null && partResponse.Data.Parts != null)
         {
             return partResponse.Data.Parts;
         }
-        return new List<Part>(); // TODO use generic result object
+        return new PartGraphQLResponsePagedItems();
     }
 
     private void HandleFilterStateChanged(FilterGridState updatedState)

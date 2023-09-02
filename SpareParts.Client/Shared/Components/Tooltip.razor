@@ -1,0 +1,19 @@
+﻿@if (string.IsNullOrEmpty(TooltipContent))
+{
+    @ChildContent
+}
+else
+{
+    <span data-text="@TooltipContent" class="blazor-tooltip">
+        @ChildContent
+    </span>
+}
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public string? TooltipContent { get; set; }
+    
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = default!;
+}

@@ -3,6 +3,122 @@
     padding: 7px;
 }
 
-.chips-custom:hover {
+.chip {
+    border: 0;
+    border-radius: 15px;
+    cursor: default;
+    display: inline-flex;
+    max-width: 100%;
+    outline: 0;
+    padding: 5px 12px;
+    position: relative;
+    box-sizing: border-box;
+    transition: background-color 300ms cubic-bezier(.4,0,.2,1) 0ms,box-shadow 300ms cubic-bezier(.4,0,.2,1) 0ms;
+    align-items: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    justify-content: center;
+    text-decoration: none;
+    line-height: normal;
+    margin: 4px;
+}
+
+    .chip > .chip-content {
+        align-items: center;
+        display: inline-flex;
+        height: 100%;
+        max-width: 100%;
+        user-select: none;
+    }
+
+.chip-size-medium {
+    height: 32px;
+    font-size: 14px;
+    border-radius: 16px;
+}
+
+.chip-icon:hover {
     cursor: pointer;
 }
+
+.chip-icon > a {
+    margin-left: 6px;
+}
+
+.chip-color-default {
+    color: black;
+    background-color: lightgray;
+}
+
+.chip-color-default-outlined {
+    color: black;
+    background-color: white;
+    border: 1px solid black;
+}
+
+.chip-color-aliceblue {
+    color: cornflowerblue;
+    background-color: aliceblue;
+}
+
+.chip-color-aliceblue-outlined {
+    color: cornflowerblue;
+    background-color: white;
+    border: 1px solid cornflowerblue;
+}
+
+.chip-color-honeydew {
+    color: darkgreen;
+    background-color: honeydew;
+}
+
+.chip-color-honeydew-outlined {
+    color: darkgreen;
+    background-color: white;
+    border: 1px solid darkgreen;
+}
+
+.chip-color-lavender {
+    color: rebeccapurple;
+    background-color: lavender;
+}
+
+.chip-color-lavender-outlined {
+    color: rebeccapurple;
+    background-color: white;
+    border: 1px solid rebeccapurple;
+}
+
+.chip-color-lavenderblush {
+    color: maroon;
+    background-color: lavenderblush;
+}
+
+.chip-color-lavenderblush-outlined {
+    color: maroon;
+    background-color: white;
+    border: 1px solid maroon;
+}
+
+.chip-color-powderblue {
+    color: navy;
+    background-color: powderblue;
+}
+
+.chip-color-powderblue-outlined {
+    color: navy;
+    background-color: white;
+    border: 1px solid navy;
+}
+
+.chip-color-thistle {
+    color: maroon;
+    background-color: thistle;
+}
+
+.chip-color-thistle-outlined {
+    color: maroon;
+    background-color: white;
+    border: 1px solid maroon;
+}
+

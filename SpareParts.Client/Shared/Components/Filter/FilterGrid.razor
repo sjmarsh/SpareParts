@@ -13,7 +13,7 @@
         <div>
             @if (FilterGridState.FilterFields != null)
             {
-                <ChipsList Chips="FilterGridState.FilterFields.Select(f => new Chip(f.Name, f.IsSelected)).ToList()" Title="Fields" OnToggleChip="HandleToggleField" />
+                <ChipsList Chips="FilterGridState.FilterFields.Select(f => new Chip(f.Name, f.IsSelected, GetChipColor(f), f.ParentFieldName)).ToList()" Title="Fields" OnToggleChip="HandleToggleField" />
             }
         </div>
 
@@ -21,17 +21,19 @@
             @if (FilterGridState.FilterLines != null && FilterGridState.FilterFields != null)
             {
                 <EditForm Model="FilterGridState.FilterLines" OnValidSubmit="HandleValidSubmit">
-                    <div class="card mt-2">
+                    <div class="card mt-4">
                         <div class="card-body">
-                            <h6 class="card-subtitle mb-2 text-muted">Filters</h6>
-                            @foreach (var filterLine in FilterGridState.FilterLines)
-                            {
-                                <FilterSelector Fields="FilterGridState.FilterFields.ToList()" Operators="_operators" FilterLine="filterLine"
-                                    FilterLineChanged="HandleFilterLineChanged" OnRemoveFilter="HandleRemoveFilter" />
-                            }
-                            <div class="mt-2">
-                                <button type="button" class="btn btn-outline-dark tool-button" @onclick="AddEmptyFilter"><span class="oi oi-plus tool-button-image" title="Add Filter" aria-hidden="true" /><span>Add Filter</span></button>
-                                <button type="submit" class="btn btn-outline-dark tool-button"><span class="oi oi-magnifying-glass tool-button-image" title="Search" aria-hidden="true" /><span>Search</span></button>
+                            <div class="mt-4">
+                                <h6 class="card-subtitle mb-2 text-muted">Filters</h6>
+                                @foreach (var filterLine in FilterGridState.FilterLines)
+                                {
+                                    <FilterSelector Fields="FilterGridState.FilterFields.ToList()" FilterLine="filterLine"
+                                        FilterLineChanged="HandleFilterLineChanged" OnRemoveFilter="HandleRemoveFilter" />
+                                }
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-outline-dark tool-button" @onclick="AddEmptyFilter"><span class="oi oi-plus tool-button-image" title="Add Filter" aria-hidden="true" /><span>Add Filter</span></button>
+                                    <button type="submit" class="btn btn-outline-dark tool-button"><span class="oi oi-magnifying-glass tool-button-image" title="Search" aria-hidden="true" /><span>Search</span></button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -46,26 +48,35 @@
             @_errorMessage
         </div>
     }
-
+    
     @if(_filterResults != null && FilterGridState != null && FilterGridState.FilterFields != null)
     {
-        <SimpleDataGrid T="T" DataSource="_filterResults" ColumnList="FilterGridState.FilterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
-    }
+        <div class="mt-6">
+            @if(_numberOfPages > 0)
+            {
+                <Pager OnPageChanged="HandlePageChanged" CurrentPage="_currentPage" PageSize="PageSize" TotalItemCount="_totalResultCount" />
+            }
+            
+            <SimpleExpanderDataGrid T="T" DataSource="_filterResults" ColumnList="FilterGridState.FilterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
         
+        </div>
+    }
+
+
 </div>
 
 
 @code
 {
     [Parameter]
-    public EventCallback<Dictionary<string, string>> OnRowClick { get; set; }
+    public EventCallback<DataRow<T>> OnRowClick { get; set; }
 
     [Parameter]
     public string? RootGraphQLField { get; set; }
 
     [Parameter]
     [EditorRequired]
-    public Func<GraphQLRequest, Task<List<T>>>? ServiceCall { get; set; }
+    public Func<GraphQLRequest, Task<IPagedData<T>>>? ServiceCall { get; set; }
 
     [Parameter]
     public FilterGridState? FilterGridState { get; set; }
@@ -73,26 +84,26 @@
     [Parameter]
     public EventCallback<FilterGridState> OnFilterStateChanged { get; set; }
 
-
-    private List<T>? _filterResults { get; set; }   
-    private List<NamedFilterOperator>? _operators;
+    private List<T>? _filterResults { get; set; }
     private const int MaxFilterLineCount = 5;
 
+    private bool _isLoading;
     private bool _hasError;
     private string? _errorMessage;
 
-    // TODO PAGING
-    private int _totalItemCount;
+    // paging
+    private int _totalResultCount = 0;
+    private int _numberOfPages = 0;
+    private int _currentPage = 1;
     private const int PageSize = 10;
-
 
     protected override async Task OnInitializedAsync()
     {
         FilterGridState = FilterGridState ?? new FilterGridState();
         await InitializeFilterFields();
-        _operators = FilterOperator.NamedFilterOperators().ToList();
 
-        if(HasFilterLines()){
+        if (HasFilterLines())
+        {
             await Search();
         }
         else
@@ -100,6 +111,7 @@
             await AddEmptyFilter();
         }
 
+        _isLoading = false;
         _hasError = false;
         _errorMessage = string.Empty;
     }
@@ -121,15 +133,59 @@
                 FilterFields = ImmutableList.Create(GetFilterFields())
             };
 
-            await UpdateFilterGridState();   
+            await UpdateFilterGridState();
         }
     }
 
     private FilterField[] GetFilterFields()
     {
         var props = typeof(T).GetProperties();
-        var fields = props.Select(p => new FilterField(p.Name, p.PropertyType, true)).Where(f => f.Name.ToLower() != "id");
+        var fields = new List<FilterField>();
+        foreach (var prop in props)
+        {
+            if (prop.Name.ToLower() == "id")
+            {
+                continue;
+            }
+            if (prop.PropertyType.IsListType())
+            {
+                fields.AddRange(AddChildFields(fields, prop.Name, prop.PropertyType));
+            }
+            else
+            {
+                fields.Add(new FilterField(prop.Name, prop.PropertyType, true));
+            }
+        }
+
         return fields.ToArray();
+    }
+
+    // NOTE: This is only 1 level deep for simplicity. Use recursive method for more complex requirements.
+    private List<FilterField> AddChildFields(List<FilterField> fields, string propertyName, Type propertyType)
+    {
+        Type itemType = propertyType.GetGenericArguments()[0];
+        var props = itemType.GetProperties();
+        return props.Select(p => new FilterField(p.Name, p.PropertyType, true, propertyName)).Where(f => f.Name.ToLower() != "id" && !f.Type.IsListType()).ToList();
+    }
+
+    private Dictionary<string, string> _chipColors = new Dictionary<string, string>();
+
+    private string? GetChipColor(FilterField filterField)
+    {
+        if (filterField.ParentFieldName is null)
+        {
+            return null;
+        }
+        if (_chipColors.ContainsKey(filterField.ParentFieldName))
+        {
+            return _chipColors[filterField.ParentFieldName];
+        }
+
+        var chipColors = Enum.GetNames(typeof(ChipColor));
+        Random rand = new Random();
+        var col = chipColors[rand.Next(0, 6)];
+        _chipColors.Add(filterField.ParentFieldName, col);
+        return col;
     }
 
     private async Task AddEmptyFilter()
@@ -154,9 +210,9 @@
             if (filterToUpdate != null)
             {
                 FilterGridState = FilterGridState with
-                    {
-                        FilterLines = FilterGridState.FilterLines.Replace(filterToUpdate, filterLine)
-                    };
+                {
+                    FilterLines = FilterGridState.FilterLines.Replace(filterToUpdate, filterLine)
+                };
             }
 
             await UpdateFilterGridState();
@@ -185,10 +241,10 @@
 
     private async Task HandleToggleField(Chip chip)
     {
-        if(FilterGridState != null && HasFilterFields() && FilterGridState.FilterLines != null && chip != null)
+        if (FilterGridState != null && HasFilterFields() && FilterGridState.FilterLines != null && chip != null)
         {
             var isFilterSelected = FilterGridState.FilterLines.FirstOrDefault(f => f.SelectedField.Name == chip.Name) != null;
-            if(!isFilterSelected)  // don't toggle chip if the filter is in use
+            if (!isFilterSelected)  // don't toggle chip if the filter is in use
             {
                 var itemToToggle = FilterGridState.FilterFields.FirstOrDefault(f => f.Name == chip.Name);
 
@@ -196,7 +252,7 @@
                 {
                     FilterGridState = FilterGridState with
                     {
-                        FilterFields = FilterGridState.FilterFields.Replace(itemToToggle, new FilterField(itemToToggle.Name, itemToToggle.Type, !itemToToggle.IsSelected))
+                        FilterFields = FilterGridState.FilterFields.Replace(itemToToggle, new FilterField(itemToToggle.Name, itemToToggle.Type, !itemToToggle.IsSelected, itemToToggle.ParentFieldName))
                     };
                 }
 
@@ -221,23 +277,29 @@
             var validationResult = validator.Validate(filterFieldsList);
             if (validationResult.IsValid)
             {
-                var graphQLRequest = graphQLRequestBuilder.Build<T>(filterFieldsList, FilterGridState.FilterFields.ToList());
+                var pageOffset = new PageOffset(_currentPage * PageSize - PageSize, PageSize);
+                var graphQLRequest = graphQLRequestBuilder.Build<T>(filterFieldsList, FilterGridState.FilterFields.ToList(), RootGraphQLField, pageOffset);
 
-                if(ServiceCall != null)
+                if (ServiceCall != null)
                 {
+                    _isLoading = true;
                     var serviceResult = await ServiceCall.Invoke(graphQLRequest);
 
-                    if (serviceResult != null && serviceResult.Any())
+                    if (serviceResult != null && serviceResult.Items != null && serviceResult.Items.Any())
                     {
-                        _filterResults = serviceResult;
-                        _hasError = false;
-                        _errorMessage = string.Empty;
-                    }
+                        _filterResults = serviceResult.Items;
+                        _totalResultCount = serviceResult.TotalCount;
+                        _numberOfPages = GetNumberOfPages(_totalResultCount);
+                    _hasError = false;
+                    _errorMessage = string.Empty;
+                    }   
                     else
                     {
                         _hasError = true;
                         _errorMessage = "No results found";
                     }
+
+                    _isLoading = false;
                 }
             }
             else
@@ -250,9 +312,9 @@
                     sb.AppendLine($"Row {i} is invalid. {error.ErrorMessage}");
                 }
                 _errorMessage = sb.ToString();
-                
+
                 return;
-            }            
+            }
         }
     }
 
@@ -269,5 +331,22 @@
     private void ClearFilterResults()
     {
         _filterResults = new List<T>();
+    }
+
+    private int GetNumberOfPages(int totalItemCount)
+    {
+        if (totalItemCount > PageSize)
+        {
+            var pageCount = (decimal)totalItemCount / (decimal)PageSize;
+            return Convert.ToInt32(Math.Ceiling(pageCount));
+        }
+
+        return 0;
+    }
+
+    private async Task HandlePageChanged(int page)
+    {
+        _currentPage = page;
+        await Search();
     }
 }

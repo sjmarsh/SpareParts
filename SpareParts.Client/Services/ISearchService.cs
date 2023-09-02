@@ -7,6 +7,6 @@ namespace SpareParts.Client.Services
     {
         // GraphQL
         [Post("/graphql")]
-        Task<PartGraphQLResponse> Search(GraphQLRequest request);
+        Task<PartGraphQLResponsePaged> Search(GraphQLRequest request);
     }
 }

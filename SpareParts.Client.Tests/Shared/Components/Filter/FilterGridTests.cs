@@ -162,14 +162,15 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
         public List<FilterLine>? FilterLines { get; set; }
         public List<FilterField>? FilterFields { get; set; }
-
         public string? RootGraphQLField { get; set; }
+        public PageOffset? PageOffset { get; set; }
 
-        public GraphQLRequest Build<T>(List<FilterLine> filterLines, List<FilterField> filterFields, string? rootGraphQLField = null)
+        public GraphQLRequest Build<T>(List<FilterLine> filterLines, List<FilterField> filterFields, string? rootGraphQLField = null, PageOffset? pageOffset = null)
         {
             FilterLines = filterLines;
             FilterFields = filterFields;
             RootGraphQLField = rootGraphQLField;
+            PageOffset = pageOffset;
 
             return new GraphQLRequest { query = _queryToReturn };
         }

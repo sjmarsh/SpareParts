@@ -1,0 +1,41 @@
+﻿@using Humanizer;
+
+@if (DetailRows != null && DetailRows.Count > 0)
+{
+    @foreach (var detailRow in DetailRows)
+    {
+        <div>
+            <p>@detailRow.DetailHeader</p>
+            <table class="table table-secondary">
+                <thead>
+                    <tr>
+                        @foreach (var detailItemHeader in detailRow.Data.First().Select(d => d.Key))
+                        {
+                            <th>@detailItemHeader.Humanize(LetterCasing.Title)</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detailItemRow in detailRow.Data)
+                    {
+                        <tr>
+                            @foreach (var detailItemValue in detailItemRow)
+                            {
+                                <td>
+                                    @detailItemValue.Value
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+
+@code {
+
+    [Parameter, EditorRequired]
+    public List<DataRowDetail>? DetailRows { get; set; }
+}

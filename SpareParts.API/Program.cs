@@ -151,9 +151,11 @@ try
     builder.Services
         .AddGraphQLServer()
         .AddAuthorization()
-        .AddFiltering()
+        .AddFiltering<CustomFilteringConvention>()
+        .AddSorting()
         .RegisterDbContext<SparePartsDbContext>()
-        .AddQueryType<Query>();
+        .AddQueryType<Query>()
+        .AddType(new TimeSpanType(TimeSpanFormat.DotNet));
 
     builder.Services.AddHealthChecks()
         .AddDbContextCheck<SparePartsDbContext>();
