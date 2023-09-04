@@ -12,8 +12,8 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             List<Chip> theChips = new()
             {
-                new Chip("Chip1", true),
-                new Chip("Chip2", true)
+                new Chip(Guid.NewGuid(), "Chip1", true),
+                new Chip(Guid.NewGuid(), "Chip2", true)
             };
 
             using var ctx = new TestContext();
@@ -35,8 +35,8 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             List<Chip> theChips = new()
             {
-                new Chip("Chip1", true),
-                new Chip("Chip2", false) // inactive
+                new Chip(Guid.NewGuid(), "Chip1", true),
+                new Chip(Guid.NewGuid(), "Chip2", false) // inactive
             };
 
             using var ctx = new TestContext();
@@ -55,8 +55,8 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             List<Chip> theChips = new()
             {
-                new Chip("Chip1", true),
-                new Chip("Chip2", true)
+                new Chip(Guid.NewGuid(), "Chip1", true),
+                new Chip(Guid.NewGuid(), "Chip2", true)
             };
             var wasToggled = false;
 
@@ -85,8 +85,8 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             List<Chip> theChips = new()
             {
-                new Chip("Chip1", true),
-                new Chip("Chip2", true)
+                new Chip(Guid.NewGuid(), "Chip1", true),
+                new Chip(Guid.NewGuid(), "Chip2", true)
             };
 
             const string TheTitle = "The Title";

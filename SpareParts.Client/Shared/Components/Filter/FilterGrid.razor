@@ -13,7 +13,7 @@
         <div>
             @if (FilterGridState.FilterFields != null)
             {
-                <ChipsList Chips="FilterGridState.FilterFields.Select(f => new Chip(f.Name, f.IsSelected, GetChipColor(f), f.ParentFieldName)).ToList()" Title="Fields" OnToggleChip="HandleToggleField" />
+                <ChipsList Chips="FilterGridState.FilterFields.Select(f => new Chip(f.ID, f.Name, f.IsSelected, GetChipColor(f), f.ParentFieldName)).ToList()" Title="Fields" OnToggleChip="HandleToggleField" />
             }
         </div>
 
@@ -243,10 +243,10 @@
     {
         if (FilterGridState != null && HasFilterFields() && FilterGridState.FilterLines != null && chip != null)
         {
-            var isFilterSelected = FilterGridState.FilterLines.FirstOrDefault(f => f.SelectedField.Name == chip.Name) != null;
+            var isFilterSelected = FilterGridState.FilterLines.FirstOrDefault(f => f.SelectedField.ID == chip.ID) != null;
             if (!isFilterSelected)  // don't toggle chip if the filter is in use
             {
-                var itemToToggle = FilterGridState.FilterFields.FirstOrDefault(f => f.Name == chip.Name);
+                var itemToToggle = FilterGridState.FilterFields.FirstOrDefault(f => f.ID == chip.ID);
 
                 if (itemToToggle != null)
                 {
@@ -290,8 +290,8 @@
                         _filterResults = serviceResult.Items;
                         _totalResultCount = serviceResult.TotalCount;
                         _numberOfPages = GetNumberOfPages(_totalResultCount);
-                    _hasError = false;
-                    _errorMessage = string.Empty;
+                        _hasError = false;
+                        _errorMessage = string.Empty;
                     }   
                     else
                     {
