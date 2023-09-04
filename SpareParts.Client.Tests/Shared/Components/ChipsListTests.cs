@@ -5,6 +5,8 @@ namespace SpareParts.Client.Tests.Shared.Components
 {
     public class ChipsListTests
     {
+        private const string ChipClass = ".chip";
+
         [Fact]
         public void Should_RenderChips()
         {
@@ -18,14 +20,14 @@ namespace SpareParts.Client.Tests.Shared.Components
             var cut = ctx.RenderComponent<ChipsList>(parameters => parameters
                             .Add(p => p.Chips, theChips));
 
-            var chipList = cut.FindAll(".badge");
+            var chipList = cut.FindAll(ChipClass);
             chipList.Should().NotBeNullOrEmpty();
             chipList.Should().HaveCount(2);
             var chipNames = chipList.Select(c => c.GetInnerText());
             chipNames.Should().NotBeNullOrEmpty();
-            chipNames.Should().BeEquivalentTo(theChips.Select(c => c.Name + " X").ToList());
-            chipList[0].ClassList.Should().Contain("bg-dark");
-            chipList[1].ClassList.Should().Contain("bg-dark");
+            chipNames.Should().BeEquivalentTo(theChips.Select(c => c.Name).ToList());
+            chipList[0].ClassList.Should().Contain("chip-color-default");
+            chipList[1].ClassList.Should().Contain("chip-color-default");
         }
 
         [Fact]
@@ -41,11 +43,11 @@ namespace SpareParts.Client.Tests.Shared.Components
             var cut = ctx.RenderComponent<ChipsList>(parameters => parameters
                             .Add(p => p.Chips, theChips));
 
-            var chipList = cut.FindAll(".badge");
+            var chipList = cut.FindAll(ChipClass);
             chipList.Should().NotBeNullOrEmpty();
             chipList.Should().HaveCount(2);
-            chipList[0].ClassList.Should().Contain("bg-dark");
-            chipList[1].ClassList.Should().Contain("bg-light"); // inactive chip should be light
+            chipList[0].ClassList.Should().Contain("chip-color-default");
+            chipList[1].ClassList.Should().Contain("chip-color-default-outlined"); // inactive chip should be outlined
         }
 
         [Fact]
@@ -63,17 +65,17 @@ namespace SpareParts.Client.Tests.Shared.Components
                             .Add(p => p.Chips, theChips)
                             .Add(p => p.OnToggleChip, () => { wasToggled = true; }));
 
-            var chipList = cut.FindAll(".badge");
-            chipList[0].ClassList.Should().Contain("bg-dark");
+            var chipList = cut.FindAll(ChipClass);
+            chipList[0].ClassList.Should().Contain("chip-color-default");
 
-            var chipButtons = cut.FindAll(".chips-custom");
+            var chipButtons = cut.FindAll(".chip-icon");
             chipButtons.Should().NotBeNullOrEmpty();
             chipButtons.Should().HaveCount(2);
 
             chipButtons[0].Children[0].Click(); // should toggle to inactive (with light class)
 
-            chipList = cut.FindAll(".badge");
-            chipList[0].ClassList.Should().Contain("bg-light");
+            chipList = cut.FindAll(ChipClass);
+            chipList[0].ClassList.Should().Contain("chip-color-default-outlined");
 
             wasToggled.Should().BeTrue();
         }
