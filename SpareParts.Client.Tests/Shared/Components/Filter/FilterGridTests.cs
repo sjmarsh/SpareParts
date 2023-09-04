@@ -78,9 +78,11 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
             GraphQLRequest? theRequest = null;
-            Func<GraphQLRequest, Task<List<ThingToFilter>>> theServiceCall = (request) => { 
+            IPagedData<ThingToFilter> theResult = new PagedThingToFilter();
+            Func<GraphQLRequest, Task<IPagedData<ThingToFilter>>> theServiceCall = (request) =>
+            {
                 theRequest = request;
-                return Task.FromResult(new List<ThingToFilter>());
+                return Task.FromResult(theResult);
             };
             var cut = ctx.RenderComponent<FilterGrid<ThingToFilter>>(parameters => parameters.Add(p => p.ServiceCall, theServiceCall));
 
@@ -117,9 +119,11 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
             GraphQLRequest? theRequest = null;
-            Func<GraphQLRequest, Task<List<ThingToFilter>>> theServiceCall = (request) => {
+            IPagedData<ThingToFilter> theResult = new PagedThingToFilter();
+            Func<GraphQLRequest, Task<IPagedData<ThingToFilter>>> theServiceCall = (request) =>
+            {
                 theRequest = request;
-                return Task.FromResult(new List<ThingToFilter>());
+                return Task.FromResult(theResult);
             };
             var cut = ctx.RenderComponent<FilterGrid<ThingToFilter>>(parameters => parameters.Add(p => p.ServiceCall, theServiceCall));
 
@@ -149,6 +153,17 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         public string? Name { get; set; }
         public double Value { get; set; }
         public DateTime DateAdded { get; set; }
+    }
+
+    public class PagedThingToFilter : IPagedData<ThingToFilter>
+    {
+        private List<ThingToFilter>? _data;
+        private PageInfo? _pageInfo;
+        private int _totalCount;
+        
+        public List<ThingToFilter>? Items { get => _data; set => _data = value; }
+        public PageInfo? PageInfo { get => _pageInfo; set => _pageInfo = value; }
+        public int TotalCount { get => _totalCount; set => _totalCount = value; }
     }
 
     public class FakeGraphQLRequestBuilder : IGraphQLRequestBuilder
