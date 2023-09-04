@@ -6,59 +6,55 @@
 
 @if (DataSource != null && _dataRows != null && _dataRows.Any())
 {
-    <div class="mud-table mud-simple-table mud-table-hover mud-table-striped mud-elevation-1">
-        <div class="mud-table-container">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        @if (_dataRows.First() != null && _dataRows.First().Data != null)
-                        {
-                            @foreach (var heading in _dataRows.First().Data.Select(d => d.Key))
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                @if (_dataRows.First() != null && _dataRows.First().Data != null)
+                {
+                    @foreach (var heading in _dataRows.First().Data.Select(d => d.Key))
+                    {
+                        <th scope="col">@heading.Humanize(LetterCasing.Title)</th>
+                    }
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @if (_dataRows != null && _dataRows.Any())
+            {
+                @foreach (var row in _dataRows)
+                {
+                    <tr @onclick="() => HandleRowClick(row)">
+                        <td>
+                            @if (row.IsDetailsVisible)
                             {
-                                <th scope="col">@heading.Humanize(LetterCasing.Title)</th>
+                                <button type="button" class="btn" @onclick="() => HandleShowDetail(row)"><span class="oi oi-chevron-bottom" title="Hide Details" aria-hidden="true" /></button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn" @onclick="() => HandleShowDetail(row)"><span class="oi oi-chevron-top" title="Show Details" aria-hidden="true" /></button>
+                            }
+                        </td>
+                        @if(row.Data != null)
+                        {
+                            @foreach (var item in row.Data)
+                            {
+                                <td>@item.Value</td>
                             }
                         }
                     </tr>
-                </thead>
-                <tbody>
-                    @if (_dataRows != null && _dataRows.Any())
+                    @if (row.IsDetailsVisible)
                     {
-                        @foreach (var row in _dataRows)
-                        {
-                            <tr @onclick="() => HandleRowClick(row)">
-                                <td>
-                                    @if (row.IsDetailsVisible)
-                                    {
-                                        <button type="button" class="btn" @onclick="() => HandleShowDetail(row)"><span class="oi oi-chevron-bottom" title="Hide Details" aria-hidden="true" /></button>
-                                    }
-                                    else
-                                    {
-                                        <button type="button" class="btn" @onclick="() => HandleShowDetail(row)"><span class="oi oi-chevron-top" title="Show Details" aria-hidden="true" /></button>
-                                    }
-                                </td>
-                                @if(row.Data != null)
-                                {
-                                    @foreach (var item in row.Data)
-                                    {
-                                        <td>@item.Value</td>
-                                    }
-                                }
-                            </tr>
-                            @if (row.IsDetailsVisible)
-                            {
-                                <tr>
-                                    <td colspan="@(_dataRows.First().Data.Count)">
-                                        <SimpleExpanderDetailSection DetailRows="@row.DetailRows" />
-                                    </td>
-                                </tr>
-                            }
-                        }
+                        <tr>
+                            <td colspan="@(_dataRows.First().Data.Count)">
+                                <SimpleExpanderDetailSection DetailRows="@row.DetailRows" />
+                            </td>
+                        </tr>
                     }
-                </tbody>
-            </table>
-        </div>
-    </div>
+                }
+            }
+        </tbody>
+    </table>
 }
 
 @code{

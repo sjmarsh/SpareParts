@@ -9,6 +9,18 @@ namespace SpareParts.Client.Tests.Shared.Components
         public string? TextVal { get; set; }
     }
 
+    public class TestModelWithList : TestModel 
+    {
+        public List<TestDifferentModel>? SomeList { get; set; }
+    }
+
+    public class TestDifferentModel
+    {
+        public int ID { get; set; }
+        public string? Name { get; set; }
+        public string? Value { get; set; }
+    }
+
     public class TestModelValidator : AbstractValidator<TestModel>
     {
         public TestModelValidator()
