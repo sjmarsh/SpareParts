@@ -63,7 +63,7 @@
     public List<T>? DataSource { get; set; }
 
     [Parameter, EditorRequired]
-    public List<string>? ColumnList { get; set; }
+    public List<ColumnHeader>? ColumnList { get; set; }
 
     [Parameter]
     public EventCallback<DataRow<T>> OnRowClick { get; set; }

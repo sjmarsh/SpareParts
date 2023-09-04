@@ -56,8 +56,8 @@
             {
                 <Pager OnPageChanged="HandlePageChanged" CurrentPage="_currentPage" PageSize="PageSize" TotalItemCount="_totalResultCount" />
             }
-            
-            <SimpleExpanderDataGrid T="T" DataSource="_filterResults" ColumnList="FilterGridState.FilterFields.Where(f => f.IsSelected).Select(f => f.Name).ToList()" OnRowClick="OnRowClick" />
+
+            <SimpleExpanderDataGrid T="T" DataSource="_filterResults" ColumnList="FilterGridState.FilterFields.Where(f => f.IsSelected).Select(f => new ColumnHeader(f.Name, f.ParentFieldName)).ToList()" OnRowClick="OnRowClick" />
         
         </div>
     }

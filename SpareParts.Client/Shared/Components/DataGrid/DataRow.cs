@@ -6,9 +6,9 @@ namespace SpareParts.Client.Shared.Components.DataGrid
     public class DataRow<T>
     {
         private readonly T _sourceItem;
-        private readonly List<string>? _columnList;
+        private readonly List<ColumnHeader>? _columnList;
 
-        public DataRow(T sourceItem, List<string>? columnList = null)
+        public DataRow(T sourceItem, List<ColumnHeader>? columnList = null)
         {
             _sourceItem = sourceItem;
             _columnList = columnList;
@@ -48,7 +48,7 @@ namespace SpareParts.Client.Shared.Components.DataGrid
                 {
                     var columnName = prop.Name;
 
-                    if (_columnList.Contains(columnName))
+                    if (_columnList.FirstOrDefault(c => c.ColumnName == columnName && c.ParentColumnName == null) != null)
                     {
                         var strvalue = prop.GetStringValueOrDefault(_sourceItem);
                         data.Add(columnName, strvalue);
@@ -68,7 +68,7 @@ namespace SpareParts.Client.Shared.Components.DataGrid
                 foreach (var prop in props)
                 {
                     var columnName = prop.Name;
-                    if (!_columnList.Contains(columnName))
+                    if (_columnList.FirstOrDefault(c => c.ColumnName == columnName && c.ParentColumnName == null) == null)
                     {
                         detailRows.Add(GetRowDetails(prop, _sourceItem, columnName));
                     }
@@ -102,7 +102,7 @@ namespace SpareParts.Client.Shared.Components.DataGrid
                             {
                                 var lstItemName = genTypeProp.Name;
                                 var listItemValue = genTypeProp.GetStringValueOrDefault(listItem);
-                                if (_columnList != null && _columnList.Contains(lstItemName))
+                                if (_columnList != null && _columnList.FirstOrDefault(c => c.ColumnName == lstItemName && c.ParentColumnName == columnName) != null)
                                 {
                                     listRow.Add(lstItemName, listItemValue);
                                 }
