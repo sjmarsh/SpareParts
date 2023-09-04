@@ -44,12 +44,6 @@
         return classBuilder.ToString();
     }
 
-    /*
-    private string GetChipClass(Chip chip)
-    {
-        return chip.IsActive ? "bg-dark" : "bg-light text-dark";
-    }*/
-
     private async Task HandleToggleChip(Chip chip)
     {
         chip.IsActive = !chip.IsActive;

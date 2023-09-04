@@ -18,6 +18,7 @@ namespace SpareParts.API.Int.Tests
             if (_testFixture.DbContext.InventoryItems.Any())
             {
                 _testFixture.DbContext.InventoryItems.RemoveRange(_testFixture.DbContext.InventoryItems);
+                _testFixture.DbContext.PartAttribute.RemoveRange(_testFixture.DbContext.PartAttribute);
                 _testFixture.DbContext.Parts.RemoveRange(_testFixture.DbContext.Parts);
                 _testFixture.DbContext.SaveChanges();
             }

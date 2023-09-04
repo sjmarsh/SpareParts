@@ -15,18 +15,28 @@ namespace SpareParts.Test.Helpers
 
         public async Task<API.Entities.Part> CreatePartInDatabase(int howManyAttributes = 1)
         {
-            var partEntity = GetPartsFakerConfig(howManyAttributes).Generate(1).First();
+            var partEntity = GetPartsFakerConfig().Generate(1).First();
+            if (howManyAttributes > 0)
+            {
+                var attributes = GetFakePartAttributeConfig().Generate(howManyAttributes);
+                partEntity.Attributes = new List<API.Entities.PartAttribute>(attributes);
+            }
             _dbContext.Parts.Add(partEntity);
             await _dbContext.SaveChangesAsync();
             Thread.Sleep(1000);
             return partEntity;
         }
 
-        public async Task<List<API.Entities.Part>> CreatePartListInDatabase(int howMany)
+        public async Task<List<API.Entities.Part>> CreatePartListInDatabase(int howMany, int howManyAttributes = 1)
         {
             var parts = GetPartsFakerConfig().Generate(howMany);
             foreach (var part in parts)
             {
+                if(howManyAttributes > 0)
+                {
+                    var attributes = GetFakePartAttributeConfig().Generate(howManyAttributes);
+                    part.Attributes = new List<API.Entities.PartAttribute>(attributes);
+                }
                 _dbContext.Parts.Add(part);
             }
             await _dbContext.SaveChangesAsync();
@@ -34,7 +44,7 @@ namespace SpareParts.Test.Helpers
             return parts;
         }
 
-        public Faker<API.Entities.Part> GetPartsFakerConfig(int howManyAttributes = 1)
+        public Faker<API.Entities.Part> GetPartsFakerConfig()
         {
             return new Faker<API.Entities.Part>()
                         .RuleFor(p => p.ID, 0)
@@ -42,13 +52,13 @@ namespace SpareParts.Test.Helpers
                         .RuleFor(p => p.Description, f => f.Name.JobDescriptor())
                         .RuleFor(p => p.Weight, f => f.Random.Number(0, 99))
                         .RuleFor(p => p.Price, f => f.Random.Number(0, 99))
-                        .RuleFor(p => p.StartDate, f => f.Date.Between(new DateTime(2000, 1, 1), DateTime.Today))
-                        .RuleFor(p => p.Attributes, GetFakePartAttributeConfig().Generate(howManyAttributes));
+                        .RuleFor(p => p.StartDate, f => f.Date.Between(new DateTime(2000, 1, 1), DateTime.Today));
         }
 
         private Faker<API.Entities.PartAttribute> GetFakePartAttributeConfig()
         {
             return new Faker<API.Entities.PartAttribute>()
+                .RuleFor(a => a.ID, 0)
                 .RuleFor(a => a.Name, f => f.Name.JobTitle())
                 .RuleFor(a => a.Description, f => f.Name.JobDescriptor())
                 .RuleFor(a => a.Value, f => f.Name.JobType());

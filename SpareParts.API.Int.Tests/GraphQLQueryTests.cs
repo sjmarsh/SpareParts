@@ -21,6 +21,7 @@ namespace SpareParts.API.Int.Tests
             if (_testFixture.DbContext.Parts.Any())
             {
                 _testFixture.DbContext.InventoryItems.RemoveRange(_testFixture.DbContext.InventoryItems);
+                _testFixture.DbContext.PartAttribute.RemoveRange(_testFixture.DbContext.PartAttribute);
                 _testFixture.DbContext.Parts.RemoveRange(_testFixture.DbContext.Parts);
                 _testFixture.DbContext.SaveChanges();
             }
@@ -38,7 +39,7 @@ namespace SpareParts.API.Int.Tests
             var savedPart = await _dataHelper.CreatePartInDatabase();
             savedPart?.ID.Should().BeGreaterThan(0);
 
-            var request = new GraphQLRequest { query = "{\r\n  parts {\r\n    name\r\n    description\r\n  }\r\n}" };
+            var request = new GraphQLRequest { query = "{\r\n  parts {\r\n   items {\r\n    name\r\n    description\r\n  }\r\n}\r\n}" };
 
             _testFixture.HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             var serialized = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
@@ -54,30 +55,39 @@ namespace SpareParts.API.Int.Tests
         {
             const int NumberOfParts = 3;
             var parts = await _dataHelper.CreatePartListInDatabase(NumberOfParts);
-
+            
             var request = new GraphQLRequest { query = 
 @"{
     parts {
-        id 
-        name
-        description
-        price
-        weight
-        startDate
-        endDate
+        items { 
+            name
+            description
+            price
+            weight
+            startDate
+            endDate
+            attributes {
+                name
+                description
+                value
+            }
+        }
     }
 }" 
     };
 
-            var result = await _testFixture.PostRequest<GraphQLRequest, PartGraphQLResponse>("/graphql", request);
+            var result = await _testFixture.PostRequest<GraphQLRequest, PartGraphQLResponsePaged>("/graphql", request);
 
             result.Should().NotBeNull();
             result.Data.Should().NotBeNull();
-            result.Data!.Parts.Should().HaveCount(NumberOfParts);
-            result.Data!.Parts.Should().BeEquivalentTo(parts, options =>
+            var resultItems = result.Data!.Parts!.Items;
+            resultItems.Should().HaveCount(NumberOfParts);
+            resultItems.Should().BeEquivalentTo(parts, opts =>
             {
-                options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(5))).WhenTypeIs<DateTime>();
-                return options;
+                opts.Excluding(ctx => ctx.ID);
+                opts.For(ctx => ctx.Attributes).Exclude(a => a.ID);
+                opts.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(5))).WhenTypeIs<DateTime>();
+                return opts;
             });
         }
 
@@ -93,24 +103,34 @@ namespace SpareParts.API.Int.Tests
                 query =
 $@"{{
     parts (where: {{ name: {{eq: ""{part1.Name}""}}}}) {{
-        id 
-        name
-        description
-        price
-        weight
-        startDate
-        endDate
+        items {{ 
+            name
+            description
+            price
+            weight
+            startDate
+            endDate
+            attributes {{
+                name
+                description
+                value
+            }}
+        }}
     }}
 }}"
             };
 
-            var result = await _testFixture.PostRequest<GraphQLRequest, PartGraphQLResponse>("/graphql", request);
+            var result = await _testFixture.PostRequest<GraphQLRequest, PartGraphQLResponsePaged>("/graphql", request);
 
             result.Should().NotBeNull();
             result.Data.Should().NotBeNull();
-            result.Data!.Parts.Should().HaveCount(1);
-            result.Data!.Parts![0].Should().BeEquivalentTo(part1, options =>
+            var resultItems = result.Data!.Parts!.Items;
+            resultItems.Should().NotBeNull();
+            resultItems.Should().HaveCount(1);
+            resultItems![0].Should().BeEquivalentTo(part1, options =>
             {
+                options.Excluding(ctx => ctx.ID);
+                options.For(ctx => ctx.Attributes).Exclude(a => a.ID);
                 options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(5))).WhenTypeIs<DateTime>();
                 return options;
             });
@@ -129,31 +149,41 @@ $@"{{
                 query =
 $@"{{
     parts (where: {{ name: {{eq: ""{part1.Name}""}}}}) {{
-        id 
-        name
-        price
-        weight
-        startDate
-        endDate
+        items {{ 
+            name
+            price
+            weight
+            startDate
+            endDate
+            attributes {{
+                name
+                description
+                value
+            }}        
+        }}
     }}
 }}"
             };
 
-            var result = await _testFixture.PostRequest<GraphQLRequest, PartGraphQLResponse>("/graphql", request);
+            var result = await _testFixture.PostRequest<GraphQLRequest, PartGraphQLResponsePaged>("/graphql", request);
 
             result.Should().NotBeNull();
             result.Data.Should().NotBeNull();
-            result.Data!.Parts.Should().HaveCount(1);
-            
-            result.Data!.Parts![0].Should().BeEquivalentTo(part1, options =>
+            var resultItems = result.Data!.Parts!.Items;
+            resultItems.Should().NotBeNull();
+            resultItems.Should().HaveCount(1);
+
+            resultItems![0].Should().BeEquivalentTo(part1, options =>
             {
+                options.Excluding(ctx => ctx.ID);
+                options.For(ctx => ctx.Attributes).Exclude(a => a.ID);
                 options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(5))).WhenTypeIs<DateTime>();
                 options.Excluding(p => p.Description);  // exclude "description" from overall object equality
                 return options;
             });
 
             // check "description" is actually null
-            result.Data.Parts[0].Description.Should().BeNull();
+            resultItems![0].Description.Should().BeNull();
         }
 
         [Fact]
@@ -167,14 +197,15 @@ $@"{{
                 query =
 @"{
     parts {
-        id 
-        notAField
-        alsoNotAThing
+        items {
+            notAField
+            alsoNotAThing
+        }
     }
 }"
             };
 
-            var result = await _testFixture.PostRequest<GraphQLRequest, PartGraphQLResponse>("/graphql", request);
+            var result = await _testFixture.PostRequest<GraphQLRequest, PartGraphQLResponsePaged>("/graphql", request);
 
             result.Data.Should().BeNull();
         }
