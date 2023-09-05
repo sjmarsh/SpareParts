@@ -216,17 +216,17 @@ namespace SpareParts.Browser.Tests.Features
             (await _searchPage.IsSearchResultsVisible()).Should().BeTrue();
 
             var headings = await(_searchPage.GetResultColumnHeadings());
-            headings.Should().HaveCount(6);
+            headings.Should().HaveCount(7);
             headings.Should().Contain(FieldToToggle);
 
             await _searchPage.ToggleFilterField(FieldToToggle);
             headings = await (_searchPage.GetResultColumnHeadings());
-            headings.Should().HaveCount(5);
+            headings.Should().HaveCount(6);
             headings.Should().NotContain(FieldToToggle);
 
             await _searchPage.ToggleFilterField(FieldToToggle);
             headings = await (_searchPage.GetResultColumnHeadings());
-            headings.Should().HaveCount(6);
+            headings.Should().HaveCount(7);
             headings.Should().Contain(FieldToToggle);
         }
 
@@ -250,12 +250,12 @@ namespace SpareParts.Browser.Tests.Features
             (await _searchPage.IsSearchResultsVisible()).Should().BeTrue();
 
             var headings = await (_searchPage.GetResultColumnHeadings());
-            headings.Should().HaveCount(6);
+            headings.Should().HaveCount(7);
             headings.Should().Contain(FieldToToggle);
 
             await _searchPage.ToggleFilterField(FieldToToggle);
             headings = await (_searchPage.GetResultColumnHeadings());
-            headings.Should().HaveCount(6);
+            headings.Should().HaveCount(7);
         }
     }
 }

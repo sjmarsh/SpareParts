@@ -35,13 +35,13 @@ namespace SpareParts.Browser.Tests.Pages
         public async Task<bool> IsFieldSelectionChipsVisible()
         {
             var fieldSelectionChips = await _page.QuerySelectorAllAsync("span >> text=Name");
-            return fieldSelectionChips.Count() == 1;
+            return fieldSelectionChips.Count() == 2; // Name is in both Part and Attribute
         }
 
         public async Task<bool> IsFilterSelectorVisible()
         {
             var nameFilterFieldSelector = await _page.QuerySelectorAllAsync("select >> text=Name");
-            return nameFilterFieldSelector.Count() == 1;
+            return nameFilterFieldSelector.Count() == 2; // Name is in both Part and Attribute
         }
 
         public async Task<bool> IsSearchResultsVisible()
@@ -64,18 +64,18 @@ namespace SpareParts.Browser.Tests.Pages
             var seachResultTable = await _page.QuerySelectorAsync("table");
             var rows = await seachResultTable!.QuerySelectorAllAsync("tr");
             var cells = await rows[resultRowNumber + 1].QuerySelectorAllAsync("td"); // allow for header row
-                        
-            (cells.Count == 6).Should().BeTrue();
+                         
+            cells.Count.Should().Be(6 + 1); // add one for expander button
 
-            var endDateString = await cells[5].TextContentAsync();
+            var endDateString = await cells[6].TextContentAsync();
             DateTime? endDate = string.IsNullOrEmpty(endDateString) ? null : Convert.ToDateTime(endDateString);
             return new Part
             {
-                Name = await cells[0].TextContentAsync(),
-                Description = await cells[1].TextContentAsync(),
-                Price = Convert.ToDouble(await cells[2].TextContentAsync()),
-                Weight = Convert.ToDouble(await cells[3].TextContentAsync()),
-                StartDate = Convert.ToDateTime(await cells[4].TextContentAsync()),
+                Name = await cells[1].TextContentAsync(),
+                Description = await cells[2].TextContentAsync(),
+                Price = Convert.ToDouble(await cells[3].TextContentAsync()),
+                Weight = Convert.ToDouble(await cells[4].TextContentAsync()),
+                StartDate = Convert.ToDateTime(await cells[5].TextContentAsync()),
                 EndDate = endDate
             };
         }
@@ -107,8 +107,8 @@ namespace SpareParts.Browser.Tests.Pages
 
         public async Task ToggleFilterField(string fieldName)
         {
-            var fieldChip = _page.Locator($"span >> text={fieldName}");
-            var chipButton = fieldChip.Locator("a");
+            var fieldChips = _page.Locator($"span >> text={fieldName}");
+            var chipButton = fieldChips.First.Locator("a");
             await chipButton.ClickAsync();
             await WaitForSpinner();
         }
@@ -156,8 +156,9 @@ namespace SpareParts.Browser.Tests.Pages
 
             public async Task SelectOperator(string filterOperator, int row = 0)
             {
+                var operatorName = FilterOperator.GetHumanName(filterOperator);
                 var filterOperatorSelector = _page.Locator("#operator").Nth(row);
-                await filterOperatorSelector.SelectOptionAsync(filterOperator);
+                await filterOperatorSelector.SelectOptionAsync(operatorName);
             }
 
             public async Task EnterFilterValue(string filterValue, int row = 0)
