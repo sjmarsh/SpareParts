@@ -29,7 +29,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             request.Should().NotBeNull();
             request.query.Should().NotBeNullOrEmpty();            
-            request.query.Should().Contain("buildertestmodels (where: { field1: {eq:\"The Value\" ");
+            request.query.Should().Contain("buildertestmodels (where: {  field1: { eq: \"The Value\" }}");
             request.query.Should().Contain("field1\r\nfield2\r\nfield3");
         }
 
@@ -60,8 +60,8 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             request.Should().NotBeNull();
             request.query.Should().NotBeNullOrEmpty();
-            request.query.Should().Contain("buildertestmodels (where: { field1: {eq:\"The Value\" ");
-            request.query.Should().Contain("and: { field2: {contains:3");
+            request.query.Should().Contain("buildertestmodels (where: {  field1: { eq: \"The Value\" ");
+            request.query.Should().Contain("and: { field2: { contains: 3");
             request.query.Should().Contain("field1\r\nfield2\r\nfield3");
         }
 
@@ -90,8 +90,10 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             request.Should().NotBeNull();
             request.query.Should().NotBeNullOrEmpty();
-            request.query.Should().Contain("buildertestmodels (where: { field1: {eq:\"The Value\" ");
+            request.query.Should().Contain("buildertestmodels (where: {  field1: { eq: \"The Value\"");
             request.query.Should().Contain("field1\r\n");
+            request.query.Should().NotContain("field2");
+            request.query.Should().NotContain("field3");
         }
 
         [Fact]
@@ -121,7 +123,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             request.Should().NotBeNull();
             request.query.Should().NotBeNullOrEmpty();
-            request.query.Should().Contain(RootGraphQLField + " (where: { field1: {eq:\"The Value\" ");
+            request.query.Should().Contain(RootGraphQLField + " (where: {  field1: { eq: \"The Value\"");
             request.query.Should().Contain("field1\r\n");
         }
     }

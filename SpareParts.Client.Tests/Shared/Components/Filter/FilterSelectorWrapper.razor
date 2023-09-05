@@ -5,7 +5,7 @@
 
 <EditForm EditContext="_editContext">
     <FluentValidationValidator/>
-    <FilterSelector Fields="Fields" Operators="Operators" FilterLine="FilterLine" />
+    <FilterSelector Fields="Fields" FilterLine="FilterLine" OnRemoveFilter="HandleRemove" />
 </EditForm>
 
 
@@ -14,12 +14,12 @@
     [Parameter, EditorRequired]
     public List<FilterField>? Fields { get; set; }
 
-    [Parameter, EditorRequired]
-    public List<NamedFilterOperator>? Operators { get; set; }
 
     [Parameter, EditorRequired]
     public FilterLine? FilterLine { get; set; }
 
+    [Parameter]
+    public EventCallback<FilterLine> OnRemoveFilter { get; set; }
 
     private TestModel TestModel { get; set; } = new TestModel();
 
@@ -29,5 +29,10 @@
     protected override void OnInitialized()
     {
         _editContext = new EditContext(TestModel);
+    }
+
+    private async Task HandleRemove()
+    {
+        await OnRemoveFilter.InvokeAsync();
     }
 }

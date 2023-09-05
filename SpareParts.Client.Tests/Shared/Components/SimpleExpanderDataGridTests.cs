@@ -22,10 +22,8 @@ namespace SpareParts.Client.Tests.Shared.Components
                 new TestModelWithList { DateVal = theDate2, NumberVal = 4, TextVal = "Goodbye" }
             };
 
-            var parentHeaders = new [] { "DateVal", "NumberVal", "TextVal" };
-            var childHeaders = new [] { "Name", "Value" };
-            var columnList = parentHeaders.ToList().Union(childHeaders).Select(c => new ColumnHeader(c));
-
+            var columnList = new [] { "DateVal", "NumberVal", "TextVal", "Name", "Value" }.Select(c => new ColumnHeader(c)).ToList();
+            
             var ctx = new TestContext();
             var cut = ctx.RenderComponent<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
                 .Add(p => p.DataSource, testModels)
@@ -68,9 +66,7 @@ namespace SpareParts.Client.Tests.Shared.Components
                 new TestModelWithList { DateVal = theDate2, NumberVal = 4, TextVal = "Goodbye" }
             };
 
-            var parentHeaders = new[] { "DateVal", "NumberVal", "TextVal" };
-            var childHeaders = new[] { "Name", "Value" };
-            var columnList = parentHeaders.ToList().Union(childHeaders).Select(c => new ColumnHeader(c));
+            var columnList = new[] { "DateVal", "NumberVal", "TextVal", "Name", "Value" }.Select(c => new ColumnHeader(c)).ToList();
 
             var ctx = new TestContext();
             var cut = ctx.RenderComponent<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
@@ -103,9 +99,7 @@ namespace SpareParts.Client.Tests.Shared.Components
                 new TestModelWithList { DateVal = theDate2, NumberVal = 4, TextVal = "Goodbye" }
             };
 
-            var parentHeaders = new[] { "DateVal", "NumberVal", "TextVal" };
-            var childHeaders = new[] { "Name", "Value" };
-            var columnList = parentHeaders.ToList().Union(childHeaders).Select(c => new ColumnHeader(c));
+            var columnList = new[] { "DateVal", "NumberVal", "TextVal", "Name", "Value" }.Select(c => new ColumnHeader(c)).ToList();
 
             var ctx = new TestContext();
             var cut = ctx.RenderComponent<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
@@ -142,10 +136,8 @@ namespace SpareParts.Client.Tests.Shared.Components
                 }},
                 new TestModelWithList { DateVal = theDate2, NumberVal = 4, TextVal = "Goodbye" }
             };
-
-            var parentHeaders = new[] { "DateVal", "TextVal" }; // exclude the NumberVal column
-            var childHeaders = new[] { "Name" }; // exclude the Value column
-            var columnList = parentHeaders.ToList().Union(childHeaders).Select(c => new ColumnHeader(c));
+                        
+            var columnList = new[] { "DateVal", "TextVal", "Name", }.Select(c => new ColumnHeader(c)).ToList();  // exclude the NumberVal and Value columns
 
             var ctx = new TestContext();
             var cut = ctx.RenderComponent<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
@@ -185,9 +177,7 @@ namespace SpareParts.Client.Tests.Shared.Components
                 new TestModelWithList { DateVal = theDate2, NumberVal = 4, TextVal = "Goodbye" }
             };
 
-            var parentHeaders = new[] { "DateVal", "NumberVal", "TextVal" };
-            var childHeaders = new[] { "Name", "Value" };
-            var columnList = parentHeaders.ToList().Union(childHeaders).Select(c => new ColumnHeader(c));
+            var columnList = new[] { "DateVal", "NumberVal", "TextVal", "Name", "Value" }.Select(c => new ColumnHeader(c)).ToList();
 
             DataRow<TestModelWithList>? rowData = null;
 

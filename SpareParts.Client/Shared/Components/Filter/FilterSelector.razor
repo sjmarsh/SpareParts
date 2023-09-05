@@ -72,6 +72,9 @@
     [Parameter]
     public Expression<Func<FilterLine>>? FilterLineExpression { get; set; }
 
+    [Parameter]
+    public EventCallback<FilterLine> OnRemoveFilter { get; set; }
+
     private string? _selectedFieldName;
     private string? SelectedFieldName
     {
@@ -114,8 +117,6 @@
         }
     }
 
-    [Parameter]
-    public EventCallback<FilterLine> OnRemoveFilter { get; set; }
 
     private bool _isEnumField;
     private string _selectedValue = "";

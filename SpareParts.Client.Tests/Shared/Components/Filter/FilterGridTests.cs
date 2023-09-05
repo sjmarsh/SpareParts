@@ -17,12 +17,12 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
             var cut = ctx.RenderComponent<FilterGrid<ThingToFilter>>();
 
-            var chips = cut.FindAll(".badge");
+            var chips = cut.FindAll(".chip");
             chips.Should().NotBeNull();
             chips.Should().HaveCount(3);  // should ignore ID
-            chips[0].GetInnerText().Should().Be("Name X");
-            chips[1].GetInnerText().Should().Be("Value X");
-            chips[2].GetInnerText().Should().Be("DateAdded X");
+            chips[0].GetInnerText().Should().Be("Name");
+            chips[1].GetInnerText().Should().Be("Value");
+            chips[2].GetInnerText().Should().Be("DateAdded");
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             var fieldSelect = inputSelects[0] as IHtmlSelectElement;
             fieldSelect!.Value.Should().Be("Name");
             var operatorSelect = inputSelects[1] as IHtmlSelectElement;
-            operatorSelect!.Value.Should().Be(FilterOperator.Equal);
+            operatorSelect!.Value.Should().Be(FilterOperator.Equal.GetHumanName());
 
             var inputText = cut.Find("#value");
             inputText.GetInnerText().Should().Be("");
@@ -91,7 +91,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             fieldSelect.Change("Value");
             inputSelects = cut.FindAll(".form-select");
             var operatorSelect = inputSelects[1];
-            operatorSelect!.Change(FilterOperator.GreaterThan);
+            operatorSelect!.Change(FilterOperator.GreaterThan.GetHumanName());
             var inputText = cut.Find("#value");
             inputText.Input("2");
 

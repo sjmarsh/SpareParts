@@ -49,6 +49,16 @@ namespace SpareParts.Client.Shared.Components.Filter
             var numberOperators = new[] { Equal, NotEqual, LessThan, LessThanOrEqual, GreaterThan, GreatherThanOrEqual };
             return NamedFilterOperators().Where(f => numberOperators.Contains(f.FilterOperator));
         }
+
+        public static string GetHumanName(this string filterOperator) 
+        {
+            var operatorName = NamedFilterOperators().FirstOrDefault(f => f.FilterOperator == filterOperator);
+            if(operatorName == null)
+            {
+                throw new ArgumentException("Filter Operator is not defined.", filterOperator);
+            }
+            return operatorName.Name;
+        }
     }
 
     public class NamedFilterOperator

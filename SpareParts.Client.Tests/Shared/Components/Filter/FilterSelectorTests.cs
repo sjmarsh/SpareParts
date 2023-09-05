@@ -16,16 +16,10 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
                 new FilterField("Field3", typeof(DateTime), false) // not selected so should not render
             };
 
-            List<NamedFilterOperator> theOperators = new() {
-                new NamedFilterOperator("Equals", "eq"),
-                new NamedFilterOperator("Contains", "contains")
-            };
-
-            var theFilterLine = new FilterLine(theFields[0], theOperators[0].FilterOperator, "");
+            var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, "");
 
             var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
-                          .Add(p => p.Operators, theOperators)
                           .Add(p => p.FilterLine, theFilterLine)
             );
 
@@ -41,7 +35,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         }
 
         [Fact]
-        public void Should_RenderOperators()
+        public void Should_RenderOperatorsForTextValue()
         {
             using var ctx = new TestContext();
             List<FilterField> theFields = new() {
@@ -49,16 +43,10 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
                 new FilterField("Field2", typeof(int), true)
             };
 
-            List<NamedFilterOperator> theOperators = new() {
-                new NamedFilterOperator("Equals", "eq"),
-                new NamedFilterOperator("Contains", "contains")
-            };
-
-            var theFilterLine = new FilterLine(theFields[0], theOperators[0].FilterOperator, "");
+            var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, "");
 
             var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
-                          .Add(p => p.Operators, theOperators)
                           .Add(p => p.FilterLine, theFilterLine)
             );
 
@@ -69,8 +57,35 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             var operatorSelect = inputSelects[1] as IHtmlSelectElement;
             operatorSelect.Should().NotBeNull();
-            operatorSelect!.Options.Should().HaveCount(2);
-            operatorSelect!.Options.Select(o => o.GetInnerText()).Should().BeEquivalentTo(new[] { "Equals", "Contains" });
+            operatorSelect!.Options.Should().HaveCount(5);
+            operatorSelect!.Options.Select(o => o.Value).Should().BeEquivalentTo(FilterOperator.NamedFilterOperatorsForStrings().Select(o => o.Name).ToList());
+        }
+
+        [Fact]
+        public void Should_RenderOperatorsForNumericValue()
+        {
+            using var ctx = new TestContext();
+            List<FilterField> theFields = new() {
+                new FilterField("Field1", typeof(string), true),
+                new FilterField("Field2", typeof(int), true)
+            };
+
+            var theFilterLine = new FilterLine(theFields[1], FilterOperator.Equal, "0");
+
+            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+                parameters.Add(p => p.Fields, theFields)
+                          .Add(p => p.FilterLine, theFilterLine)
+            );
+
+            var inputSelects = cut.FindAll(".form-select");
+
+            inputSelects.Should().NotBeNull();
+            inputSelects.Should().HaveCount(2);
+
+            var operatorSelect = inputSelects[1] as IHtmlSelectElement;
+            operatorSelect.Should().NotBeNull();
+            operatorSelect!.Options.Should().HaveCount(6);
+            operatorSelect!.Options.Select(o => o.Value).Should().BeEquivalentTo(FilterOperator.NamedFilterOperatorsForDatesAndNumbers().Select(o => o.Name).ToList());
         }
 
         [Fact]
@@ -82,17 +97,11 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
                 new FilterField("Field2", typeof(int), true)
             };
 
-            List<NamedFilterOperator> theOperators = new() {
-                new NamedFilterOperator("Equals", "eq"),
-                new NamedFilterOperator("Contains", "contains")
-            };
-
             const string TheValue = "The Value";
-            var theFilterLine = new FilterLine(theFields[0], theOperators[0].FilterOperator, TheValue);
+            var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, TheValue);
 
             var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
-                          .Add(p => p.Operators, theOperators)
                           .Add(p => p.FilterLine, theFilterLine)
             );
 
@@ -111,17 +120,11 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
                 new FilterField("Field2", typeof(int), true)
             };
 
-            List<NamedFilterOperator> theOperators = new() {
-                new NamedFilterOperator("Equals", "eq"),
-                new NamedFilterOperator("Contains", "contains")
-            };
-
             const string TheValue = "The Value";
-            var theFilterLine = new FilterLine(theFields[0], theOperators[0].FilterOperator, TheValue);
+            var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, TheValue);
 
             var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
-                          .Add(p => p.Operators, theOperators)
                           .Add(p => p.FilterLine, theFilterLine)
             );
 
@@ -129,6 +132,31 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             inputValue.Input("Test");
 
             theFilterLine.Value.Should().Be("Test");
+        }
+
+        [Fact]
+        public void Should_HandleRemoveFilter()
+        {
+            using var ctx = new TestContext();
+            List<FilterField> theFields = new() {
+                new FilterField("Field1", typeof(string), true),
+                new FilterField("Field2", typeof(int), true)
+            };
+            bool isRemovedCalled = false;
+                        
+            var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, "");
+
+            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+                parameters.Add(p => p.Fields, theFields)
+                          .Add(p => p.FilterLine, theFilterLine)
+                          .Add(p => p.OnRemoveFilter, () => { isRemovedCalled = true; })
+            );
+
+            var removeButton = cut.Find("#remove");
+            removeButton.Should().NotBeNull();
+            removeButton.Click();
+
+            isRemovedCalled.Should().BeTrue();
         }
 
     }
