@@ -112,6 +112,37 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         }
 
         [Fact]
+        public void Should_RenderFilterValueOptionsWhenFieldIsAnEnum()
+        {
+            using var ctx = new TestContext();
+            List<FilterField> theFields = new() {
+                new FilterField("Field1", typeof(TestEnum), true)
+            };
+
+            var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, TestEnum.None.ToString());
+
+            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+                parameters.Add(p => p.Fields, theFields)
+                          .Add(p => p.FilterLine, theFilterLine)
+            );
+
+            var inputSelects = cut.FindAll(".form-select");
+
+            inputSelects.Should().NotBeNull();
+            inputSelects.Should().HaveCount(3);
+
+            var operatorSelect = inputSelects[1] as IHtmlSelectElement;
+            operatorSelect.Should().NotBeNull();
+            operatorSelect!.Options.Should().HaveCount(5);
+            operatorSelect!.Options.Select(o => o.Value).Should().BeEquivalentTo(FilterOperator.NamedFilterOperatorsForStrings().Select(o => o.Name).ToList());
+
+            var valueSelect = inputSelects[2] as IHtmlSelectElement;
+            valueSelect.Should().NotBeNull();
+            valueSelect!.Options.Should().HaveCount(5);
+            valueSelect!.Options.Select(o => o.Value).Should().BeEquivalentTo(new[] {"None", "One", "Two", "Three"} );
+        }
+
+        [Fact]
         public void Should_UpdateFilterLine()
         {
             using var ctx = new TestContext();
@@ -158,6 +189,13 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             isRemovedCalled.Should().BeTrue();
         }
+    }
 
+    public enum TestEnum
+    {
+        None,
+        One,
+        Two,
+        Three
     }
 }
