@@ -138,7 +138,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             var valueSelect = inputSelects[2] as IHtmlSelectElement;
             valueSelect.Should().NotBeNull();
-            valueSelect!.Options.Should().HaveCount(5);
+            valueSelect!.Options.Should().HaveCount(4);
             valueSelect!.Options.Select(o => o.Value).Should().BeEquivalentTo(new[] {"None", "One", "Two", "Three"} );
         }
 
