@@ -12,8 +12,8 @@
 <h3>Part List</h3>
 
 <div class="tool-container">
-    <button class="btn btn-outline-dark tool-button" @onclick="OpenReport"><span class="oi oi-print tool-button-image" title="Report" aria-hidden="true"/><span>Report</span></button>
-    <button class="btn btn-outline-dark tool-button" @onclick="AddPart"><span class="oi oi-plus tool-button-image" title="Add Part" aria-hidden="true"/><span>Add Part</span></button>
+    <IconButton ButtonTitle="Report" ButtonClass="btn-outline-dark tool-button" Icon="IconButtonIcon.Print" IconClass="tool-button-image" OnClick="OpenReport" />
+    <IconButton ButtonTitle="Add Part" ButtonClass="btn-outline-dark tool-button" Icon="IconButtonIcon.Plus" IconClass="tool-button-image" OnClick="AddPart" />
 </div>
 
 @if(_parts != null && _parts.Any())

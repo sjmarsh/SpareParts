@@ -1,0 +1,35 @@
+﻿<button type="@ButtonType.MarkupValue()" class="btn @ButtonClass" @onclick="OnClick">
+    <span class="@Icon.GetCss() @IconClass" title="@ButtonTitle" aria-hidden="true" />
+    @if (IsTitleVisible)
+    {
+        <span>@ButtonTitle</span>
+    }
+</button>
+
+@code {
+
+#pragma warning disable CS8618
+    [Parameter]
+    [EditorRequired]
+    public string ButtonTitle { get; set; }
+#pragma warning restore CS8618
+
+    [Parameter]
+    public bool IsTitleVisible { get; set; } = true;
+
+    [Parameter]
+    public string? ButtonClass { get; set; }
+
+    [Parameter]
+    public IconButtonType ButtonType { get; set; } = IconButtonType.Button;
+
+    [Parameter]
+    [EditorRequired]
+    public IconButtonIcon Icon { get; set; }
+
+    [Parameter]
+    public string? IconClass { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+}

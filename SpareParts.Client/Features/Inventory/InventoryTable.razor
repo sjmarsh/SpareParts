@@ -9,7 +9,7 @@
 @if(_inventoryItems != null && _inventoryItems.Any())
 {
     <div class="tool-container">
-        <button class="btn btn-outline-dark tool-button" @onclick="OpenReport"><span class="oi oi-print tool-button-image" title="Report" aria-hidden="true"/><span>Report</span></button>    
+        <IconButton ButtonTitle="Report" ButtonClass="btn-outline-dark tool-button" Icon="IconButtonIcon.Print" IconClass="tool-button-image" OnClick="OpenReport" />
     </div>
     
 

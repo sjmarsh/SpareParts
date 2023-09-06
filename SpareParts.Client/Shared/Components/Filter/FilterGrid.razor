@@ -31,8 +31,8 @@
                                         FilterLineChanged="HandleFilterLineChanged" OnRemoveFilter="HandleRemoveFilter" />
                                 }
                                 <div class="mt-2">
-                                    <button type="button" class="btn btn-outline-dark tool-button" @onclick="AddEmptyFilter"><span class="oi oi-plus tool-button-image" title="Add Filter" aria-hidden="true" /><span>Add Filter</span></button>
-                                    <button type="submit" class="btn btn-outline-dark tool-button"><span class="oi oi-magnifying-glass tool-button-image" title="Search" aria-hidden="true" /><span>Search</span></button>
+                                    <IconButton ButtonTitle="Add Filter" ButtonClass="btn-outline-dark tool-button" OnClick="AddEmptyFilter" Icon="IconButtonIcon.Plus" IconClass="tool-button-image" />
+                                    <IconButton ButtonTitle="Search" ButtonType="IconButtonType.Submit" ButtonClass="btn-outline-dark tool-button" Icon="IconButtonIcon.MagnifyingGlass" IconClass="tool-button-image" />                                    
                                 </div>
                             </div>
                         </div>

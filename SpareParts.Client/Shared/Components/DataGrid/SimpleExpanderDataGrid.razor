@@ -28,11 +28,11 @@
                         <td>
                             @if (row.IsDetailsVisible)
                             {
-                                <button type="button" class="btn" @onclick="() => HandleShowDetail(row)"><span class="oi oi-chevron-bottom" title="Hide Details" aria-hidden="true" /></button>
+                                <IconButton ButtonTitle="Hide Details" IsTitleVisible="false" Icon="IconButtonIcon.ChevronBottom" OnClick="() => HandleShowDetail(row)" />
                             }
                             else
                             {
-                                <button type="button" class="btn" @onclick="() => HandleShowDetail(row)"><span class="oi oi-chevron-top" title="Show Details" aria-hidden="true" /></button>
+                                <IconButton ButtonTitle="Show Details" IsTitleVisible="false" Icon="IconButtonIcon.ChevronTop" OnClick="() => HandleShowDetail(row)" />
                             }
                         </td>
                         @if(row.Data != null)

@@ -22,7 +22,7 @@
             <details>
                 <summary>Attributes</summary>
                 <div class="card card-body">
-                    <button type="button" class="btn btn-outline-dark w-25" @onclick="AddAttribute"><span class="oi oi-plus tool-button-image" title="Add Attribute" aria-hidden="true" /><span>Add Attribute</span></button>
+                    <IconButton ButtonTitle="Add Attribute" ButtonClass="btn-outline-dark w-25" Icon="IconButtonIcon.Plus" IconClass="tool-button-image" OnClick="AddAttribute" />
                     @if(_part.Attributes != null && _part.Attributes.Any())
                     {
                         <table>
