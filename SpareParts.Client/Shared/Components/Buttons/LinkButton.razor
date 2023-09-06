@@ -1,0 +1,16 @@
+﻿<button id="@ID" type="@ButtonType" class="btn btn-link" @onclick="@OnClick" title="@ButtonTitle">@ButtonTitle</button>
+
+@code {
+#pragma warning disable CS8618
+    [Parameter]
+    [EditorRequired]
+    public string ID { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public string ButtonTitle { get; set; }
+#pragma warning restore CS8618
+    [Parameter]
+    public ButtonType ButtonType { get; set; } = ButtonType.Button;
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+}

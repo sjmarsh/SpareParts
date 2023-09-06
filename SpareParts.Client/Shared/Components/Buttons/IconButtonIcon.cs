@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using SpareParts.Shared.Extensions;
 
-namespace SpareParts.Client.Shared.Components
+namespace SpareParts.Client.Shared.Components.Buttons
 {
     public enum IconButtonIcon
     {
@@ -10,7 +10,7 @@ namespace SpareParts.Client.Shared.Components
         [Description("oi oi-chevron-top")]
         ChevronTop,
         [Description("oi oi-magnifying-glass")]
-        MagnifyingGlass, 
+        MagnifyingGlass,
         [Description("oi oi-plus")]
         Plus,
         [Description("oi oi-print")]
@@ -24,21 +24,6 @@ namespace SpareParts.Client.Shared.Components
             var description = iconButton.GetEnumDescription();
             return description ?? "";
         }
-    }
+    }   
 
-    public enum IconButtonType
-    {
-        Button,
-        Submit,
-        Reset
-    }
-
-    public static class IconButtonTypeExtensions
-    {
-        public static string MarkupValue(this IconButtonType iconButtonType)
-        {
-            return iconButtonType.ToString().ToLower();
-        }
-    }
-    
 }

@@ -41,8 +41,8 @@
                 <td>@part.Price.ToString("C2")</td>
                 <td>@part.StartDate.ToString("dd/MM/yyyy")</td>
                 <td>@part.EndDate?.ToString("dd/MM/yyyy")</td>
-                <td><button class="btn btn-link" @onclick="() => EditPart(part.ID)">Edit</button></td>
-                <td><button class="btn btn-link" @onclick="() => DeletePart(part.ID)">Delete</button></td>
+                <td><LinkButton ID="@($"edit-{part.Name}")" ButtonTitle="Edit" OnClick="() => EditPart(part.ID)"/></td>
+                <td><LinkButton ID="@($"delete-{part.Name}")" ButtonTitle="Delete" OnClick="() => DeletePart(part.ID)"/></td>
             </tr>
         }
         </tbody>

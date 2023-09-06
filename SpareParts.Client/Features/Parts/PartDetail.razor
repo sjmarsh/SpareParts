@@ -41,7 +41,7 @@
                                         <td><InputText DisplayName="Name" @bind-Value="@attrib.Name"/></td>
                                         <td><InputText DisplayName="Description" @bind-Value="@attrib.Description" /></td>
                                         <td><InputText DisplayName="Value" @bind-Value="@attrib.Value" /></td>
-                                        <td><button type="button" class="btn btn-link" @onclick="() => DeleteAttribute(attrib.ID)">Delete</button></td>
+                                        <td><LinkButton ID="@($"delete-{attrib.Name}")" ButtonTitle="Delete" OnClick="() => DeleteAttribute(attrib.ID)"/></td>
                                     </tr>
                                 }
                             </tbody>

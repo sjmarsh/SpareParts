@@ -1,4 +1,4 @@
-﻿using SpareParts.Client.Shared.Components;
+﻿using SpareParts.Client.Shared.Components.Buttons;
 
 namespace SpareParts.Client.Tests.Shared.Components
 {
