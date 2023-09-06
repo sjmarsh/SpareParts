@@ -50,7 +50,7 @@ namespace SpareParts.Client.Shared.Components.DataGrid
 
                     if (_columnList.FirstOrDefault(c => c.ColumnName == columnName && c.ParentColumnName == null) != null)
                     {
-                        var strvalue = prop.GetStringValueOrDefault(_sourceItem);
+                        var strvalue = prop.GetStringValueWithDefaultFormat(_sourceItem);
                         data.Add(columnName, strvalue);
                     }
                 }
@@ -101,7 +101,7 @@ namespace SpareParts.Client.Shared.Components.DataGrid
                             foreach (var genTypeProp in genTypeProps)
                             {
                                 var lstItemName = genTypeProp.Name;
-                                var listItemValue = genTypeProp.GetStringValueOrDefault(listItem);
+                                var listItemValue = genTypeProp.GetStringValueWithDefaultFormat(listItem);
                                 if (_columnList != null && _columnList.FirstOrDefault(c => c.ColumnName == lstItemName && c.ParentColumnName == columnName) != null)
                                 {
                                     listRow.Add(lstItemName, listItemValue);

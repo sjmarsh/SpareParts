@@ -37,10 +37,10 @@
             <tr>
                 <td>@part.Name</td>
                 <td>@part.Description</td>
-                <td>@part.Weight.ToString("F2")</td>
-                <td>@part.Price.ToString("C2")</td>
-                <td>@part.StartDate.ToString("dd/MM/yyyy")</td>
-                <td>@part.EndDate?.ToString("dd/MM/yyyy")</td>
+                <td>@part.Weight.ToString(DefaultStringFormat.ForDecimal)</td>
+                <td>@part.Price.ToString(DefaultStringFormat.ForCurrency)</td>
+                <td>@part.StartDate.ToString(DefaultStringFormat.ForDate)</td>
+                <td>@part.EndDate?.ToString(DefaultStringFormat.ForDate)</td>
                 <td><LinkButton ID="@($"edit-{part.Name}")" ButtonTitle="Edit" OnClick="() => EditPart(part.ID)"/></td>
                 <td><LinkButton ID="@($"delete-{part.Name}")" ButtonTitle="Delete" OnClick="() => DeletePart(part.ID)"/></td>
             </tr>
