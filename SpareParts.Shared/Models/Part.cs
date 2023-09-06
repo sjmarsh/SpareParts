@@ -4,6 +4,7 @@
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
+        public PartCategory? Category { get; set; }
         public double Price { get; set; }
         public double Weight { get; set; }
         public DateTime StartDate { get; set; }

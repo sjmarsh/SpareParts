@@ -26,12 +26,14 @@
         <div class="col">
             @if (_isEnumField)
             {
-                <InputSelect id="valueSelect" class="form-select" @bind-Value="@Value">
-                    @foreach (var item in _enumValues)
-                    {
-                        <option value="@item">@item</option>
-                    }
-                </InputSelect>
+                <div class="form-group my-2">
+                    <InputSelect id="valueSelect" class="form-select" @bind-Value="@Value">
+                        @foreach (var item in _enumValues)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </InputSelect>
+                </div>
             }
             else
             {
@@ -121,7 +123,7 @@
     private string _selectedValue = "";
     private List<string> _enumValues = new List<string>();
     private List<NamedFilterOperator> _operators = new List<NamedFilterOperator>();
-        
+
     private string GetOperatorForName(string? operatorName)
     {
         var oprtr = "eq";
@@ -156,11 +158,14 @@
     {
         SelectedFieldName = selectedFieldName;
         var selectedField = Fields!.First(f => f.Name == selectedFieldName);
-        
-        _isEnumField = selectedField.Type.IsEnum;
+                
+        _isEnumField = selectedField.Type.IsEnum();
+
         if (_isEnumField)
         {
-            _enumValues = Enum.GetNames(selectedField.Type).ToList();
+            var nullableType = Nullable.GetUnderlyingType(selectedField.Type);
+            var enumType = nullableType ?? selectedField.Type;
+            _enumValues = Enum.GetNames(enumType).ToList();
         }
 
         if (selectedField.Type.IsNumericType() || selectedField.Type.IsDateType())

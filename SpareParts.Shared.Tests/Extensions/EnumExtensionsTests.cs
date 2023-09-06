@@ -22,6 +22,30 @@ namespace SpareParts.Shared.Tests.Extensions
 
             Assert.Null(result);
         }
+
+        [Fact]
+        public void Should_ReturnTrueWhenTypeIsEnum()
+        {
+            var result = typeof(TestEnumForExtensions).IsEnum();
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void Should_ReturnTrueWhenTypeIsNullableEnum()
+        {
+            var result = typeof(TestEnumForExtensions?).IsEnum();
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void Should_ReturnFalseWhenTypeIsNotEnum()
+        {
+            var result = typeof(string).IsEnum();
+            Assert.False(result);
+
+            result = typeof(double?).IsEnum();
+            Assert.False(result);
+        }
     }
 
     public enum TestEnumForExtensions

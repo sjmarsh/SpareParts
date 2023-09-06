@@ -23,5 +23,15 @@
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
         }
+
+        /// <summary>
+        /// Extends IsEnum to also check for nullable enums
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsEnum(this Type type)
+        {
+            return type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true;
+        }
     }
 }

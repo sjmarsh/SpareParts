@@ -176,7 +176,7 @@ totalCount
 
         private bool ValueIsEnum(FilterLine filterLine)
         {
-            return filterLine.SelectedField.Type.IsEnum;
+            return filterLine.SelectedField.Type.IsEnum();
         }
 
         private bool ValueRequiresQuotes(FilterLine filterLine)

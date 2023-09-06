@@ -31,7 +31,7 @@ namespace SpareParts.API.Data
                 foreach (var property in entityType.GetProperties())
                 {
                     // Store Enums as Strings
-                    if (property.ClrType.BaseType == typeof(Enum))
+                    if (property.ClrType.BaseType == typeof(Enum)) // warning: this doesn't detect nullable enums!
                     {
                         var type = typeof(EnumToStringConverter<>).MakeGenericType(property.ClrType);
                         var converter = Activator.CreateInstance(type, new ConverterMappingHints()) as ValueConverter;
@@ -48,6 +48,9 @@ namespace SpareParts.API.Data
                 .WithOne()
                 .HasForeignKey(i => i.PartID);
 
+            modelBuilder.Entity<Part>().Property(p => p.Category)
+                .HasConversion(c => c.ToString(), c => GetPartCategory(c));
+
             modelBuilder.Entity<PartAttribute>()
                 .HasOne<Part>()
                 .WithMany(p => p.Attributes)
@@ -56,13 +59,23 @@ namespace SpareParts.API.Data
             SeedData(modelBuilder);
         }
 
+        private static Shared.Models.PartCategory? GetPartCategory(string c)
+        {
+            if (string.IsNullOrWhiteSpace(c))
+            {
+                return null;
+            }
+
+            return (Shared.Models.PartCategory)Enum.Parse(typeof(Shared.Models.PartCategory), c);
+        }
+
         private static void SeedData(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Part>().HasData(
                 new[]
                 {
-                    new Part { ID = 1, Name = "Part 1", Description = "The first part", Price = 10.1, Weight = 1.11, StartDate = DateTime.Now.AddMonths(-6) },
-                    new Part { ID = 2, Name = "Part 2", Description = "The second part", Price = 12.22, Weight = 2.22,StartDate = DateTime.Now.AddMonths(-5) },
+                    new Part { ID = 1, Name = "Part 1", Description = "The first part", Price = 10.1, Weight = 1.11, StartDate = DateTime.Now.AddMonths(-6), Category = Shared.Models.PartCategory.Electronic },
+                    new Part { ID = 2, Name = "Part 2", Description = "The second part", Price = 12.22, Weight = 2.22,StartDate = DateTime.Now.AddMonths(-5), Category = Shared.Models.PartCategory.Miscellaneous },
                     new Part { ID = 3, Name = "Part 3", Description = "The third part", Price = 13.3, Weight = 3.33,StartDate = DateTime.Now.AddMonths(-4), EndDate = DateTime.Now.AddMonths(6) },
                     new Part { ID = 4, Name = "Part 4", Description = "The fourth part", Price = 14.4, Weight = 4.44, StartDate = DateTime.Now.AddYears(-1), EndDate = DateTime.Now.AddMonths(-1) }
                 });
