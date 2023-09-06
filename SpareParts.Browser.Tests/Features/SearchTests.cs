@@ -1,4 +1,5 @@
-﻿using SpareParts.API.Data;
+﻿using Microsoft.Extensions.Options;
+using SpareParts.API.Data;
 using SpareParts.API.Entities;
 using SpareParts.Browser.Tests.Pages;
 using SpareParts.Client.Shared.Components.Filter;
@@ -85,8 +86,8 @@ namespace SpareParts.Browser.Tests.Features
 
             (await _searchPage.IsSearchResultsVisible()).Should().BeTrue();
             (await _searchPage.NumberOfSearchResults()).Should().Be(1);
-            var searchResult = await _searchPage.GetSearchResultAtRow(0);
-            AssertExpectedSearchResult(partToFilterOn, searchResult);
+            var searchResult = await _searchPage.GetSearchResultAtRow(0, includeAttributes: true);
+            AssertExpectedSearchResult(partToFilterOn, searchResult, includeAttributes: true);
         }
         
         [Fact]
@@ -129,14 +130,46 @@ namespace SpareParts.Browser.Tests.Features
             AssertExpectedSearchResult(part2ToFilterOn, orderedResults[1]);
         }
 
-        private static void AssertExpectedSearchResult(Part partToFilterOn, Part searchResult)
+        [Fact]
+        public async Task Should_FindPartsWhenFilteringByPartAttribute()
         {
-            searchResult.Name.Should().Be(partToFilterOn.Name);
-            searchResult.Description.Should().Be(partToFilterOn.Description);
-            searchResult.Price.Should().Be(partToFilterOn.Price);
-            searchResult.Weight.Should().Be(partToFilterOn.Weight);
-            searchResult.StartDate.Should().BeCloseTo(partToFilterOn.StartDate, TimeSpan.FromSeconds(5));
-            searchResult.EndDate.Should().Be(partToFilterOn.EndDate);
+            var parts = await _dataHelper.CreatePartListInDatabase(3, 1);
+            var partToFilterOn = parts[1];
+            partToFilterOn.Attributes.Should().NotBeNullOrEmpty();
+            var partAttributeToFilterOn = partToFilterOn!.Attributes![0];
+
+            var filter = new FilterLine
+            {
+                SelectedField = new FilterField("Value", typeof(string), true),
+                SelectedOperator = FilterOperator.Equal,
+                Value = partAttributeToFilterOn.Value
+            };
+
+            await _searchPage.EnterFilter(filter);
+            await _searchPage.Search();
+
+            (await _searchPage.IsSearchResultsVisible()).Should().BeTrue();
+            (await _searchPage.NumberOfSearchResults()).Should().Be(1);
+            var searchResult = await _searchPage.GetSearchResultAtRow(0, includeAttributes: true);
+            searchResult.Should().NotBeNull();
+            AssertExpectedSearchResult(partToFilterOn, searchResult, includeAttributes: true);
+        }
+
+        private static void AssertExpectedSearchResult(Part partToFilterOn, Part searchResult, bool includeAttributes = false)
+        {
+            searchResult.Should().BeEquivalentTo(partToFilterOn, opt => {
+                opt.Excluding(p => p.ID);
+                if (includeAttributes)
+                {
+                    opt.For(p => p.Attributes).Exclude(a => a.ID);
+                }
+                else
+                {
+                    opt.Excluding(p => p.Attributes);
+                }
+                opt.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(5))).WhenTypeIs<DateTime>();
+                return opt;
+            });
         }
 
         [Fact]

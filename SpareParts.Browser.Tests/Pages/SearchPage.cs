@@ -52,17 +52,17 @@ namespace SpareParts.Browser.Tests.Pages
 
         public async Task<int> NumberOfSearchResults()
         {
-            var seachResultTable = await _page.QuerySelectorAsync("table");
-            var rows = await seachResultTable!.QuerySelectorAllAsync("tr");
+            var searchResultTable = await _page.QuerySelectorAsync("table");
+            var rows = await searchResultTable!.QuerySelectorAllAsync("tr");
             if (rows == null)
                 return 0;
             return rows.Count -1;
         }
 
-        public async Task<Part> GetSearchResultAtRow(int resultRowNumber)
+        public async Task<Part> GetSearchResultAtRow(int resultRowNumber, bool includeAttributes = false)
         {
-            var seachResultTable = await _page.QuerySelectorAsync("table");
-            var rows = await seachResultTable!.QuerySelectorAllAsync("tr");
+            var searchResultTable = await _page.QuerySelectorAsync("table");
+            var rows = await searchResultTable!.QuerySelectorAllAsync("tr");
             var cells = await rows[resultRowNumber + 1].QuerySelectorAllAsync("td"); // allow for header row
                          
             cells.Count.Should().Be(6 + 1); // add one for expander button
@@ -76,14 +76,56 @@ namespace SpareParts.Browser.Tests.Pages
                 Price = Convert.ToDouble(await cells[3].TextContentAsync()),
                 Weight = Convert.ToDouble(await cells[4].TextContentAsync()),
                 StartDate = Convert.ToDateTime(await cells[5].TextContentAsync()),
-                EndDate = endDate
+                EndDate = endDate,
+                Attributes = includeAttributes ? await GetSearchResultAttributesAtRow(resultRowNumber) : null
             };
+        }
+
+        private async Task <List<PartAttribute>> GetSearchResultAttributesAtRow(int resultRowNumber)
+        {
+            var searchResultTable = await _page.QuerySelectorAsync("table");
+            var rows = await searchResultTable!.QuerySelectorAllAsync("tr");
+            var cells = await rows[resultRowNumber + 1].QuerySelectorAllAsync("td"); // allow for header row
+
+            var expanderButton = await cells[0].QuerySelectorAsync("button");
+            expanderButton.Should().NotBeNull();
+            await expanderButton!.ClickAsync();
+
+            var attributesHeader = await searchResultTable!.QuerySelectorAsync("h6 >> text=Attributes");
+            attributesHeader.Should().NotBeNull();
+
+            var attributesTable = await searchResultTable!.QuerySelectorAsync("table");
+            attributesTable.Should().NotBeNull();
+            var attributeRows = await attributesTable!.QuerySelectorAllAsync("tr");
+            attributeRows.Should().NotBeNull();
+
+            var attributes = new List<PartAttribute>();
+
+            for (int i = 0; i < attributeRows.Count; i++)
+            {
+                if (i == 0) continue;  // ignore header
+
+                if (attributeRows[i] != null)
+                {
+                    var attributeRowCells = await attributeRows[i].QuerySelectorAllAsync("td");
+                    attributeRowCells.Should().NotBeNull();
+                    var attribute = new PartAttribute
+                    {
+                        Name = (await attributeRowCells[0].TextContentAsync()) ?? "",
+                        Description = (await attributeRowCells[1].TextContentAsync()) ?? "",
+                        Value = (await attributeRowCells[2].TextContentAsync()) ?? ""
+                    };
+                    attributes.Add(attribute);
+                }
+            }
+                        
+            return attributes;
         }
 
         public async Task<List<string>> GetResultColumnHeadings()
         {
-            var seachResultTable = await _page.QuerySelectorAsync("table");
-            var rows = await seachResultTable!.QuerySelectorAllAsync("tr");
+            var searchResultTable = await _page.QuerySelectorAsync("table");
+            var rows = await searchResultTable!.QuerySelectorAllAsync("tr");
             var cells = await rows[0].QuerySelectorAllAsync("th");
             var headings = new List<string>();
             foreach (var cell in cells)
