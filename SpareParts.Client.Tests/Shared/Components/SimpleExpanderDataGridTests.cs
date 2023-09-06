@@ -1,4 +1,5 @@
 ﻿using SpareParts.Client.Shared.Components.DataGrid;
+using SpareParts.Shared.Constants;
 
 namespace SpareParts.Client.Tests.Shared.Components
 {
@@ -44,7 +45,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var dataCells = cut.FindAll("td");
             dataCells.Should().NotBeNull();
             dataCells.Should().HaveCount(8);
-            dataCells.Select(d => d.TextContent).Should().BeEquivalentTo(new[] { "", theDate1.ToString(), "2", "Hello", "", theDate2.ToString(), "4", "Goodbye" });
+            dataCells.Select(d => d.TextContent).Should().BeEquivalentTo(new[] { "", theDate1.ToString(DefaultStringFormat.ForDate), "2.00", "Hello", "", theDate2.ToString(DefaultStringFormat.ForDate), "4.00", "Goodbye" });
 
             var showDetailsButtons = cut.FindAll(ShowDetailsButton);
             showDetailsButtons.Should().NotBeNull();
@@ -159,7 +160,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var dataCells = cut.FindAll("td");
             dataCells.Should().NotBeNull();
             dataCells.Should().HaveCount(6);
-            dataCells.Select(d => d.TextContent).Should().BeEquivalentTo(new[] { "", theDate1.ToString(), "Hello", "", theDate2.ToString(), "Goodbye" });
+            dataCells.Select(d => d.TextContent).Should().BeEquivalentTo(new[] { "", theDate1.ToString(DefaultStringFormat.ForDate), "Hello", "", theDate2.ToString(DefaultStringFormat.ForDate), "Goodbye" });
         }
 
         [Fact]
@@ -194,8 +195,8 @@ namespace SpareParts.Client.Tests.Shared.Components
             rows[2].Click(); // last row (inc header row)
 
             rowData.Should().NotBeNull();
-            rowData!.Data["DateVal"].Should().Be(theDate2.ToString());
-            rowData!.Data["NumberVal"].Should().Be("4");
+            rowData!.Data["DateVal"].Should().Be(theDate2.ToString(DefaultStringFormat.ForDate));
+            rowData!.Data["NumberVal"].Should().Be("4.00");
             rowData!.Data["TextVal"].Should().Be("Goodbye");
         }
     }

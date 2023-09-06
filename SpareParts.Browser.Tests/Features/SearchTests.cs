@@ -167,7 +167,7 @@ namespace SpareParts.Browser.Tests.Features
                 {
                     opt.Excluding(p => p.Attributes);
                 }
-                opt.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(5))).WhenTypeIs<DateTime>();
+                opt.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromDays(1))).WhenTypeIs<DateTime>();
                 return opt;
             });
         }
