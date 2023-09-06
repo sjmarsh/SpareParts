@@ -54,7 +54,7 @@
         <div class="mt-6">
             @if(_numberOfPages > 0)
             {
-                <Pager OnPageChanged="HandlePageChanged" CurrentPage="_currentPage" PageSize="PageSize" TotalItemCount="_totalResultCount" />
+                <Pager OnPageChanged="HandlePageChanged" CurrentPage="FilterGridState.CurrentResultPage" PageSize="PageSize" TotalItemCount="_totalResultCount" />
             }
 
             <SimpleExpanderDataGrid T="T" DataSource="_filterResults" ColumnList="FilterGridState.FilterFields.Where(f => f.IsSelected).Select(f => new ColumnHeader(f.Name, f.ParentFieldName)).ToList()" OnRowClick="OnRowClick" />
@@ -94,7 +94,6 @@
     // paging
     private int _totalResultCount = 0;
     private int _numberOfPages = 0;
-    private int _currentPage = 1;
     private const int PageSize = 10;
 
     protected override async Task OnInitializedAsync()
@@ -277,7 +276,7 @@
             var validationResult = validator.Validate(filterFieldsList);
             if (validationResult.IsValid)
             {
-                var pageOffset = new PageOffset(_currentPage * PageSize - PageSize, PageSize);
+                var pageOffset = new PageOffset(FilterGridState.CurrentResultPage * PageSize - PageSize, PageSize);
                 var graphQLRequest = graphQLRequestBuilder.Build<T>(filterFieldsList, FilterGridState.FilterFields.ToList(), RootGraphQLField, pageOffset);
 
                 if (ServiceCall != null)
@@ -346,7 +345,16 @@
 
     private async Task HandlePageChanged(int page)
     {
-        _currentPage = page;
+        if(FilterGridState != null)
+        {
+            FilterGridState = FilterGridState with
+                {
+                    CurrentResultPage = page
+                };
+
+            await UpdateFilterGridState();
+        }
+        
         await Search();
     }
 }
