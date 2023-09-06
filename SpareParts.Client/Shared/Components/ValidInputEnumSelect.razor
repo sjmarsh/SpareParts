@@ -1,0 +1,42 @@
+﻿@using System.Linq.Expressions
+@typeparam TType where TType : struct, Enum
+
+<div class="form-group my-2">
+    @if (DisplayName != null)
+    {
+        <label for="@Id">@DisplayName</label>
+    }
+    <InputSelect id="@Id" class="form-select" DisplayName="@DisplayName"  Value="@Value" ValueExpression="@ValueExpression" ValueChanged="@((TType? newVal) => HandleValueChanged(newVal))">
+        <option value="null"></option>
+        @foreach (var e in _enumValues)
+        {
+            <option value="@e">@e.ToString()</option>
+        }
+    </InputSelect>
+    <ValidationMessage For="@ValueExpression" />
+</div>
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string? Id { get; set; }
+
+    [Parameter]
+    public string? DisplayName { get; set; }
+
+    [Parameter, EditorRequired]
+    public TType? Value { get; set; }
+
+    [Parameter, EditorRequired]
+    public Expression<Func<TType?>>? ValueExpression { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public EventCallback<TType?> ValueChanged { get; set; }
+
+    private Array _enumValues = Enum.GetValues(typeof(TType));
+    
+    private void HandleValueChanged(TType? newValue)
+    {
+        ValueChanged.InvokeAsync(newValue);
+    }
+}
