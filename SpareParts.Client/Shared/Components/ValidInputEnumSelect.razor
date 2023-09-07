@@ -1,42 +1,93 @@
-﻿@using System.Linq.Expressions
-@typeparam TType where TType : struct, Enum
+﻿@using System.Globalization
+@using System.Diagnostics.CodeAnalysis
+
+@typeparam TEnum
+@inherits InputBase<TEnum>
 
 <div class="form-group my-2">
     @if (DisplayName != null)
     {
         <label for="@Id">@DisplayName</label>
     }
-    <InputSelect id="@Id" class="form-select" DisplayName="@DisplayName"  Value="@Value" ValueExpression="@ValueExpression" ValueChanged="@((TType? newVal) => HandleValueChanged(newVal))">
-        <option value="null"></option>
-        @foreach (var e in _enumValues)
-        {
-            <option value="@e">@e.ToString()</option>
-        }
-    </InputSelect>
+    
+    @if(_enumValues != null)
+    {
+        <select id="@Id" class="@CssClass form-select" @attributes="AdditionalAttributes" value="@BindConverter.FormatValue(CurrentValueAsString)"
+            @onchange="EventCallback.Factory.CreateBinder<string>(this, value => CurrentValueAsString = value, CurrentValueAsString ?? string.Empty)">
+            <option value="@_defaultVal"></option>
+            @foreach (var e in _enumValues)
+            {
+                <option value="@e">@e.ToString()</option>
+            }
+        </select>
+    }
+    
     <ValidationMessage For="@ValueExpression" />
+
 </div>
 
-
-@code {
+@code
+{
     [Parameter, EditorRequired]
     public string? Id { get; set; }
 
-    [Parameter]
-    public string? DisplayName { get; set; }
+    private TEnum? _defaultVal = default;
+    private List<TEnum>? _enumValues;
 
-    [Parameter, EditorRequired]
-    public TType? Value { get; set; }
-
-    [Parameter, EditorRequired]
-    public Expression<Func<TType?>>? ValueExpression { get; set; } = default!;
-
-    [Parameter, EditorRequired]
-    public EventCallback<TType?> ValueChanged { get; set; }
-
-    private Array _enumValues = Enum.GetValues(typeof(TType));
-    
-    private void HandleValueChanged(TType? newValue)
+    protected override void OnInitialized()
     {
-        ValueChanged.InvokeAsync(newValue);
+        _enumValues = GetEnumValues();
     }
+
+    private List<TEnum> GetEnumValues()
+    {
+        Array? values;
+        var nullableType = Nullable.GetUnderlyingType(typeof(TEnum));
+        if(nullableType != null && nullableType.IsEnum == true)
+        {
+            values = Enum.GetValues(nullableType);
+        }
+        else
+        {
+            values = Enum.GetValues(typeof(TEnum));
+        }
+
+        return values.Cast<TEnum>().AsEnumerable().ToList();
+    }
+
+    protected override string FormatValueAsString(TEnum? value)
+    {
+        if(value is null)
+        {
+            return "";
+        }
+        return value.ToString() ?? "";
+    }
+
+#pragma warning disable CS8765, CS8600, CS8625, CS8762
+    protected override bool TryParseValueFromString(string value, [MaybeNullWhen(false)] out TEnum result, [NotNullWhen(false)] out string validationErrorMessage)
+    {
+        if (BindConverter.TryConvertTo(value, CultureInfo.CurrentCulture, out TEnum parsedValue))
+        {
+            result = parsedValue;
+            validationErrorMessage = null;
+            return true;
+        }
+
+        if (string.IsNullOrEmpty(value))
+        {
+            var nullableEnum = Nullable.GetUnderlyingType(typeof(TEnum));
+            if (nullableEnum != null)
+            {
+                result = default;
+                validationErrorMessage = null;
+                return true;
+            }
+        }
+
+        result = default;
+        validationErrorMessage = $"{FieldIdentifier.FieldName} is not valid.";
+        return false;
+    }
+#pragma warning restore CS8765, CS8600, CS8625, CS8762
 }

@@ -7,6 +7,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public DateTime DateVal { get; set; }
         public double NumberVal { get; set; }
         public string? TextVal { get; set; }
+        public TestClientEnum? EnumVal { get; set; }
     }
 
     public class TestModelWithList : TestModel 
@@ -29,5 +30,11 @@ namespace SpareParts.Client.Tests.Shared.Components
             RuleFor(t => t.NumberVal).NotEmpty().GreaterThan(0);
             RuleFor(t => t.TextVal).NotEmpty().MaximumLength(10);
         }
+    }
+
+    public enum TestClientEnum
+    {
+        One,
+        Two
     }
 }

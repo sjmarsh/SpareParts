@@ -1,0 +1,27 @@
+﻿@using Blazored.FluentValidation
+@using Microsoft.AspNetCore.Components.Forms
+@using SpareParts.Client.Shared.Components
+
+<EditForm EditContext="_editContext">
+    <FluentValidationValidator />
+    <ValidInputEnumSelect Id="@Id" DisplayName="@DisplayName" @bind-Value="TestModel.EnumVal" />
+</EditForm>
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string? Id { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? DisplayName { get; set; }
+
+    [Parameter, EditorRequired]
+    public TestModel TestModel { get; set; } = new TestModel();
+
+    private EditContext? _editContext;
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(TestModel);
+    }
+}
