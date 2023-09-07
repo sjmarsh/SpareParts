@@ -102,7 +102,7 @@ namespace SpareParts.Browser.Tests.Features
             (await _partsPage.PartListItemCount()).Should().Be(1);
             
             await _partsPage.ClickEditButtonForRow(0);
-            var updatedPart = new Shared.Models.Part { Name = "Part 1", Description = "This is one part", Weight = 1.2, Price = 1.33, StartDate = DateTime.Today.AddYears(-3), EndDate = DateTime.Today.AddYears(3),
+            var updatedPart = new Shared.Models.Part { Name = "Part 1", Description = "This is one part", Category = Shared.Models.PartCategory.Mechanical, Weight = 1.2, Price = 1.33, StartDate = DateTime.Today.AddYears(-3), EndDate = DateTime.Today.AddYears(3),
                 Attributes = new List<Shared.Models.PartAttribute> { new Shared.Models.PartAttribute { Name = "Colour", Description = "The Colour", Value = "Orange" } }
             };
             await EnterPart(updatedPart, isEditingExistingAttrutes: true);

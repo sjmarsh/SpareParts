@@ -1,4 +1,5 @@
 ﻿using SpareParts.Shared.Models;
+using SpareParts.Shared.Extensions;
 using System.Text.RegularExpressions;
 using Humanizer;
 
@@ -69,20 +70,26 @@ namespace SpareParts.Browser.Tests.Pages
             await addButton.ClickAsync();
         }
 
-        public async Task<Shared.Models.Part> GetPartFromRow(int row)
+        public async Task<Part> GetPartFromRow(int row)
         {
             var tableRow = _page.Locator("tr").Nth(row + 1);  // zero is header
             var cells = tableRow.Locator("td");
                         
-            return new Shared.Models.Part
+            return new Part
             {
                 Name = await cells.Nth(0).InnerTextAsync(),
                 Description = await cells.Nth(1).InnerTextAsync(),
-                Weight = GetDouble(await cells.Nth(2).InnerTextAsync()),
-                Price = GetDouble((await cells.Nth(3).InnerTextAsync()).Replace("$", "")),
-                StartDate = GetDate(await cells.Nth(4).InnerTextAsync())!.Value.Date,
-                EndDate = GetDate(await cells.Nth(5).InnerTextAsync())
+                Category = GetCategoryFromString(await cells.Nth(2).InnerTextAsync()),
+                Weight = GetDouble(await cells.Nth(3).InnerTextAsync()),
+                Price = GetDouble((await cells.Nth(4).InnerTextAsync()).Replace("$", "")),
+                StartDate = GetDate(await cells.Nth(5).InnerTextAsync())!.Value.Date,
+                EndDate = GetDate(await cells.Nth(6).InnerTextAsync())
             };
+        }
+
+        private static PartCategory? GetCategoryFromString(string? categoryString)
+        {
+            return categoryString.GetEnumFromString<PartCategory>();
         }
 
         private double GetDouble(string doubleString)

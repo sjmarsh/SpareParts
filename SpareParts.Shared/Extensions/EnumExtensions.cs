@@ -11,5 +11,19 @@ namespace SpareParts.Shared.Extensions
             var attributes = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
             return (attributes.Length > 0) ? ((DescriptionAttribute)attributes[0]).Description : null;
         }
+
+        public static T? GetEnumFromString<T>(this string? value) where T : Enum
+        {
+            if(value is null)
+            {
+                return default;
+            }
+
+            if (Enum.TryParse(typeof(T), value, out var result))
+            {
+                return (T)result;
+            }
+            return default;
+        }
     }
 }

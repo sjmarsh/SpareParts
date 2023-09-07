@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using SpareParts.API.Data;
+﻿using SpareParts.API.Data;
 using SpareParts.API.Entities;
 using SpareParts.Browser.Tests.Pages;
 using SpareParts.Client.Shared.Components.Filter;
@@ -249,17 +248,17 @@ namespace SpareParts.Browser.Tests.Features
             (await _searchPage.IsSearchResultsVisible()).Should().BeTrue();
 
             var headings = await(_searchPage.GetResultColumnHeadings());
-            headings.Should().HaveCount(7);
+            headings.Should().HaveCount(8);
             headings.Should().Contain(FieldToToggle);
 
             await _searchPage.ToggleFilterField(FieldToToggle);
             headings = await (_searchPage.GetResultColumnHeadings());
-            headings.Should().HaveCount(6);
+            headings.Should().HaveCount(7);
             headings.Should().NotContain(FieldToToggle);
 
             await _searchPage.ToggleFilterField(FieldToToggle);
             headings = await (_searchPage.GetResultColumnHeadings());
-            headings.Should().HaveCount(7);
+            headings.Should().HaveCount(8);
             headings.Should().Contain(FieldToToggle);
         }
 
@@ -283,12 +282,12 @@ namespace SpareParts.Browser.Tests.Features
             (await _searchPage.IsSearchResultsVisible()).Should().BeTrue();
 
             var headings = await (_searchPage.GetResultColumnHeadings());
-            headings.Should().HaveCount(7);
+            headings.Should().HaveCount(8);
             headings.Should().Contain(FieldToToggle);
 
             await _searchPage.ToggleFilterField(FieldToToggle);
             headings = await (_searchPage.GetResultColumnHeadings());
-            headings.Should().HaveCount(7);
+            headings.Should().HaveCount(8);
         }
     }
 }

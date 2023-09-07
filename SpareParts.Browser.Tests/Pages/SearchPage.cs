@@ -1,5 +1,6 @@
 ﻿using SpareParts.API.Entities;
 using SpareParts.Client.Shared.Components.Filter;
+using SpareParts.Shared.Extensions;
 
 namespace SpareParts.Browser.Tests.Pages
 {
@@ -65,20 +66,26 @@ namespace SpareParts.Browser.Tests.Pages
             var rows = await searchResultTable!.QuerySelectorAllAsync("tr");
             var cells = await rows[resultRowNumber + 1].QuerySelectorAllAsync("td"); // allow for header row
                          
-            cells.Count.Should().Be(6 + 1); // add one for expander button
+            cells.Count.Should().Be(7 + 1); // add one for expander button
 
-            var endDateString = await cells[6].TextContentAsync();
+            var endDateString = await cells[7].TextContentAsync();
             DateTime? endDate = string.IsNullOrEmpty(endDateString) ? null : Convert.ToDateTime(endDateString);
             return new Part
             {
                 Name = await cells[1].TextContentAsync(),
                 Description = await cells[2].TextContentAsync(),
-                Price = Convert.ToDouble(await cells[3].TextContentAsync()),
-                Weight = Convert.ToDouble(await cells[4].TextContentAsync()),
-                StartDate = Convert.ToDateTime(await cells[5].TextContentAsync()),
+                Category = GetCategoryFromString(await cells[3].TextContentAsync()),
+                Price = Convert.ToDouble(await cells[4].TextContentAsync()),
+                Weight = Convert.ToDouble(await cells[5].TextContentAsync()),
+                StartDate = Convert.ToDateTime(await cells[6].TextContentAsync()),
                 EndDate = endDate,
                 Attributes = includeAttributes ? await GetSearchResultAttributesAtRow(resultRowNumber) : null
             };
+        }
+
+        private static Shared.Models.PartCategory? GetCategoryFromString(string categoryString)
+        {
+            return categoryString.GetEnumFromString<Shared.Models.PartCategory>();
         }
 
         private async Task <List<PartAttribute>> GetSearchResultAttributesAtRow(int resultRowNumber)
