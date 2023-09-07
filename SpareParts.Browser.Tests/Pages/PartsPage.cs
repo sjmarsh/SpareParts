@@ -1,7 +1,6 @@
 ﻿using SpareParts.Shared.Models;
 using System.Text.RegularExpressions;
 using Humanizer;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace SpareParts.Browser.Tests.Pages
 {
@@ -124,6 +123,7 @@ namespace SpareParts.Browser.Tests.Pages
             {
                 Name = await GetName(),
                 Description = await GetDescription(),
+                Category = await GetCategory(),
                 Weight = await GetWeight(),
                 Price = await GetPrice(),
                 StartDate = await GetStartDate(),
@@ -152,6 +152,27 @@ namespace SpareParts.Browser.Tests.Pages
         {
             if (partDescription == null) return;
             await EnterValue(nameof(partDescription), partDescription);
+        }
+
+        public async Task<PartCategory?> GetCategory()
+        {
+            var value = await GetValue("partCategory");
+            if (value == null) return null;
+            return (PartCategory)Enum.Parse(typeof(PartCategory), value);
+        }
+
+        public async Task SelectCategory(PartCategory? partCategory)
+        {
+            var filterFieldSelector = _page.Locator("#partCategory");
+            filterFieldSelector.Should().NotBeNull();
+            if (partCategory == null)
+            {
+                await filterFieldSelector.SelectOptionAsync("");
+            }
+            else
+            {
+                await filterFieldSelector.SelectOptionAsync(partCategory.ToString());
+            }
         }
 
         public async Task<double> GetWeight()

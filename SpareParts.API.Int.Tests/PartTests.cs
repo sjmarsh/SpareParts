@@ -110,7 +110,7 @@ namespace SpareParts.API.Int.Tests
         [Fact]
         public async Task Post_Should_CreatePartRecord()
         {
-            var part = new Part { Name = "Part 1", Description = "One", Weight = 1.1, Price = 2.2, StartDate = DateTime.Today.AddYears(-1), 
+            var part = new Part { Name = "Part 1", Description = "One", Category = PartCategory.Software, Weight = 1.1, Price = 2.2, StartDate = DateTime.Today.AddYears(-1), 
                 Attributes = new List<PartAttribute> { new PartAttribute { Name = "Colour", Description = "The colour of the part", Value = "Green" }}
             };
                         

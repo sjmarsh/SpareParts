@@ -62,6 +62,7 @@ namespace SpareParts.API.Int.Tests
         items { 
             name
             description
+            category
             price
             weight
             startDate
@@ -106,6 +107,7 @@ $@"{{
         items {{ 
             name
             description
+            category
             price
             weight
             startDate
@@ -151,6 +153,7 @@ $@"{{
     parts (where: {{ name: {{eq: ""{part1.Name}""}}}}) {{
         items {{ 
             name
+            category
             price
             weight
             startDate

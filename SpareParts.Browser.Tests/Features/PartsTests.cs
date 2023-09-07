@@ -57,7 +57,7 @@ namespace SpareParts.Browser.Tests.Features
         public async Task AddPart_Should_AddPartToList()
         {
             (await _partsPage.IsPartTableVisible()).Should().BeFalse();
-            var part = new Shared.Models.Part { Name = "Part 1", Description = "The first one", Weight = 2.2, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2),
+            var part = new Shared.Models.Part { Name = "Part 1", Description = "The first one", Category = Shared.Models.PartCategory.Software, Weight = 2.2, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2),
                 Attributes = new List<Shared.Models.PartAttribute> { new Shared.Models.PartAttribute { Name = "Colour", Description = "The Colour", Value = "Orange" } }
             };
             await _partsPage.ClickAddButton();
@@ -140,6 +140,7 @@ namespace SpareParts.Browser.Tests.Features
             var partModal = _partsPage.GetPartModal();
             await partModal.EnterName(part.Name);
             await partModal.EnterDescription(part.Description);
+            await partModal.SelectCategory(part.Category);
             await partModal.EnterWeight(part.Weight);
             await partModal.EnterPrice(part.Price);
             await partModal.EnterStartDate(part.StartDate);
