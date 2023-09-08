@@ -164,8 +164,7 @@ namespace SpareParts.Browser.Tests.Pages
         public async Task<PartCategory?> GetCategory()
         {
             var value = await GetValue("partCategory");
-            if (value == null) return null;
-            return (PartCategory)Enum.Parse(typeof(PartCategory), value);
+            return value.GetEnumFromString<PartCategory>();
         }
 
         public async Task SelectCategory(PartCategory? partCategory)

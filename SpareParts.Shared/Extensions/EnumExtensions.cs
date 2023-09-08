@@ -12,17 +12,18 @@ namespace SpareParts.Shared.Extensions
             return (attributes.Length > 0) ? ((DescriptionAttribute)attributes[0]).Description : null;
         }
 
-        public static T? GetEnumFromString<T>(this string? value) where T : Enum
+        public static T? GetEnumFromString<T>(this string? value) where T : struct, Enum
         {
             if(value is null)
             {
-                return default;
+                return null;
             }
 
             if (Enum.TryParse(typeof(T), value, out var result))
             {
                 return (T)result;
             }
+
             return default;
         }
     }

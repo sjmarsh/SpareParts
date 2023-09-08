@@ -46,6 +46,30 @@ namespace SpareParts.Shared.Tests.Extensions
             result = typeof(double?).IsEnum();
             Assert.False(result);
         }
+
+        [Fact]
+        public void Should_ReturnEnumForString()
+        {
+            var str = "One";
+            var result = str.GetEnumFromString<TestEnumForExtensions>();
+            result.Should().Be(TestEnumForExtensions.One);
+        }
+
+        [Fact]
+        public void Should_ReturnNullWhenNotMatchingEnum()
+        {
+            var str = "Five";
+            var result = str.GetEnumFromString<TestEnumForExtensions>();
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public void Should_ReturnNullWhenNullString()
+        {
+            string str = null;
+            var result = str.GetEnumFromString<TestEnumForExtensions>();
+            result.Should().BeNull();
+        }
     }
 
     public enum TestEnumForExtensions
