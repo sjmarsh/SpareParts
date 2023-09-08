@@ -10,34 +10,39 @@
 <div>
     @if(FilterGridState != null)
     {
-        <div>
+        <div>    
             @if (FilterGridState.FilterFields != null)
             {
-                <ChipsList Chips="FilterGridState.FilterFields.Select(f => new Chip(f.ID, f.Name, f.IsSelected, GetChipColor(f), f.ParentFieldName)).ToList()" Title="Fields" OnToggleChip="HandleToggleField" />
+                <details open="@_isFieldsSelectionVisible" @ontoggle="HandleFieldsSelectionToggle">
+                    <summary>Fields</summary>
+                    <ChipsList Chips="FilterGridState.FilterFields.Select(f => new Chip(f.ID, f.Name, f.IsSelected, GetChipColor(f), f.ParentFieldName)).ToList()" OnToggleChip="HandleToggleField" />
+                </details>
             }
         </div>
 
-        <div>
+        <div class="mt-4">
             @if (FilterGridState.FilterLines != null && FilterGridState.FilterFields != null)
             {
-                <EditForm Model="FilterGridState.FilterLines" OnValidSubmit="HandleValidSubmit">
-                    <div class="card mt-4">
-                        <div class="card-body">
-                            <div class="mt-4">
-                                <h6 class="card-subtitle mb-2 text-muted">Filters</h6>
-                                @foreach (var filterLine in FilterGridState.FilterLines)
-                                {
-                                    <FilterSelector Fields="FilterGridState.FilterFields.ToList()" FilterLine="filterLine"
-                                        FilterLineChanged="HandleFilterLineChanged" OnRemoveFilter="HandleRemoveFilter" />
-                                }
-                                <div class="mt-2">
-                                    <IconButton ButtonTitle="Add Filter" ButtonClass="btn-outline-dark tool-button" OnClick="AddEmptyFilter" Icon="IconButtonIcon.Plus" IconClass="tool-button-image" />
-                                    <IconButton ButtonTitle="Search" ButtonType="ButtonType.Submit" ButtonClass="btn-outline-dark tool-button" Icon="IconButtonIcon.MagnifyingGlass" IconClass="tool-button-image" />                                    
+                <details open="@_IsFiltersEntryVisible" @ontoggle="HandleFilterEntryToggle">
+                    <summary>Filters</summary>
+                    <EditForm Model="FilterGridState.FilterLines" OnValidSubmit="HandleValidSubmit">
+                        <div class="card">
+                            <div class="card-body">
+                                <div>
+                                    @foreach (var filterLine in FilterGridState.FilterLines)
+                                    {
+                                        <FilterSelector Fields="FilterGridState.FilterFields.ToList()" FilterLine="filterLine"
+                                            FilterLineChanged="HandleFilterLineChanged" OnRemoveFilter="HandleRemoveFilter" />
+                                    }
+                                    <div class="mt-2">
+                                        <IconButton ButtonTitle="Add Filter" ButtonClass="btn-outline-dark tool-button" OnClick="AddEmptyFilter" Icon="IconButtonIcon.Plus" IconClass="tool-button-image" />
+                                        <IconButton ButtonTitle="Search" ButtonType="ButtonType.Submit" ButtonClass="btn-outline-dark tool-button" Icon="IconButtonIcon.MagnifyingGlass" IconClass="tool-button-image" />                                    
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </EditForm>
+                    </EditForm>
+                </details>
             }
         </div>
     }
@@ -52,16 +57,13 @@
     @if(_filterResults != null && FilterGridState != null && FilterGridState.FilterFields != null)
     {
         <div class="mt-6">
-            @if(_numberOfPages > 0)
+            <SimpleExpanderDataGrid T="T" DataSource="_filterResults" ColumnList="FilterGridState.FilterFields.Where(f => f.IsSelected).Select(f => new ColumnHeader(f.Name, f.ParentFieldName)).ToList()" OnRowClick="OnRowClick" />
+            @if (_numberOfPages > 0)
             {
                 <Pager OnPageChanged="HandlePageChanged" CurrentPage="FilterGridState.CurrentResultPage" PageSize="PageSize" TotalItemCount="_totalResultCount" />
             }
-
-            <SimpleExpanderDataGrid T="T" DataSource="_filterResults" ColumnList="FilterGridState.FilterFields.Where(f => f.IsSelected).Select(f => new ColumnHeader(f.Name, f.ParentFieldName)).ToList()" OnRowClick="OnRowClick" />
-        
         </div>
     }
-
 
 </div>
 
@@ -90,6 +92,8 @@
     private bool _isLoading;
     private bool _hasError;
     private string? _errorMessage;
+    private bool _isFieldsSelectionVisible;
+    private bool _IsFiltersEntryVisible;
 
     // paging
     private int _totalResultCount = 0;
@@ -113,6 +117,12 @@
         _isLoading = false;
         _hasError = false;
         _errorMessage = string.Empty;
+        _isFieldsSelectionVisible = FilterGridState.IsFieldsSelectionVisible;
+        _IsFiltersEntryVisible = FilterGridState.IsFiltersEntryVisible;
+        if (!_isFieldsSelectionVisible)
+            _isStartUpFieldSelectionToggle = false;
+        if (!_IsFiltersEntryVisible)
+            _isStartUpFilterEntryToggle = false;
     }
 
     private async Task UpdateFilterGridState()
@@ -354,7 +364,37 @@
 
             await UpdateFilterGridState();
         }
-        
+
         await Search();
+    }
+
+    private bool _isStartUpFieldSelectionToggle = true;
+    private async Task HandleFieldsSelectionToggle()
+    {
+        if(FilterGridState != null && !_isStartUpFieldSelectionToggle)
+        {
+            FilterGridState = FilterGridState with
+                {
+                    IsFieldsSelectionVisible = !FilterGridState.IsFieldsSelectionVisible
+                };
+
+            await UpdateFilterGridState();
+        }
+        _isStartUpFieldSelectionToggle = false;
+    }
+
+    private bool _isStartUpFilterEntryToggle = true;
+    private async Task HandleFilterEntryToggle()
+    {   
+        if (FilterGridState != null && !_isStartUpFilterEntryToggle)
+        {
+            FilterGridState = FilterGridState with
+                {
+                    IsFiltersEntryVisible = !FilterGridState.IsFiltersEntryVisible
+                };
+
+            await UpdateFilterGridState();
+        }
+        _isStartUpFilterEntryToggle = false;
     }
 }
