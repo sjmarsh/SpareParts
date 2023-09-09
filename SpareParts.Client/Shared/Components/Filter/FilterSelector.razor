@@ -158,7 +158,7 @@
     {
         SelectedFieldName = selectedFieldName;
         var selectedField = Fields!.First(f => f.Name == selectedFieldName);
-                
+
         _isEnumField = selectedField.Type.IsEnum();
 
         if (_isEnumField)
@@ -166,6 +166,10 @@
             var nullableType = Nullable.GetUnderlyingType(selectedField.Type);
             var enumType = nullableType ?? selectedField.Type;
             _enumValues = Enum.GetNames(enumType).ToList();
+            if(nullableType != null)
+            {
+                _enumValues.Insert(0, string.Empty);
+            }
         }
 
         if (selectedField.Type.IsNumericType() || selectedField.Type.IsDateType())

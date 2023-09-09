@@ -143,6 +143,29 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         }
 
         [Fact]
+        public void Should_RenderDefaultFilterValueOptionsAndSetFirstOptionToBlankWhenNullableEnum()
+        {
+            using var ctx = new TestContext();
+            List<FilterField> theFields = new() {
+                new FilterField("Field1", typeof(TestEnum?), true)
+            };
+
+            var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, "");
+
+            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+                parameters.Add(p => p.Fields, theFields)
+                          .Add(p => p.FilterLine, theFilterLine)
+            );
+
+            var inputSelects = cut.FindAll(".form-select");
+                       
+            var valueSelect = inputSelects[2] as IHtmlSelectElement;
+            valueSelect.Should().NotBeNull();
+            valueSelect!.Options.Should().HaveCount(5);
+            valueSelect!.Options.Select(o => o.Value).Should().BeEquivalentTo(new[] { "", "None", "One", "Two", "Three" });
+        }
+
+        [Fact]
         public void Should_UpdateFilterLine()
         {
             using var ctx = new TestContext();
