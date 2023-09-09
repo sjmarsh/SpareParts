@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpareParts.API.Data;
 
@@ -11,9 +12,11 @@ using SpareParts.API.Data;
 namespace SpareParts.API.Migrations
 {
     [DbContext(typeof(SparePartsDbContext))]
-    partial class SparePartsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230909051313_SeedPartAttributeData")]
+    partial class SeedPartAttributeData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -256,63 +259,63 @@ namespace SpareParts.API.Migrations
                         new
                         {
                             ID = 1,
-                            DateRecorded = new DateTime(2023, 3, 6, 15, 40, 30, 748, DateTimeKind.Local).AddTicks(424),
+                            DateRecorded = new DateTime(2023, 3, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(7226),
                             PartID = 1,
                             Quantity = 11
                         },
                         new
                         {
                             ID = 2,
-                            DateRecorded = new DateTime(2023, 4, 6, 15, 40, 30, 748, DateTimeKind.Local).AddTicks(439),
+                            DateRecorded = new DateTime(2023, 4, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(7235),
                             PartID = 1,
                             Quantity = 13
                         },
                         new
                         {
                             ID = 3,
-                            DateRecorded = new DateTime(2023, 5, 6, 15, 40, 30, 748, DateTimeKind.Local).AddTicks(441),
+                            DateRecorded = new DateTime(2023, 5, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(7237),
                             PartID = 1,
                             Quantity = 5
                         },
                         new
                         {
                             ID = 4,
-                            DateRecorded = new DateTime(2023, 4, 6, 15, 40, 30, 748, DateTimeKind.Local).AddTicks(443),
+                            DateRecorded = new DateTime(2023, 4, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(7239),
                             PartID = 2,
                             Quantity = 22
                         },
                         new
                         {
                             ID = 5,
-                            DateRecorded = new DateTime(2023, 5, 6, 15, 40, 30, 748, DateTimeKind.Local).AddTicks(446),
+                            DateRecorded = new DateTime(2023, 5, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(7242),
                             PartID = 2,
                             Quantity = 16
                         },
                         new
                         {
                             ID = 6,
-                            DateRecorded = new DateTime(2023, 6, 6, 15, 40, 30, 748, DateTimeKind.Local).AddTicks(448),
+                            DateRecorded = new DateTime(2023, 6, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(7244),
                             PartID = 2,
                             Quantity = 1
                         },
                         new
                         {
                             ID = 7,
-                            DateRecorded = new DateTime(2023, 5, 6, 15, 40, 30, 748, DateTimeKind.Local).AddTicks(450),
+                            DateRecorded = new DateTime(2023, 5, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(7246),
                             PartID = 3,
                             Quantity = 33
                         },
                         new
                         {
                             ID = 8,
-                            DateRecorded = new DateTime(2023, 6, 6, 15, 40, 30, 748, DateTimeKind.Local).AddTicks(452),
+                            DateRecorded = new DateTime(2023, 6, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(7249),
                             PartID = 3,
                             Quantity = 50
                         },
                         new
                         {
                             ID = 9,
-                            DateRecorded = new DateTime(2023, 7, 6, 15, 40, 30, 748, DateTimeKind.Local).AddTicks(454),
+                            DateRecorded = new DateTime(2023, 7, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(7251),
                             PartID = 3,
                             Quantity = 40
                         });
@@ -359,7 +362,7 @@ namespace SpareParts.API.Migrations
                             Description = "The first part",
                             Name = "Part 1",
                             Price = 10.1,
-                            StartDate = new DateTime(2023, 3, 6, 15, 40, 30, 747, DateTimeKind.Local).AddTicks(9773),
+                            StartDate = new DateTime(2023, 3, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(6505),
                             Weight = 1.1100000000000001
                         },
                         new
@@ -369,27 +372,27 @@ namespace SpareParts.API.Migrations
                             Description = "The second part",
                             Name = "Part 2",
                             Price = 12.220000000000001,
-                            StartDate = new DateTime(2023, 4, 6, 15, 40, 30, 747, DateTimeKind.Local).AddTicks(9827),
+                            StartDate = new DateTime(2023, 4, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(6683),
                             Weight = 2.2200000000000002
                         },
                         new
                         {
                             ID = 3,
                             Description = "The third part",
-                            EndDate = new DateTime(2024, 3, 6, 15, 40, 30, 747, DateTimeKind.Local).AddTicks(9833),
+                            EndDate = new DateTime(2024, 3, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(6689),
                             Name = "Part 3",
                             Price = 13.300000000000001,
-                            StartDate = new DateTime(2023, 5, 6, 15, 40, 30, 747, DateTimeKind.Local).AddTicks(9831),
+                            StartDate = new DateTime(2023, 5, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(6687),
                             Weight = 3.3300000000000001
                         },
                         new
                         {
                             ID = 4,
                             Description = "The fourth part",
-                            EndDate = new DateTime(2023, 8, 6, 15, 40, 30, 747, DateTimeKind.Local).AddTicks(9840),
+                            EndDate = new DateTime(2023, 8, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(6695),
                             Name = "Part 4",
                             Price = 14.4,
-                            StartDate = new DateTime(2022, 9, 6, 15, 40, 30, 747, DateTimeKind.Local).AddTicks(9838),
+                            StartDate = new DateTime(2022, 9, 9, 15, 13, 12, 782, DateTimeKind.Local).AddTicks(6693),
                             Weight = 4.4400000000000004
                         });
                 });

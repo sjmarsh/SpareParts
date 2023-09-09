@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpareParts.API.Entities;
 
+#nullable disable
+
 namespace SpareParts.API.Data
 {
     public class SparePartsDbContext : IdentityDbContext<ApplicationUser>
-    {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        
+    {        
         public DbSet<Part> Parts { get; set; }
 
         public DbSet<PartAttribute> PartAttribute { get; set; }
@@ -17,7 +17,6 @@ namespace SpareParts.API.Data
         public DbSet<InventoryItem> InventoryItems { get; set; }
 
         public SparePartsDbContext(DbContextOptions<SparePartsDbContext> options) : base(options)
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
         }
 
