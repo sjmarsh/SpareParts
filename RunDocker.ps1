@@ -6,6 +6,14 @@ if($dockerDesktopProcess -eq $null)
 	Exit
 }
 
+if ($IsLinux) {
+    Write-Warning "Script is running on Linux.  Not fully tested."
+}
+elseif ($IsWindows) {
+    Write-Host "Script is running on Windows"
+}
+
+
 $envFile = ".\dev.env"
 if((Test-Path -Path $envFile -PathType leaf) -eq $False){
 	Write-Error "dev.env file does not exist. Cannot continue."
@@ -49,25 +57,43 @@ else {
 	docker pull mcr.microsoft.com/mssql/server
 
 	Write-Output "Run sql server image"
-	$runDockerSqlServerImage = 'cmd /c start powershell -NoExit -Command { docker run -e `"ACCEPT_EULA=Y`" -e `"SA_PASSWORD=' + $dockerSqlSaPassword + '`" -p ' + $dockerSqlPort + ':1433 --rm --name sql-server-docker -d mcr.microsoft.com/mssql/server }'
-	invoke-expression $runDockerSqlServerImage
+    Start-Process powershell -ArgumentList "-noexit -command docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=$dockerSqlSaPassword' -p $dockerSqlPort`:1433 --name sql-server-docker -d mcr.microsoft.com/mssql/server"
 	Start-Sleep -Seconds 10
 }
 	
 Write-Output "Build spare parts image"
 docker build -t spare-parts-image -f SpareParts.API\Dockerfile .
 		
+# TODO this won't work on Linux. Need to implement solution for it.
 Write-Output "Setup local dev certs"
 dotnet dev-certs https -ep $env:USERPROFILE\.aspnet\https\aspnetapp.pfx -p $devCertPassword
 dotnet dev-certs https --trust
 	
 Write-Output "Run spare parts image"
-$runDockerSpareParts = 'cmd /c start powershell -NoExit -Command { docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --env-file ' + $envFile + ' -v $env:USERPROFILE\.aspnet\https:/https/ spare-parts-image }'
-invoke-expression $runDockerSpareParts
+Start-Process powershell -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --env-file $envFile -v $env:USERPROFILE\.aspnet\https:/https/ spare-parts-image"
 
-Start-Sleep -Seconds 15 # TODO - replace this with a ping/service ready check.
+#Ping app to see if it is up yet
+$siteUri = "https://localhost:8001"
+$isSiteOK = $False
+$retryAttempts = 10
+while($isSiteOK -eq $False -and $retryAttempts -gt 0) {
+
+    Write-Output "Checking App is available to start."
+    try {
+        $req = Invoke-WebRequest -UseBasicParsing -uri $siteUri
+        if($req.StatusCode -eq 200) {
+            Write-Output "App is Ready."
+            $isSiteOK = $True
+        }
+    }
+    catch {
+        Write-Output "App Not Ready. Attempts remaining: $retryAttempts " 
+        $retryAttempts -= 1
+        Start-Sleep -Seconds 5
+    }    
+}
 
 Write-Output "Launch app in browser"
-invoke-expression 'explorer https://localhost:8001'	
+Start-Process $siteUri
 
 Set-Content -Path $envFile -Value $originalEnvFileContent
