@@ -3,6 +3,7 @@
 @inject IPartService PartService
 @inject HttpClient HttpClient
 @inject IServiceWrapper ServiceWrapper
+@inject IMessageBoxService MessageBox
 
 <h3>@_modeDescription Part</h3>
 
@@ -128,12 +129,17 @@
         _part.Attributes.Add(new PartAttribute());
     }
 
-    private void DeleteAttribute(int attributeId)
+    private async Task DeleteAttribute(int attributeId)
     {
-        var attributeToDelete = _part!.Attributes!.FirstOrDefault(a => a.ID == attributeId);
-        if(attributeToDelete != null)
+        var result = await MessageBox.ShowMessage("Are you sure you want to delete this attribute?", "Confirm Delete", MessageBoxType.YesNo);
+
+        if(result == MessageBoxResult.Yes)
         {
-            _part!.Attributes!.Remove(attributeToDelete);
+            var attributeToDelete = _part!.Attributes!.FirstOrDefault(a => a.ID == attributeId);
+            if (attributeToDelete != null)
+            {
+                _part!.Attributes!.Remove(attributeToDelete);
+            }
         }
     }
 

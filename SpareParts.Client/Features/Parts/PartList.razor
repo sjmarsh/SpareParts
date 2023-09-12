@@ -8,6 +8,7 @@
 @inject IPartService PartService
 @inject IServiceWrapper ServiceWrapper
 @inject NavigationManager NavManager
+@inject IMessageBoxService MessageBox
 
 <h3>Part List</h3>
 
@@ -44,7 +45,7 @@
                 <td>@part.StartDate.ToString(DefaultStringFormat.ForDate)</td>
                 <td>@part.EndDate?.ToString(DefaultStringFormat.ForDate)</td>
                 <td><LinkButton ID="@($"edit-{part.Name}")" ButtonTitle="Edit" OnClick="() => EditPart(part.ID)"/></td>
-                <td><LinkButton ID="@($"delete-{part.Name}")" ButtonTitle="Delete" OnClick="() => DeletePart(part.ID)"/></td>
+                <td><LinkButton ID="@($"delete-{part.Name}")" ButtonTitle="Delete" OnClick="() => DeletePart(part.ID)" /></td>
             </tr>
         }
         </tbody>
@@ -136,19 +137,24 @@
         _hasError = false;
         _errorMessage = "";
 
-        var partResponse = await ServiceWrapper.ServiceCall(() => PartService.Delete(partID), "An error occurred deleting part.");
+        var messageBoxResult = await MessageBox.ShowMessage("Are you sure you want to delete this part?", "Confirm Delete", MessageBoxType.YesNo); 
 
-        if(partResponse != null && partResponse.HasError)
+        if(messageBoxResult == MessageBoxResult.Yes)
         {
-            _hasError = true;
-            _errorMessage = partResponse.Message;
-        }
-        else
-        {
-            _hasDeleted = true;
-        }
+            var partResponse = await ServiceWrapper.ServiceCall(() => PartService.Delete(partID), "An error occurred deleting part.");
 
-        await RefreshPartsList();
+            if (partResponse != null && partResponse.HasError)
+            {
+                _hasError = true;
+                _errorMessage = partResponse.Message;
+            }
+            else
+            {
+                _hasDeleted = true;
+            }
+
+            await RefreshPartsList();
+        }                
     }
 
     private void OnCloseDetailModal()

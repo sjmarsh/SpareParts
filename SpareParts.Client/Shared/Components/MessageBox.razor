@@ -1,0 +1,85 @@
+﻿@inject IMessageBoxService MessageBoxService
+
+@if (_showMessage)
+{
+    <div class="modal fade show message-box" aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5">@_title</h2>
+                </div>
+                <div class="modal-body">
+                    <p class="message">@_message</p>
+                </div>
+                <div class="modal-footer">
+                    @if (!string.IsNullOrEmpty(_dismissButtonText))
+                    {
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="HandleDismissed">@_dismissButtonText</button>
+                    }
+                    <button type="button" class="btn btn-primary" @onclick="HandleAccepted">@_acceptButtonText</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _showMessage = false;
+    private string? _message;
+    private string? _title;
+    private MessageBoxType _messageBoxType;
+    private string? _dismissButtonText;
+    private string? _acceptButtonText;
+
+    protected override void OnInitialized()
+    {
+        MessageBoxService.OnShowMessage += HandleShowMessage;
+    }
+
+    private void HandleShowMessage(string message, string title, MessageBoxType messageBoxType)
+    {
+        _showMessage = true;
+        _message = message;
+        _title = title;
+        _messageBoxType = messageBoxType;
+        SetMessageButtons(messageBoxType);
+        StateHasChanged();
+    }
+
+    private void HandleDismissed()
+    {
+        var result = _messageBoxType == MessageBoxType.OKCancel ? MessageBoxResult.Cancel : MessageBoxResult.No;
+        MessageBoxService.CloseMessage(result);
+        _showMessage = false;
+    }
+
+    private void HandleAccepted()
+    {
+        var result = _messageBoxType == MessageBoxType.OKCancel || _messageBoxType == MessageBoxType.OK ? MessageBoxResult.OK: MessageBoxResult.Yes;
+        MessageBoxService.CloseMessage(result);
+        _showMessage = false;
+    }
+
+    private void SetMessageButtons(MessageBoxType messageBoxType)
+    {
+        switch (messageBoxType)
+        {
+            case MessageBoxType.OK:
+                _dismissButtonText = null;
+                _acceptButtonText = "OK";
+                break;
+            case MessageBoxType.OKCancel:
+                _dismissButtonText = "Cancel";
+                _acceptButtonText = "OK";
+                break;
+            case MessageBoxType.YesNo:
+                _dismissButtonText = "No";
+                _acceptButtonText = "Yes";
+                break;
+            default:
+                _dismissButtonText = null;
+                _acceptButtonText = "OK";
+                break;
+        }
+    }
+}
