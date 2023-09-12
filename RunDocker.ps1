@@ -6,13 +6,19 @@ if($dockerDesktopProcess -eq $null)
 	Exit
 }
 
+try {
+    Start-Process pwsh -ArgumentList "Exit"
+} catch {
+    Write-Error "PowerShell 7 or higher is required to run this script."
+    Exit
+}
+
 if ($IsLinux) {
     Write-Warning "Script is running on Linux.  Not fully tested."
 }
 elseif ($IsWindows) {
-    Write-Host "Script is running on Windows"
+    Write-Output "Script is running on Windows."
 }
-
 
 $envFile = ".\dev.env"
 if((Test-Path -Path $envFile -PathType leaf) -eq $False){
@@ -57,7 +63,7 @@ else {
 	docker pull mcr.microsoft.com/mssql/server
 
 	Write-Output "Run sql server image"
-    Start-Process powershell -ArgumentList "-noexit -command docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=$dockerSqlSaPassword' -p $dockerSqlPort`:1433 --name sql-server-docker -d mcr.microsoft.com/mssql/server"
+    Start-Process pwsh -ArgumentList "-noexit -command docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=$dockerSqlSaPassword' -p $dockerSqlPort`:1433 --name sql-server-docker -d mcr.microsoft.com/mssql/server"
 	Start-Sleep -Seconds 10
 }
 	
@@ -70,7 +76,7 @@ dotnet dev-certs https -ep $env:USERPROFILE\.aspnet\https\aspnetapp.pfx -p $devC
 dotnet dev-certs https --trust
 	
 Write-Output "Run spare parts image"
-Start-Process powershell -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --env-file $envFile -v $env:USERPROFILE\.aspnet\https:/https/ spare-parts-image"
+Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --env-file $envFile -v $env:USERPROFILE/.aspnet/https:/https/ spare-parts-image"
 
 #Ping app to see if it is up yet
 $siteUri = "https://localhost:8001"
@@ -93,7 +99,12 @@ while($isSiteOK -eq $False -and $retryAttempts -gt 0) {
     }    
 }
 
-Write-Output "Launch app in browser"
-Start-Process $siteUri
+if($isSiteOK) {
+    Write-Output "Launch app in browser."
+    Start-Process $siteUri
+}
+else {
+    Write-Output "Unable to launch app.  Check the container is running in Docker Desktop."
+}
 
 Set-Content -Path $envFile -Value $originalEnvFileContent
