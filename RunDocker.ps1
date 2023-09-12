@@ -7,7 +7,7 @@ if($dockerDesktopProcess -eq $null)
 }
 
 try {
-    Start-Process pwsh -ArgumentList "Exit"
+    Start-Process pwsh -ArgumentList " -command exit"
 } catch {
     Write-Error "PowerShell 7 or higher is required to run this script."
     Exit
@@ -20,7 +20,7 @@ elseif ($IsWindows) {
     Write-Output "Script is running on Windows."
 }
 
-$envFile = ".\dev.env"
+$envFile = "./dev.env"
 if((Test-Path -Path $envFile -PathType leaf) -eq $False){
 	Write-Error "dev.env file does not exist. Cannot continue."
 	Exit
@@ -68,11 +68,11 @@ else {
 }
 	
 Write-Output "Build spare parts image"
-docker build -t spare-parts-image -f SpareParts.API\Dockerfile .
+docker build -t spare-parts-image -f SpareParts.API/Dockerfile .
 		
 # TODO this won't work on Linux. Need to implement solution for it.
 Write-Output "Setup local dev certs"
-dotnet dev-certs https -ep $env:USERPROFILE\.aspnet\https\aspnetapp.pfx -p $devCertPassword
+dotnet dev-certs https -ep $env:USERPROFILE/.aspnet/https/aspnetapp.pfx -p $devCertPassword
 dotnet dev-certs https --trust
 	
 Write-Output "Run spare parts image"
