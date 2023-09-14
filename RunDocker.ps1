@@ -71,12 +71,22 @@ Write-Output "Build spare parts image"
 docker build -t spare-parts-image -f SpareParts.API/Dockerfile .
 		
 # TODO this won't work on Linux. Need to implement solution for it.
-Write-Output "Setup local dev certs"
-dotnet dev-certs https -ep $env:USERPROFILE/.aspnet/https/aspnetapp.pfx -p $devCertPassword
-dotnet dev-certs https --trust
-	
+if($IsWindows) {
+    Write-Output "Setup local dev certs"
+    dotnet dev-certs https -ep $env:USERPROFILE/.aspnet/https/aspnetapp.pfx -p $devCertPassword
+    dotnet dev-certs https --trust
+}
+
 Write-Output "Run spare parts image"
-Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --env-file $envFile -v $env:USERPROFILE/.aspnet/https:/https/ spare-parts-image"
+if($IsWindows) {
+    Write-Output "Windows Host"
+    Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --env-file $envFile -v $env:USERPROFILE/.aspnet/https:/https/ spare-parts-image"
+}
+if($IsLinux) {
+    Write-Output "Linux Host"
+    #Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --env-file $envFile -v $env:USERPROFILE/usr/lib/ssl/certs:/https/ spare-parts-image"
+    Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --env-file $envFile spare-parts-image"
+}
 
 #Ping app to see if it is up yet
 $siteUri = "https://localhost:8001"
