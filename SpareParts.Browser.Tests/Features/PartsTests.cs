@@ -123,6 +123,7 @@ namespace SpareParts.Browser.Tests.Features
             (await _partsPage.PartListItemCount()).Should().Be(2);
 
             await _partsPage.ClickDeleteButtonForRow(0);  // delete part1
+            await _partsPage.ConfirmDelete();
 
             (await _partsPage.IsPartTableVisible()).Should().BeTrue();
             (await _partsPage.PartListItemCount()).Should().Be(1);
@@ -133,6 +134,21 @@ namespace SpareParts.Browser.Tests.Features
                     .Excluding(p => p.Attributes)
                     .Using<DateTime>(ctx => ctx.Subject.Date.Should().Be(ctx.Expectation.Date))
                     .WhenTypeIs<DateTime>());
+        }
+
+        [Fact]
+        public async Task DeletePart_Should_NotRemovePartFromListWhenConfirmationDenied()
+        {
+            var parts = await _dataHelper.CreatePartListInDatabase(2);
+            await _partsPage.InitializePage();
+            (await _partsPage.IsPartTableVisible()).Should().BeTrue();
+            (await _partsPage.PartListItemCount()).Should().Be(2);
+
+            await _partsPage.ClickDeleteButtonForRow(0);  // delete part1
+            await _partsPage.DenyDelete();
+
+            (await _partsPage.IsPartTableVisible()).Should().BeTrue();
+            (await _partsPage.PartListItemCount()).Should().Be(2);
         }
 
         private async Task EnterPart(Shared.Models.Part part, bool isEditingExistingAttrutes)

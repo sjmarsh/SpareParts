@@ -60,7 +60,25 @@ namespace SpareParts.Browser.Tests.Pages
             deleteButtons.Should().NotBeNullOrEmpty();
             await deleteButtons[row].FocusAsync();
             await deleteButtons[row].ClickAsync(new ElementHandleClickOptions { ClickCount = 1, Delay = 200 });
-            await _page.WaitForResponseAsync(r => r.Status == 200);    
+        }
+
+        public async Task ConfirmDelete()
+        {
+            var deleteConfirmationMessage = _page.GetByText("Confirm Delete");
+            deleteConfirmationMessage.Should().NotBeNull();
+            var yesButton = _page.Locator("text=Yes");
+            yesButton.Should().NotBeNull();
+            await yesButton.ClickAsync();
+            await _page.WaitForResponseAsync(r => r.Status == 200);
+        }
+
+        public async Task DenyDelete()
+        {
+            var deleteConfirmationMessage = _page.GetByText("Confirm Delete");
+            deleteConfirmationMessage.Should().NotBeNull();
+            var noButton = _page.Locator("text=No");
+            noButton.Should().NotBeNull();
+            await noButton.ClickAsync();
         }
 
         public async Task ClickAddButton()
