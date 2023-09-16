@@ -106,7 +106,15 @@ dotnet dev-certs https -ep ${localDevCertPath}aspnetapp.pfx -p $devCertPassword
 dotnet dev-certs https --trust
 
 Write-Output "Run spare parts image"
-Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --network $sparePartsNetwork --env-file $envFile -v ${localDevCertPath}:/https/ $sparePartsContainer"
+if($IsWindows) {
+    Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --network $sparePartsNetwork --env-file $envFile -v ${localDevCertPath}:/https/ $sparePartsContainer"
+}
+elseif($IsLinux) {
+    Start-Process gnome-terminal -ArgumentList " -- pwsh -noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --network $sparePartsNetwork --env-file $envFile -v ${localDevCertPath}:/https/ $sparePartsContainer"
+}
+else {
+    Write-Error "System not supported."
+}
 
 #Ping app to see if it is up yet
 $siteUri = "https://localhost:8001"
