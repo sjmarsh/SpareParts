@@ -13,18 +13,18 @@ if ($host.Version.Major -lt 7) {
     Exit
 }
 
+if ($IsLinux) {
+    Write-Warning "Script is running on Linux.  Only tested using Linux Mint."
+}
+elseif ($IsWindows) {
+    Write-Output "Script is running on Windows."
+}
+
 $dockerDesktopProcess = Get-Process 'Docker Desktop' -ErrorAction SilentlyContinue
 if ($dockerDesktopProcess -eq $null) 
 {
 	Write-Error "Docker Desktop must be installed and running before continuing."
 	Exit
-}
-
-if ($IsLinux) {
-    Write-Warning "Script is running on Linux.  Not fully tested."
-}
-elseif ($IsWindows) {
-    Write-Output "Script is running on Windows."
 }
 
 $envFile = "./dev.env"
@@ -33,10 +33,11 @@ if((Test-Path -Path $envFile -PathType leaf) -eq $False){
 	Exit
 }
 
-Write-Output "Process environment variables"
 $sqlServerContainer = "sql-server-docker"
 $sparePartsContainer = "spare-parts-image"
 
+
+Write-Output "Process environment variables"
 $server = hostname
 # This is a work-around for Sql database connection issue that has occurred with recent version of docker and/or sql image
 # TODO: Either fix issue or use a better way of getting the FQDN for the sql server.
@@ -47,11 +48,19 @@ if($IsLinux) {
     $server = "$server.lan"
 }
 
+#$localDevCertPath = "$env:USERPROFILE/.aspnet/https/"
+$localDevCertPath = (Get-Location).Path + "/"
+$devCertPath = "/https/aspnetapp.pfx"
+
 $envFileContent = Get-Content -Path $envFile
 $originalEnvFileContent = Get-Content -Path $envFile
+#replace SERVER token
 $envFileContent -replace '{SERVER}', $server | Set-Content $envFile
 $envFileContent = Get-Content -Path $envFile
-		
+#replace DEV_CERT PATH token
+$envFileContent -replace '{DEV_CERT_PATH}', $devCertPath | Set-Content $envFile
+$envFileContent = Get-Content -Path $envFile
+
 $devVariables = @{}
 $envFileContent | foreach {
 	$name, $value = $_.split('=')
@@ -68,8 +77,6 @@ Set-Content -Path $envFile -Value $envFileContent
 $dockerSqlSaPassword = $devVariables['DOCKER_SQL_SA_PASSWORD']
 $dockerSqlPort = $devVariables['DOCKER_SQL_PORT']
 $devCertPassword = $devVariables['ASPNETCORE_Kestrel__Certificates__Default__Password']
-
-Write-Output $envFileContent
 
 # Setup docker network
 $sparePartsNetwork = "spare-parts-network"
@@ -93,24 +100,13 @@ else {
 	
 Write-Output "Build spare parts image"
 docker build -t $sparePartsContainer -f SpareParts.API/Dockerfile .
-		
-# TODO this won't work on Linux. Need to implement solution for it.
-if($IsWindows) {
-    Write-Output "Setup local dev certs"
-    dotnet dev-certs https -ep $env:USERPROFILE/.aspnet/https/aspnetapp.pfx -p $devCertPassword
-    dotnet dev-certs https --trust
-}
+
+Write-Output "Setup local dev certs"
+dotnet dev-certs https -ep ${localDevCertPath}aspnetapp.pfx -p $devCertPassword
+dotnet dev-certs https --trust
 
 Write-Output "Run spare parts image"
-if($IsWindows) {
-    Write-Output "Windows Host"
-    Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --network $sparePartsNetwork --env-file $envFile -v $env:USERPROFILE/.aspnet/https:/https/ $sparePartsContainer"
-}
-if($IsLinux) {
-    Write-Output "Linux Host"
-    #Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --env-file $envFile -v $env:USERPROFILE/usr/lib/ssl/certs:/https/ $sparePartsContainer"
-    Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --network $sparePartsNetwork --env-file $envFile $sparePartsContainer"
-}
+Start-Process pwsh -ArgumentList "-noexit -command docker run --name spare-parts --rm -it -p 8000:80 -p 8001:443 --network $sparePartsNetwork --env-file $envFile -v ${localDevCertPath}:/https/ $sparePartsContainer"
 
 #Ping app to see if it is up yet
 $siteUri = "https://localhost:8001"
@@ -135,10 +131,11 @@ while($isSiteOK -eq $False -and $retryAttempts -gt 0) {
 
 if($isSiteOK) {
     Write-Output "Launch app in browser."
+    Set-Content -Path $envFile -Value $originalEnvFileContent
     Start-Process $siteUri
 }
 else {
     Write-Output "Unable to launch app.  Check the container is running in Docker Desktop."
+    Set-Content -Path $envFile -Value $originalEnvFileContent
 }
 
-Set-Content -Path $envFile -Value $originalEnvFileContent
