@@ -189,13 +189,13 @@ namespace SpareParts.Browser.Tests.Pages
         {
             var filterFieldSelector = _page.Locator("#partCategory");
             filterFieldSelector.Should().NotBeNull();
-            if (partCategory == null)
+            if (partCategory == null || partCategory.ToString() == null)
             {
                 await filterFieldSelector.SelectOptionAsync("");
             }
             else
             {
-                await filterFieldSelector.SelectOptionAsync(partCategory.ToString());
+                await filterFieldSelector.SelectOptionAsync(partCategory.ToString() ?? "", options: null);
             }
         }
 

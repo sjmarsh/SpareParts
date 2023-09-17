@@ -83,7 +83,7 @@ namespace SpareParts.Browser.Tests.Pages
             };
         }
 
-        private static Shared.Models.PartCategory? GetCategoryFromString(string categoryString)
+        private static Shared.Models.PartCategory? GetCategoryFromString(string? categoryString)
         {
             return categoryString.GetEnumFromString<Shared.Models.PartCategory>();
         }
