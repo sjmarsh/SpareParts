@@ -12,8 +12,8 @@ namespace SpareParts.Client.Tests.Shared.Components
 
             List<TestModel> testModelList = new()
             {
-                new TestModel { DateVal = theDate1, NumberVal = 2, TextVal = "Hello" },
-                new TestModel { DateVal = theDate2, NumberVal = 4, TextVal = "Goodbye" }
+                new TestModel { DateVal = theDate1, NumberVal = 2, TextVal = "Hello", EnumVal = TestClientEnum.One },
+                new TestModel { DateVal = theDate2, NumberVal = 4, TextVal = "Goodbye", EnumVal = TestClientEnum.Two }
             };
 
             var ctx = new TestContext();
@@ -29,13 +29,13 @@ namespace SpareParts.Client.Tests.Shared.Components
 
             var headers = cut.FindAll("th");
             headers.Should().NotBeNull();
-            headers.Should().HaveCount(3);
-            headers.Select(h => h.TextContent).Should().BeEquivalentTo(new[] { "DateVal", "NumberVal", "TextVal" });
+            headers.Should().HaveCount(4);
+            headers.Select(h => h.TextContent).Should().BeEquivalentTo(new[] { "DateVal", "NumberVal", "TextVal", "EnumVal" });
             
             var dataCells = cut.FindAll("td");
             dataCells.Should().NotBeNull();
-            dataCells.Should().HaveCount(6);
-            dataCells.Select(d => d.TextContent).Should().BeEquivalentTo(new[] { theDate1.ToString(), "2", "Hello", theDate2.ToString(), "4", "Goodbye" });
+            dataCells.Should().HaveCount(8);
+            dataCells.Select(d => d.TextContent).Should().BeEquivalentTo(new[] { theDate1.ToString(), "2", "Hello", "One", theDate2.ToString(), "4", "Goodbye", "Two" });
         }
 
         [Fact]
