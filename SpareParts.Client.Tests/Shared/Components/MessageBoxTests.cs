@@ -207,19 +207,4 @@ namespace SpareParts.Client.Tests.Shared.Components
             });
         }
     }
-
-    public class FakeMessageBoxService : IMessageBoxService
-    {
-        public event Action<string, string, MessageBoxType>? OnShowMessage;
-
-        public void CloseMessage(MessageBoxResult messageBoxResult)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ValueTask<MessageBoxResult> ShowMessage(string message, string title, MessageBoxType messageBoxType)
-        {
-            throw new NotImplementedException();
-        }
-    }
 }

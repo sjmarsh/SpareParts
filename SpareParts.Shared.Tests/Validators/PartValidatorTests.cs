@@ -83,14 +83,14 @@ namespace SpareParts.Shared.Tests.Validators
         public void ShouldHaveValidationErrorForInvalidAttribute()
         {
             var result = _validator.TestValidate(new Part { Attributes = new List<PartAttribute> { new PartAttribute() } });
-            result.ShouldHaveValidationErrorFor(x => x.Attributes[0].Name);
+            result.ShouldHaveValidationErrorFor(x => x.Attributes![0].Name);
         }
 
         [Fact]
         public void ShouldNotHaveValidationErrorForValidAttribute()
         {
             var result = _validator.TestValidate(new Part { Name = "Part1", Attributes = new List<PartAttribute> { new PartAttribute { Name = "Colour", Value = "Red" } } });
-            result.ShouldNotHaveValidationErrorFor(x => x.Attributes[0].Name);
+            result.ShouldNotHaveValidationErrorFor(x => x.Attributes![0].Name);
         }
     }
 }

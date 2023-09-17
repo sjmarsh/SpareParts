@@ -66,7 +66,7 @@ namespace SpareParts.Shared.Tests.Extensions
         [Fact]
         public void Should_ReturnNullWhenNullString()
         {
-            string str = null;
+            string? str = null;
             var result = str.GetEnumFromString<TestEnumForExtensions>();
             result.Should().BeNull();
         }

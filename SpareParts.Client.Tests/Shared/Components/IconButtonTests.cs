@@ -47,7 +47,7 @@ namespace SpareParts.Client.Tests.Shared.Components
 
             var icon = cut.FindAll("span").FirstOrDefault();
             icon.Should().NotBeNull();
-            icon.ClassName.Should().Contain(IconButtonIcon.Print.GetCss());
+            icon!.ClassName.Should().Contain(IconButtonIcon.Print.GetCss());
         }
     }
 }

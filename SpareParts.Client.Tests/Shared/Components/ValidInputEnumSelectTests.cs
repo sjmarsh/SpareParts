@@ -22,7 +22,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             label.TextContent.Should().Be("Test Select");
             var select = component.GetElementsByTagName("select")[0] as IHtmlSelectElement;
             select.Should().NotBeNull();
-            select.Id.Should().Be("testSelect");
+            select!.Id.Should().Be("testSelect");
             select.ClassList.Should().Contain("valid");
             select.ClassList.Should().Contain("form-select");
 
@@ -30,7 +30,8 @@ namespace SpareParts.Client.Tests.Shared.Components
             select.Change(TestClientEnum.One.ToString());
             component = cut.Find(".form-group");
             select = component.GetElementsByTagName("select")[0] as IHtmlSelectElement;
-            select.ClassList.Should().NotContain("invalid");
+            select.Should().NotBeNull();
+            select!.ClassList.Should().NotContain("invalid");
             component.InnerHtml.Should().NotContain("validation-message");
         }
     }

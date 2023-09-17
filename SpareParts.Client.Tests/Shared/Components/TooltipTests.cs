@@ -11,7 +11,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             const string TooltipContent = "The Tooltip";
             string inputTextVal = "Test";
-            Expression<Func<string>> inputTextExp = () => inputTextVal;
+            Expression<Func<string?>> inputTextExp = () => inputTextVal;
             var ctx = new TestContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
             
@@ -28,7 +28,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             const string? TooltipContent = null;
             string inputTextVal = "Test";
-            Expression<Func<string>> inputTextExp = () => inputTextVal;
+            Expression<Func<string?>> inputTextExp = () => inputTextVal;
             var ctx = new TestContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
 
