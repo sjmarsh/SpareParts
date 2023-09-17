@@ -88,8 +88,7 @@
 
     private List<T>? _filterResults { get; set; }
     private const int MaxFilterLineCount = 5;
-
-    private bool _isLoading;
+        
     private bool _hasError;
     private string? _errorMessage;
     private bool _isFieldsSelectionVisible;
@@ -114,7 +113,6 @@
             await AddEmptyFilter();
         }
 
-        _isLoading = false;
         _hasError = false;
         _errorMessage = string.Empty;
         _isFieldsSelectionVisible = FilterGridState.IsFieldsSelectionVisible;
@@ -291,7 +289,6 @@
 
                 if (ServiceCall != null)
                 {
-                    _isLoading = true;
                     var serviceResult = await ServiceCall.Invoke(graphQLRequest);
 
                     if (serviceResult != null && serviceResult.Items != null && serviceResult.Items.Any())
@@ -307,8 +304,6 @@
                         _hasError = true;
                         _errorMessage = "No results found";
                     }
-
-                    _isLoading = false;
                 }
             }
             else
