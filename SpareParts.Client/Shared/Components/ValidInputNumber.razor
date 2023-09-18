@@ -6,9 +6,8 @@
     {
         <label for="@Id">@DisplayName</label>
     }
-    <input id="@Id" type="number" step="any" class="@CssClass form-control" @attributes="AdditionalAttributes"
-       value="@BindConverter.FormatValue(CurrentValue)" 
-       @oninput="EventCallback.Factory.CreateBinder<TNumber>(this, value => CurrentValue = value, CurrentValue)" />
+    <input id="@Id" type="number" step="any" class="@CssClass form-control" @attributes="AdditionalAttributes" value="@BindConverter.FormatValue(CurrentValue)" 
+       @oninput="EventCallback.Factory.CreateBinder<TNumber?>(this, value => CurrentValue = value, CurrentValue)" />
     <ValidationMessage For="@ValueExpression" />
 
 </div>
