@@ -32,16 +32,12 @@
 
     private string GetChipClass(Chip chip)
     {
-        var classBuilder = new StringBuilder();
-        var chipColor = chip.Color is null ? " chip-color-default" : $" chip-color-{chip.Color.ToLower()}";
-        if (!chip.IsActive)
+        var chipClass = chip.Color is null ? " chip-color-default" : $" chip-color-{chip.Color.ToLower()}";
+        if(!chip.IsActive)
         {
-            chipColor = chip.Color is null ? " chip-color-default-outlined" : $" chip-color-{chip.Color.ToLower()}-outlined";
+            chipClass = $"{chipClass}-outlined";
         }
-        classBuilder.Append(chipColor);
-
-
-        return classBuilder.ToString();
+        return chipClass;
     }
 
     private async Task HandleToggleChip(Chip chip)
