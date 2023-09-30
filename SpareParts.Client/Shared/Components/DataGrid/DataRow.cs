@@ -68,7 +68,7 @@ namespace SpareParts.Client.Shared.Components.DataGrid
                 foreach (var prop in props)
                 {
                     var columnName = prop.Name;
-                    if (_columnList.FirstOrDefault(c => c.ColumnName == columnName && c.ParentColumnName == null) == null)
+                    if (_columnList.FirstOrDefault(c => c.ColumnName == columnName && c.ParentColumnName == null) == null)  // find the property that contains the detail list
                     {
                         detailRows.Add(GetRowDetails(prop, _sourceItem, columnName));
                     }

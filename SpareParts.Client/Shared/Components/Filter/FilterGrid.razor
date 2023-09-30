@@ -188,7 +188,7 @@
             return _chipColors[filterField.ParentFieldName];
         }
 
-        var chipColors = Enum.GetNames(typeof(ChipColor));
+        var chipColors = Enum.GetNames(typeof(ChipColor)).Where(c => c != ChipColor.Default.ToString()).ToArray();
         Random rand = new Random();
         var col = chipColors[rand.Next(0, 6)];
         _chipColors.Add(filterField.ParentFieldName, col);

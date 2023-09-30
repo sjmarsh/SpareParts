@@ -84,6 +84,17 @@
     border: 1px solid rebeccapurple;
 }
 
+.chip-color-linen {
+    color: saddlebrown;
+    background-color: linen;
+}
+
+.chip-color-linen-outlined {
+    color: saddlebrown;
+    background-color: white;
+    border: 1px solid saddlebrown;
+}
+
 .chip-color-lavenderblush {
     color: maroon;
     background-color: lavenderblush;
