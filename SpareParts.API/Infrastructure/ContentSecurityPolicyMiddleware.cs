@@ -13,7 +13,7 @@
 
         public async Task Invoke(HttpContext context)
         {
-            context.Response.Headers.Add("Feature-Policy", "accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; payment 'none'; usb 'none'");
+            context.Response.Headers.Append("Feature-Policy", "accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; payment 'none'; usb 'none'");
             const string frameworkBlazorWebassemblyJs = "sha256-v8v3RKRPmN4odZ1CWM5gw80QKPCCWMcpNeOmimNL2AA=";
             const string wasmEvalNotSupportedYet = "unsafe-eval";
             const string experimentalRecommendedCsp = "block-all-mixed-content; upgrade-insecure-requests; "; //see: https://docs.microsoft.com/en-us/aspnet/core/blazor/security/content-security-policy?view=aspnetcore-5.0#policy-directives
@@ -21,7 +21,7 @@
             string localWebSocket = _hostEnvironment.IsDevelopment() ? " ws: wss:" : "";  // used for hot-reloading.  Re-evaluate this setting if actually need web sockets in production
 
             //Use "Content-Security-Policy-Report-Only" to fix new content that is being blocked - be aware that chrome has a false negative for wasmEval, so check if unable to resolve reported options
-            context.Response.Headers.Add("Content-Security-Policy",
+            context.Response.Headers.Append("Content-Security-Policy",
                 "base-uri 'self'; "
                 + "object-src 'none'; "
                 + "default-src 'self'; "
