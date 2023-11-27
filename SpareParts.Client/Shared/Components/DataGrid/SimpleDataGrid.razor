@@ -64,26 +64,29 @@
         _data = new List<Dictionary<string, string>>();
         foreach (var item in DataSource)
         {
-            var props = item.GetType().GetProperties();
-            var row = new Dictionary<string, string>();
-            foreach (var prop in props)
+            if(item != null)
             {
-                var key = prop.Name;
-                if(ColumnList == null)
+                var props = item.GetType().GetProperties();
+                var row = new Dictionary<string, string>();
+                foreach (var prop in props)
                 {
-                    string value = (prop.GetValue(item) ?? "").ToString() ?? "";  // TODO - this could be expanded on to format types
-                    row.Add(key, value);
-                }
-                else
-                {
-                    if (ColumnList.Contains(key))
+                    var key = prop.Name;
+                    if(ColumnList == null)
                     {
-                        var value = (prop.GetValue(item) ?? "").ToString() ?? "";  // TODO - this could be expanded on to format types
+                        string value = (prop.GetValue(item) ?? "").ToString() ?? "";  // TODO - this could be expanded on to format types
                         row.Add(key, value);
                     }
+                    else
+                    {
+                        if (ColumnList.Contains(key))
+                        {
+                            var value = (prop.GetValue(item) ?? "").ToString() ?? "";  // TODO - this could be expanded on to format types
+                            row.Add(key, value);
+                        }
+                    }
                 }
+                _data.Add(row); 
             }
-            _data.Add(row);
         }
     }
 

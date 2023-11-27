@@ -17,7 +17,10 @@
             <option value="@_defaultVal"></option>
             @foreach (var e in _enumValues)
             {
-                <option value="@e">@e.ToString()</option>
+                @if(e != null)
+                {
+                    <option value="@e">@e.ToString()</option>
+                }
             }
         </select>
     }
