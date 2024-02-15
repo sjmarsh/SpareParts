@@ -131,6 +131,8 @@ try
     }
     builder.Services.AddTransient<IReportService, ReportService>();
 
+    const string ReactAngularPolicy = "React_Angular";
+
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("Default",
@@ -139,9 +141,9 @@ try
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
-        options.AddPolicy("React",
+        options.AddPolicy(ReactAngularPolicy,
             builder => builder
-                .WithOrigins("https://localhost:3000")
+                .WithOrigins(["https://localhost:3000", "https://localhost:4200"])
                 .SetIsOriginAllowed(origin => true)
                 .AllowCredentials()
                 .AllowAnyMethod()
@@ -167,7 +169,7 @@ try
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment() || app.Environment.IsIntegrationTest())
     {
-        app.UseCors("React");
+        app.UseCors(ReactAngularPolicy);
 
         app.UseSwagger();
         app.UseSwaggerUI();
