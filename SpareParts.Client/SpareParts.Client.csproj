@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blazored.FluentValidation" Version="2.1.0" />
-    <PackageReference Include="Blazored.Toast" Version="4.1.0" />
+    <PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
+    <PackageReference Include="Blazored.Toast" Version="4.2.1" />
     <PackageReference Include="FluentValidation" Version="11.9.2" />
     <PackageReference Include="Fluxor.Blazor.Web" Version="6.0.0" />
     <PackageReference Include="Fluxor.Blazor.Web.ReduxDevTools" Version="6.0.0" />
