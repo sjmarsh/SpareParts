@@ -33,7 +33,7 @@
     <PackageReference Include="HotChocolate.Data" Version="13.7.0" />
     <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.7.0" />
     <PackageReference Include="Humanizer" Version="2.14.1" />
-    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="MediatR" Version="12.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.7" />
