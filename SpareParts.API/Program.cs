@@ -155,7 +155,7 @@ try
         .AddAuthorization()
         .AddFiltering<CustomFilteringConvention>()
         .AddSorting()
-        .RegisterDbContext<SparePartsDbContext>()
+        .RegisterDbContextFactory<SparePartsDbContext>()
         .AddQueryType<Query>()
         .AddType(new TimeSpanType(TimeSpanFormat.DotNet));
 
