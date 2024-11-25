@@ -52,6 +52,7 @@
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.1.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
 	<!--Requied for Integration Tests-->
 	<InternalsVisibleTo Include="SpareParts.API.Int.Tests" />	  
   </ItemGroup>
