@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpareParts.API.Entities;
@@ -56,6 +57,18 @@ namespace SpareParts.API.Data
                 .OnDelete(DeleteBehavior.ClientCascade);
 
             SeedData(modelBuilder);
+        }
+
+
+        // This was added as a work-around to a breaking change when updating to ef version 9.0
+        // ref: https://github.com/dotnet/efcore/issues/35158
+        // TODO - remove this when issue resolved
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+
+            optionsBuilder.ConfigureWarnings(warnings => warnings.Log(RelationalEventId.PendingModelChangesWarning));
+
         }
 
         private static Shared.Models.PartCategory? GetPartCategory(string c)
