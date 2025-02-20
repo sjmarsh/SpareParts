@@ -168,7 +168,15 @@ totalCount
 
             if (ValueRequiresQuotes(filterLine))
             {
-                return $"\"{filterLine.Value}\"";
+                var lineValue = filterLine.Value;
+                if(lineValue != null && filterLine.SelectedField.Type.IsDateType())
+                {
+                    if(DateTime.TryParse(lineValue, out var dateValue))
+                    {
+                        lineValue = dateValue.ToString("o") + "Z";
+                    }
+                }
+                return $"\"{lineValue}\"";
             }
 
             return filterLine.Value;

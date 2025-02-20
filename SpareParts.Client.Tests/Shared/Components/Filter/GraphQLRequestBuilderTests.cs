@@ -126,6 +126,38 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             request.query.Should().Contain(RootGraphQLField + " (where: {  field1: { eq: \"The Value\"");
             request.query.Should().Contain("field1\r\n");
         }
+
+        [Fact]
+        public void Should_BuildRequestWithCorrectDateFormat()
+        {
+
+            List<FilterField> theFields = new() {
+                new FilterField("Field1", typeof(string), true),
+                new FilterField("Field2", typeof(int), true), 
+                new FilterField("Field3", typeof(DateTime), true) 
+            };
+
+            List<NamedFilterOperator> theOperators = new() {
+                new NamedFilterOperator("Equals", "eq"),
+                new NamedFilterOperator("GraterThan", "gt")
+            };
+
+            const string TheValue = "2010-01-01";
+
+            var filterLine1 = new FilterLine(theFields[2], theOperators[1].FilterOperator, TheValue);
+            var theFilterLines = new List<FilterLine> { filterLine1 };
+
+            const string RootGraphQLField = "differentfield";
+
+            var builder = new GraphQLRequestBuilder();
+
+            var request = builder.Build<BuilderTestModel>(theFilterLines, theFields, RootGraphQLField);
+
+            request.Should().NotBeNull();
+            request.query.Should().NotBeNullOrEmpty();
+            request.query.Should().Contain(RootGraphQLField + " (where: {  field3: { gt: \"2010-01-01T00:00:00.0000000Z\"");
+            request.query.Should().Contain("field1\r\n");
+        }
     }
 
     public class BuilderTestModel
