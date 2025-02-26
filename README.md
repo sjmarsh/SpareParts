@@ -24,5 +24,5 @@ Note. React based client app for this exists at [https://github.com/sjmarsh/spar
 - Playwright (.Net)
 - bUnit (Blazor unit tests)
 - XUnit
-- Fluent Assertions
+- Awesome Assertions (community fork of Fluent Assertions [https://awesomeassertions.org/](https://awesomeassertions.org/))
 - Bogus (test data generator)
