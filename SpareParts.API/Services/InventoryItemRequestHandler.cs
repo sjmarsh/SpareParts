@@ -77,14 +77,14 @@ namespace SpareParts.API.Services
         {
             try
             {
-                var parts = _dbContext.Parts.AsQueryable();
+                var parts = _dbContext.Parts.OrderBy(p => p.Name).AsQueryable();
                 
                 if(request.IsCurrentOnly)
                 {
                     parts = parts.Where(p => p.StartDate.Date <= DateTime.Today && (!p.EndDate.HasValue || p.EndDate.Value.Date >= DateTime.Today));
                 }
 
-                var inventoryItems = _dbContext.InventoryItems.AsQueryable();
+                var inventoryItems = _dbContext.InventoryItems.OrderByDescending(i => i.DateRecorded).AsQueryable();
                 
                 if (request.IsCurrentOnly)
                 {
@@ -92,7 +92,7 @@ namespace SpareParts.API.Services
                     inventoryItems = inventoryItems.Where(i => recentItems.FirstOrDefault(r => r.PartID == i.PartID && r.DateRecorded == i.DateRecorded) != null);
                 }
 
-                var query = inventoryItems.Join(parts, i => i.PartID, p => p.ID, (i, p) => new InventoryItemDetail(i.ID, p.ID, p.Name, i.Quantity, i.DateRecorded));
+                var query = parts.Join(inventoryItems, p => p.ID, i => i.PartID, (p, i) => new InventoryItemDetail(i.ID, p.ID, p.Name, i.Quantity, i.DateRecorded));
                 
                 var totalCount = query.Count();
                 var take = request.Take ?? totalCount;

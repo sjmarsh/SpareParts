@@ -118,10 +118,13 @@ namespace SpareParts.Browser.Tests.Features
         public async Task Should_DisplayInventoryHistory()
         {
             var parts = (await _dataHelper.CreatePartListInDatabase(3)).OrderBy(p => p.Name).ToList();
+            var partNames = parts.Select(p => p.Name);
+            partNames.Distinct().Count().Should().Be(3);
             var quantities = new[] { 1, 2, 3, 4, 5, 6 };
             await _inventoryPage.InitializePage();
             await _inventoryPage.SelectTabNumber(0);
-            var manualStockEntry = _inventoryPage.ManualStockEntry;           
+            var manualStockEntry = _inventoryPage.ManualStockEntry;
+            
             var partIndex = 0;
             for (int i = 0; i < quantities.Length; i++)
             {               
@@ -131,7 +134,10 @@ namespace SpareParts.Browser.Tests.Features
                 }
                 await manualStockEntry.SelectPart(parts[partIndex].Name!);
                 await manualStockEntry.EnterQuantity(quantities[i]);
+               
                 await manualStockEntry.SaveManualStock();
+                await Task.Delay(1500);  // need to differentiate time recorded for sorting
+
                 partIndex++;
             }
 

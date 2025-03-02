@@ -49,7 +49,7 @@ namespace SpareParts.Test.Helpers
         {
             return new Faker<API.Entities.Part>()
                         .RuleFor(p => p.ID, 0)
-                        .RuleFor(p => p.Name, f => f.Name.JobTitle())
+                        .RuleFor(p => p.Name, f => f.Name.JobTitle() + f.UniqueIndex)
                         .RuleFor(p => p.Description, f => f.Name.JobDescriptor())
                         .RuleFor(p => p.Category, f => f.PickRandom<PartCategory>())
                         .RuleFor(p => p.Weight, f => f.Random.Number(0, 99))
