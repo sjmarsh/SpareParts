@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
     <PackageReference Include="Blazored.Toast" Version="4.2.1" />
-    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="Fluxor.Blazor.Web" Version="6.1.0" />
     <PackageReference Include="Fluxor.Blazor.Web.ReduxDevTools" Version="6.1.0" />
     <PackageReference Include="Humanizer" Version="2.14.1" />
