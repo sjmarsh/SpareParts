@@ -23,12 +23,14 @@ namespace SpareParts.API.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
+            var entityTypes = modelBuilder.Model.GetEntityTypes().ToList();
+            foreach (IMutableEntityType entityType in entityTypes)
             {
                 //This will singularize all table names
                 entityType.SetTableName(entityType.GetTableName());
 
-                foreach (var property in entityType.GetProperties())
+                var props = entityType.GetProperties().ToList();
+                foreach (var property in props)
                 {
                     // Store Enums as Strings
                     if (property.ClrType.BaseType == typeof(Enum)) // warning: this doesn't detect nullable enums!
