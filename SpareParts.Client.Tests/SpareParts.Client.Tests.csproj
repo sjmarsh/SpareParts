@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="AwesomeAssertions" Version="8.0.1" />
+	<PackageReference Include="AwesomeAssertions" Version="9.3.0" />
 	<PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
 	<PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="bunit" Version="1.36.0" />
