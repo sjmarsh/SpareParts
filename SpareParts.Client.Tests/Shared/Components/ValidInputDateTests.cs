@@ -8,7 +8,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_RenderValidComponent()
         {            
             var testModel = new TestModel();
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<ValidInputDateWrapper>(parameters => parameters
                 .Add(p => p.Id, "testDate")
                 .Add(p => p.DisplayName, "Test Date")
@@ -37,7 +37,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_RenderInvalidComponent()
         {
             var testModel = new TestModel();
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<ValidInputDateWrapper>(parameters => parameters
                 .Add(p => p.Id, "testDate")
                 .Add(p => p.DisplayName, "Test Date")

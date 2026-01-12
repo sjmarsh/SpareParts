@@ -8,7 +8,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_RenderValidComponent()
         {
             var testModel = new TestModel();
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<ValidInputEnumSelectWrapper>(parameters => parameters
                 .Add(p => p.Id, "testSelect")
                 .Add(p => p.DisplayName, "Test Select")

@@ -6,7 +6,7 @@
         public void Should_RenderValidComponent()
         {
             var testModel = new TestModel();
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<ValidInputNumberFormatWrapper>(parameters => parameters
                 .Add(p => p.Id, "testNumber")
                 .Add(p => p.DisplayName, "Test Number")
@@ -36,7 +36,7 @@
         public void Should_RenderInvalidComponent()
         {
             var testModel = new TestModel();
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<ValidInputNumberFormatWrapper>(parameters => parameters
                 .Add(p => p.Id, "testNumber")
                 .Add(p => p.DisplayName, "Test Number")

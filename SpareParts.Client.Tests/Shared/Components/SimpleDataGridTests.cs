@@ -16,7 +16,7 @@ namespace SpareParts.Client.Tests.Shared.Components
                 new TestModel { DateVal = theDate2, NumberVal = 4, TextVal = "Goodbye", EnumVal = TestClientEnum.Two }
             };
 
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<SimpleDataGrid<TestModel>>(parameters => parameters
                 .Add(p => p.DataSource, testModelList));
 
@@ -52,7 +52,7 @@ namespace SpareParts.Client.Tests.Shared.Components
 
             List<string> theColumnList = new() { "DateVal", "TextVal" }; // exclude the NumberVal column
 
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<SimpleDataGrid<TestModel>>(parameters => parameters
                 .Add(p => p.DataSource, testModelList)
                 .Add(p => p.ColumnList, theColumnList));
@@ -89,7 +89,7 @@ namespace SpareParts.Client.Tests.Shared.Components
                 new TestModel { DateVal = theDate2, NumberVal = 4, TextVal = "Goodbye" }
             };
 
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<SimpleDataGrid<TestModel>>(parameters => parameters
                 .Add(p => p.DataSource, testModelList)
                 .Add(p => p.OnRowClick, (rowClickData) => rowData = rowClickData));

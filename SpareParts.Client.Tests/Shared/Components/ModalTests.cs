@@ -7,7 +7,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_ShowModal()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Modal>(parameters => parameters.Add(p => p.ShowModal, true));
 
             var modal = cut.Find(".modal");
@@ -17,7 +17,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_HideModal()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Modal>(parameters => parameters.Add(p => p.ShowModal, false));
 
             cut.Markup.Should().BeEmpty();
@@ -27,7 +27,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_RenderHeaderText()
         {
             const string header = "This is the Header";
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Modal>(parameters => parameters
                 .Add(p => p.ShowModal, true)
                 .Add(p => p.HeaderText, header));
@@ -40,7 +40,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_RenderCloseButtonText()
         {
             const string closeText = "Close Me";
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Modal>(parameters => parameters
                 .Add(p => p.ShowModal, true)
                 .Add(p => p.CloseButtonText, closeText));
@@ -53,7 +53,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_RenderModalContent()
         {
             const string modalContent = "<div>This is my modal content!</div>";
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Modal>(parameters => parameters
                 .Add(p => p.ShowModal, true)
                 .AddChildContent(modalContent));
@@ -64,7 +64,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void CloseButtonClick_Should_HideModal()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Modal>(parameters => parameters
                 .Add(p => p.ShowModal, true));
 

@@ -11,7 +11,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_ShowFieldChips()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             const string fakeQuery = "the built query";
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
@@ -28,7 +28,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_HaveDefaultFilterWithFirstField() 
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             const string fakeQuery = "the built query";
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
@@ -51,7 +51,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_AddEmptyFilterWhenAddClicked()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             const string fakeQuery = "the built query";
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
@@ -73,7 +73,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_CallSearchWithValidFilterSelections()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             const string fakeQuery = "the built query";
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
@@ -114,7 +114,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_NotCallSearchWhenInvalidFilterSelection()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             const string fakeQuery = "the built query";
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);

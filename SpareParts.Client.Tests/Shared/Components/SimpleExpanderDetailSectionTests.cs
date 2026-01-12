@@ -14,7 +14,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var dataRowDetail1 = new DataRowDetail(detailHeader, data);
             var detailRows = new List<DataRowDetail> { dataRowDetail1 };
 
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<SimpleExpanderDetailSection>(parameters => parameters
                 .Add(p => p.DetailRows,detailRows));
 

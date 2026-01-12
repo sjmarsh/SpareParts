@@ -6,7 +6,7 @@
         public void Should_RenderValidComponent()
         {
             var testModel = new TestModel();
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<ValidInputTextWrapper>(parameters => parameters
                 .Add(p => p.Id, "testText")
                 .Add(p => p.DisplayName, "Test Text")
@@ -35,7 +35,7 @@
         public void Should_RenderInvalidComponent()
         {
             var testModel = new TestModel();
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             var cut = ctx.Render<ValidInputTextWrapper>(parameters => parameters
                 .Add(p => p.Id, "testText")
                 .Add(p => p.DisplayName, "Test Text")

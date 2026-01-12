@@ -16,7 +16,7 @@ namespace SpareParts.Client.Tests.Shared.Components
                 new Chip(Guid.NewGuid(), "Chip2", true)
             };
 
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<ChipsList>(parameters => parameters
                             .Add(p => p.Chips, theChips));
 
@@ -39,7 +39,7 @@ namespace SpareParts.Client.Tests.Shared.Components
                 new Chip(Guid.NewGuid(), "Chip2", false) // inactive
             };
 
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<ChipsList>(parameters => parameters
                             .Add(p => p.Chips, theChips));
 
@@ -60,7 +60,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             };
             var wasToggled = false;
 
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<ChipsList>(parameters => parameters
                             .Add(p => p.Chips, theChips)
                             .Add(p => p.OnToggleChip, () => { wasToggled = true; }));
@@ -91,7 +91,7 @@ namespace SpareParts.Client.Tests.Shared.Components
 
             const string TheTitle = "The Title";
 
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<ChipsList>(parameters => parameters
                             .Add(p => p.Chips, theChips)
                             .Add(p => p.Title, TheTitle));

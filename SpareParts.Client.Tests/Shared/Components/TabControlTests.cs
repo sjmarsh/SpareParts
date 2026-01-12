@@ -7,7 +7,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_RenderTabsForSuppliedPages()
         {
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
             var cut = ctx.Render<TabControl>(parameters => parameters
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 1"))
@@ -26,7 +26,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_RenderTabContent()
         {
             const string tabContent = "Hello. I'm inside a tab.";
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
             var cut = ctx.Render<TabControl>(parameters => parameters
                 .AddChildContent<TabPage>(childParams => childParams
@@ -43,7 +43,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_DefaultToFirstTab()
         {
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
             var cut = ctx.Render<TabControl>(parameters => parameters
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 1"))
@@ -61,7 +61,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_SelectTab()
         {
-            var ctx = new TestContext();
+            var ctx = new BunitContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
             var cut = ctx.Render<TabControl>(parameters => parameters
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 1"))

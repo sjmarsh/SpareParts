@@ -12,7 +12,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var messageBoxService = new MessageBoxService();
             string msg = "The Message";
             string title = "The Title";
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
             var cut = ctx.Render<MessageBox>();
 
@@ -41,7 +41,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public async Task Should_ShowMessageBoxWithOkCancel()
         {
             var messageBoxService = new MessageBoxService();
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
             var cut = ctx.Render<MessageBox>();
 
@@ -66,7 +66,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public async Task Should_ShowMessageBoxWithOKButton()
         {
             var messageBoxService = new MessageBoxService();
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
             var cut = ctx.Render<MessageBox>();
 
@@ -91,7 +91,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public async Task Should_ReturnYesResult()
         {
             var messageBoxService = new MessageBoxService();
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
             var cut = ctx.Render<MessageBox>();
 
@@ -115,7 +115,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public async Task Should_ReturnNoResult()
         {
             var messageBoxService = new MessageBoxService();
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
             var cut = ctx.Render<MessageBox>();
 
@@ -139,7 +139,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public async Task Should_ReturnOkResult()
         {
             var messageBoxService = new MessageBoxService();
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
             var cut = ctx.Render<MessageBox>();
 
@@ -163,7 +163,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public async Task Should_ReturnCancelResult()
         {
             var messageBoxService = new MessageBoxService();
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
             var cut = ctx.Render<MessageBox>();
 
@@ -187,7 +187,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public async Task Should_ReturnOkResultWhenOKType()
         {
             var messageBoxService = new MessageBoxService();
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
             var cut = ctx.Render<MessageBox>();
 

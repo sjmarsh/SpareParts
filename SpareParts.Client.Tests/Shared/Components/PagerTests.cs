@@ -10,7 +10,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_DisplaySinglePageNumberWhenTotalItemCountLessThanDefaultPageSize()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 5));
 
             var pageItems = cut.FindAll(".page-item");
@@ -22,7 +22,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_DisplaySinglePageNumberWhenTotalItemCountLessThanSuppliedPageSize()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Pager>(parameters => parameters
                 .Add(p => p.TotalItemCount, 5)
                 .Add(p => p.PageSize, 6));
@@ -36,7 +36,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_DisplayPageNumbersWhenTotalItemCountMoreThanDefaultPageSize()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
 
             var pageItems = cut.FindAll(".page-item");
@@ -49,7 +49,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_DisplayPageNumbersWhenTotalItemCountMoreThanSuppliedPageSize()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Pager>(parameters => parameters
                 .Add(p => p.TotalItemCount, 11)
                 .Add(p => p.PageSize, 7));
@@ -64,7 +64,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_DefaultFirstPageToActive()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
 
             var pageItems = cut.FindAll(".page-item");
@@ -76,7 +76,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_SetActivePageWhenSelectedPageIsDifferentToCurrent()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
                         
             var pageItems = cut.FindAll(".page-item");
@@ -90,7 +90,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_SetActivePageWhenSelectedPageIsSameAsCurrent()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
 
             var pageItems = cut.FindAll(".page-item");
@@ -110,7 +110,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_SetActivePageToFirstPage()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
 
             var pageItems = cut.FindAll(".page-item");
@@ -129,7 +129,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         [Fact]
         public void Should_SetActivePageToLastPage()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
 
             var pageItems = cut.FindAll(".page-item");
@@ -149,7 +149,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public async Task Should_FireOnPageChangedEvent()
         {
             int currentPage = 1;
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<Pager>(parameters => parameters
                 .Add(p => p.TotalItemCount, 11)
                 .Add(p => p.OnPageChanged, pg => { currentPage = pg; }));

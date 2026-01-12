@@ -8,7 +8,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_RenderButtonTitle()
         {
             const string TheTitle = "Click Me";
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<IconButton>(parameters => parameters
                 .Add(p => p.ButtonTitle, TheTitle)
                 .Add(p => p.Icon, IconButtonIcon.Print));
@@ -23,7 +23,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_NotRenderButtonTitleIfHidden()
         {
             const string TheTitle = "Click Me";
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<IconButton>(parameters => parameters
                 .Add(p => p.ButtonTitle, TheTitle)
                 .Add(p => p.IsTitleVisible, false)
@@ -39,7 +39,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_RenderIcon()
         {
             const string TheTitle = "Click Me";
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             var cut = ctx.Render<IconButton>(parameters => parameters
                 .Add(p => p.ButtonTitle, TheTitle)
                 .Add(p => p.IsTitleVisible, false)

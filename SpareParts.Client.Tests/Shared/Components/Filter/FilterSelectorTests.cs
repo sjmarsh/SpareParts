@@ -9,7 +9,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_RenderSelectedFilterFields()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             List<FilterField> theFields = new() { 
                 new FilterField("Field1", typeof(string), true),
                 new FilterField("Field2", typeof(int), true),
@@ -37,7 +37,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_RenderOperatorsForTextValue()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             List<FilterField> theFields = new() {
                 new FilterField("Field1", typeof(string), true),
                 new FilterField("Field2", typeof(int), true)
@@ -64,7 +64,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_RenderOperatorsForNumericValue()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             List<FilterField> theFields = new() {
                 new FilterField("Field1", typeof(string), true),
                 new FilterField("Field2", typeof(int), true)
@@ -91,7 +91,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_RenderFilterValue()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             List<FilterField> theFields = new() {
                 new FilterField("Field1", typeof(string), true),
                 new FilterField("Field2", typeof(int), true)
@@ -114,7 +114,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_RenderFilterValueOptionsWhenFieldIsAnEnum()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             List<FilterField> theFields = new() {
                 new FilterField("Field1", typeof(TestEnum), true)
             };
@@ -145,7 +145,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_RenderDefaultFilterValueOptionsAndSetFirstOptionToBlankWhenNullableEnum()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             List<FilterField> theFields = new() {
                 new FilterField("Field1", typeof(TestEnum?), true)
             };
@@ -168,7 +168,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_UpdateFilterLine()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             List<FilterField> theFields = new() {
                 new FilterField("Field1", typeof(string), true),
                 new FilterField("Field2", typeof(int), true)
@@ -191,7 +191,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
         [Fact]
         public void Should_HandleRemoveFilter()
         {
-            using var ctx = new TestContext();
+            using var ctx = new BunitContext();
             List<FilterField> theFields = new() {
                 new FilterField("Field1", typeof(string), true),
                 new FilterField("Field2", typeof(int), true)
