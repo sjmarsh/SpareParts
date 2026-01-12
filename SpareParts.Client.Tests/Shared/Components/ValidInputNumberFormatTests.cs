@@ -7,7 +7,7 @@
         {
             var testModel = new TestModel();
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ValidInputNumberFormatWrapper>(parameters => parameters
+            var cut = ctx.Render<ValidInputNumberFormatWrapper>(parameters => parameters
                 .Add(p => p.Id, "testNumber")
                 .Add(p => p.DisplayName, "Test Number")
                 .Add(p => p.StringFormat, "$")
@@ -37,7 +37,7 @@
         {
             var testModel = new TestModel();
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ValidInputNumberFormatWrapper>(parameters => parameters
+            var cut = ctx.Render<ValidInputNumberFormatWrapper>(parameters => parameters
                 .Add(p => p.Id, "testNumber")
                 .Add(p => p.DisplayName, "Test Number")
                 .Add(p => p.StringFormat, "$")

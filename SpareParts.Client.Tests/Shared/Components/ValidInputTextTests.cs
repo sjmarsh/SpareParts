@@ -7,7 +7,7 @@
         {
             var testModel = new TestModel();
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ValidInputTextWrapper>(parameters => parameters
+            var cut = ctx.Render<ValidInputTextWrapper>(parameters => parameters
                 .Add(p => p.Id, "testText")
                 .Add(p => p.DisplayName, "Test Text")
                 .Add(p => p.TestModel, testModel)
@@ -36,7 +36,7 @@
         {
             var testModel = new TestModel();
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ValidInputTextWrapper>(parameters => parameters
+            var cut = ctx.Render<ValidInputTextWrapper>(parameters => parameters
                 .Add(p => p.Id, "testText")
                 .Add(p => p.DisplayName, "Test Text")
                 .Add(p => p.TestModel, testModel)

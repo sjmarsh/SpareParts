@@ -9,7 +9,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             var testModel = new TestModel();
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ValidInputEnumSelectWrapper>(parameters => parameters
+            var cut = ctx.Render<ValidInputEnumSelectWrapper>(parameters => parameters
                 .Add(p => p.Id, "testSelect")
                 .Add(p => p.DisplayName, "Test Select")
                 .Add(p => p.TestModel, testModel)

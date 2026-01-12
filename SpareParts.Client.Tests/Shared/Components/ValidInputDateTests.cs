@@ -9,7 +9,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {            
             var testModel = new TestModel();
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ValidInputDateWrapper>(parameters => parameters
+            var cut = ctx.Render<ValidInputDateWrapper>(parameters => parameters
                 .Add(p => p.Id, "testDate")
                 .Add(p => p.DisplayName, "Test Date")
                 .Add(p => p.TestModel, testModel)
@@ -38,7 +38,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             var testModel = new TestModel();
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ValidInputDateWrapper>(parameters => parameters
+            var cut = ctx.Render<ValidInputDateWrapper>(parameters => parameters
                 .Add(p => p.Id, "testDate")
                 .Add(p => p.DisplayName, "Test Date")
                 .Add(p => p.TestModel, testModel)

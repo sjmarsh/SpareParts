@@ -26,7 +26,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var columnList = new [] { "DateVal", "NumberVal", "TextVal", "Name", "Value" }.Select(c => new ColumnHeader(c)).ToList();
             
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
+            var cut = ctx.Render<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
                 .Add(p => p.DataSource, testModels)
                 .Add(p => p.ColumnList, columnList));
 
@@ -70,7 +70,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var columnList = new[] { "DateVal", "NumberVal", "TextVal", "Name", "Value" }.Select(c => new ColumnHeader(c)).ToList();
 
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
+            var cut = ctx.Render<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
                 .Add(p => p.DataSource, testModels)
                 .Add(p => p.ColumnList, columnList));
 
@@ -103,7 +103,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var columnList = new[] { "DateVal", "NumberVal", "TextVal", "Name", "Value" }.Select(c => new ColumnHeader(c)).ToList();
 
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
+            var cut = ctx.Render<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
                 .Add(p => p.DataSource, testModels)
                 .Add(p => p.ColumnList, columnList));
 
@@ -141,7 +141,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var columnList = new[] { "DateVal", "TextVal", "Name", }.Select(c => new ColumnHeader(c)).ToList();  // exclude the NumberVal and Value columns
 
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
+            var cut = ctx.Render<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
                 .Add(p => p.DataSource, testModels)
                 .Add(p => p.ColumnList, columnList));
 
@@ -183,7 +183,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             DataRow<TestModelWithList>? rowData = null;
 
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
+            var cut = ctx.Render<SimpleExpanderDataGrid<TestModelWithList>>(parameters => parameters
                 .Add(p => p.DataSource, testModels)
                 .Add(p => p.ColumnList, columnList)
                 .Add(p => p.OnRowClick, (rowClickData) => rowData = rowClickData));

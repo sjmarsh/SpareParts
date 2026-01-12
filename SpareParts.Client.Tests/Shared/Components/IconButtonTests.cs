@@ -9,7 +9,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             const string TheTitle = "Click Me";
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<IconButton>(parameters => parameters
+            var cut = ctx.Render<IconButton>(parameters => parameters
                 .Add(p => p.ButtonTitle, TheTitle)
                 .Add(p => p.Icon, IconButtonIcon.Print));
 
@@ -24,7 +24,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             const string TheTitle = "Click Me";
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<IconButton>(parameters => parameters
+            var cut = ctx.Render<IconButton>(parameters => parameters
                 .Add(p => p.ButtonTitle, TheTitle)
                 .Add(p => p.IsTitleVisible, false)
                 .Add(p => p.Icon, IconButtonIcon.Print));
@@ -40,7 +40,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             const string TheTitle = "Click Me";
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<IconButton>(parameters => parameters
+            var cut = ctx.Render<IconButton>(parameters => parameters
                 .Add(p => p.ButtonTitle, TheTitle)
                 .Add(p => p.IsTitleVisible, false)
                 .Add(p => p.Icon, IconButtonIcon.Print));

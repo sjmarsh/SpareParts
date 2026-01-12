@@ -17,7 +17,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             };
 
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<SimpleDataGrid<TestModel>>(parameters => parameters
+            var cut = ctx.Render<SimpleDataGrid<TestModel>>(parameters => parameters
                 .Add(p => p.DataSource, testModelList));
 
             var table = cut.Find("table");
@@ -53,7 +53,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             List<string> theColumnList = new() { "DateVal", "TextVal" }; // exclude the NumberVal column
 
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<SimpleDataGrid<TestModel>>(parameters => parameters
+            var cut = ctx.Render<SimpleDataGrid<TestModel>>(parameters => parameters
                 .Add(p => p.DataSource, testModelList)
                 .Add(p => p.ColumnList, theColumnList));
 
@@ -90,7 +90,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             };
 
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<SimpleDataGrid<TestModel>>(parameters => parameters
+            var cut = ctx.Render<SimpleDataGrid<TestModel>>(parameters => parameters
                 .Add(p => p.DataSource, testModelList)
                 .Add(p => p.OnRowClick, (rowClickData) => rowData = rowClickData));
 

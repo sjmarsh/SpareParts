@@ -15,7 +15,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             const string fakeQuery = "the built query";
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
-            var cut = ctx.RenderComponent<FilterGrid<ThingToFilter>>();
+            var cut = ctx.Render<FilterGrid<ThingToFilter>>();
 
             var chips = cut.FindAll(".chip");
             chips.Should().NotBeNull();
@@ -32,7 +32,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             const string fakeQuery = "the built query";
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
-            var cut = ctx.RenderComponent<FilterGrid<ThingToFilter>>();
+            var cut = ctx.Render<FilterGrid<ThingToFilter>>();
 
             var inputSelects = cut.FindAll(".form-select");
 
@@ -55,7 +55,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             const string fakeQuery = "the built query";
             var fakeGraphQLBuilder = new FakeGraphQLRequestBuilder(fakeQuery);
             ctx.Services.AddSingleton<IGraphQLRequestBuilder>(fakeGraphQLBuilder);
-            var cut = ctx.RenderComponent<FilterGrid<ThingToFilter>>();
+            var cut = ctx.Render<FilterGrid<ThingToFilter>>();
 
             var buttons = cut.FindAll("button");
             var addFilterButton = buttons.Single(b => b.GetInnerText() == "Add Filter");
@@ -84,7 +84,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
                 theRequest = request;
                 return Task.FromResult(theResult);
             };
-            var cut = ctx.RenderComponent<FilterGrid<ThingToFilter>>(parameters => parameters.Add(p => p.ServiceCall, theServiceCall));
+            var cut = ctx.Render<FilterGrid<ThingToFilter>>(parameters => parameters.Add(p => p.ServiceCall, theServiceCall));
 
             var inputSelects = cut.FindAll(".form-select");
             var fieldSelect = inputSelects[0];
@@ -125,7 +125,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
                 theRequest = request;
                 return Task.FromResult(theResult);
             };
-            var cut = ctx.RenderComponent<FilterGrid<ThingToFilter>>(parameters => parameters.Add(p => p.ServiceCall, theServiceCall));
+            var cut = ctx.Render<FilterGrid<ThingToFilter>>(parameters => parameters.Add(p => p.ServiceCall, theServiceCall));
 
             var inputSelects = cut.FindAll(".form-select");
             var fieldSelect = inputSelects[0];

@@ -18,7 +18,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, "");
 
-            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+            var cut = ctx.Render<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
                           .Add(p => p.FilterLine, theFilterLine)
             );
@@ -45,7 +45,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, "");
 
-            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+            var cut = ctx.Render<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
                           .Add(p => p.FilterLine, theFilterLine)
             );
@@ -72,7 +72,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             var theFilterLine = new FilterLine(theFields[1], FilterOperator.Equal, "0");
 
-            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+            var cut = ctx.Render<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
                           .Add(p => p.FilterLine, theFilterLine)
             );
@@ -100,7 +100,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             const string TheValue = "The Value";
             var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, TheValue);
 
-            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+            var cut = ctx.Render<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
                           .Add(p => p.FilterLine, theFilterLine)
             );
@@ -121,7 +121,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, TestEnum.None.ToString());
 
-            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+            var cut = ctx.Render<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
                           .Add(p => p.FilterLine, theFilterLine)
             );
@@ -152,7 +152,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
 
             var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, "");
 
-            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+            var cut = ctx.Render<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
                           .Add(p => p.FilterLine, theFilterLine)
             );
@@ -177,7 +177,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
             const string TheValue = "The Value";
             var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, TheValue);
 
-            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+            var cut = ctx.Render<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
                           .Add(p => p.FilterLine, theFilterLine)
             );
@@ -200,7 +200,7 @@ namespace SpareParts.Client.Tests.Shared.Components.Filter
                         
             var theFilterLine = new FilterLine(theFields[0], FilterOperator.Equal, "");
 
-            var cut = ctx.RenderComponent<FilterSelectorWrapper>(parameters =>
+            var cut = ctx.Render<FilterSelectorWrapper>(parameters =>
                 parameters.Add(p => p.Fields, theFields)
                           .Add(p => p.FilterLine, theFilterLine)
                           .Add(p => p.OnRemoveFilter, () => { isRemovedCalled = true; })

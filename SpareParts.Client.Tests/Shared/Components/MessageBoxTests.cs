@@ -14,7 +14,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             string title = "The Title";
             using var ctx = new TestContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
-            var cut = ctx.RenderComponent<MessageBox>();
+            var cut = ctx.Render<MessageBox>();
 
             var renderedMessages = cut.FindAll(".message");
             renderedMessages.Should().HaveCount(0);
@@ -43,7 +43,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var messageBoxService = new MessageBoxService();
             using var ctx = new TestContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
-            var cut = ctx.RenderComponent<MessageBox>();
+            var cut = ctx.Render<MessageBox>();
 
             var renderedMessages = cut.FindAll(".message");
             renderedMessages.Should().HaveCount(0);
@@ -68,7 +68,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var messageBoxService = new MessageBoxService();
             using var ctx = new TestContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
-            var cut = ctx.RenderComponent<MessageBox>();
+            var cut = ctx.Render<MessageBox>();
 
             var renderedMessages = cut.FindAll(".message");
             renderedMessages.Should().HaveCount(0);
@@ -93,7 +93,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var messageBoxService = new MessageBoxService();
             using var ctx = new TestContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
-            var cut = ctx.RenderComponent<MessageBox>();
+            var cut = ctx.Render<MessageBox>();
 
             var renderedMessages = cut.FindAll(".message");
             renderedMessages.Should().HaveCount(0);
@@ -117,7 +117,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var messageBoxService = new MessageBoxService();
             using var ctx = new TestContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
-            var cut = ctx.RenderComponent<MessageBox>();
+            var cut = ctx.Render<MessageBox>();
 
             var renderedMessages = cut.FindAll(".message");
             renderedMessages.Should().HaveCount(0);
@@ -141,7 +141,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var messageBoxService = new MessageBoxService();
             using var ctx = new TestContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
-            var cut = ctx.RenderComponent<MessageBox>();
+            var cut = ctx.Render<MessageBox>();
 
             var renderedMessages = cut.FindAll(".message");
             renderedMessages.Should().HaveCount(0);
@@ -165,7 +165,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var messageBoxService = new MessageBoxService();
             using var ctx = new TestContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
-            var cut = ctx.RenderComponent<MessageBox>();
+            var cut = ctx.Render<MessageBox>();
 
             var renderedMessages = cut.FindAll(".message");
             renderedMessages.Should().HaveCount(0);
@@ -189,7 +189,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var messageBoxService = new MessageBoxService();
             using var ctx = new TestContext();
             ctx.Services.AddSingleton<IMessageBoxService>(messageBoxService);
-            var cut = ctx.RenderComponent<MessageBox>();
+            var cut = ctx.Render<MessageBox>();
 
             var renderedMessages = cut.FindAll(".message");
             renderedMessages.Should().HaveCount(0);

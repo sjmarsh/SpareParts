@@ -15,7 +15,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var ctx = new TestContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
             
-            var cut = ctx.RenderComponent<Tooltip>(parameters => parameters
+            var cut = ctx.Render<Tooltip>(parameters => parameters
                 .Add(t => t.TooltipContent, TooltipContent)
                 .AddChildContent<InputText>(t => t.Add(i => i.Value, inputTextVal).Add(i => i.ValueExpression, inputTextExp)));
 
@@ -32,7 +32,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var ctx = new TestContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
 
-            var cut = ctx.RenderComponent<Tooltip>(parameters => parameters
+            var cut = ctx.Render<Tooltip>(parameters => parameters
                 .Add(t => t.TooltipContent, TooltipContent)
                 .AddChildContent<InputText>(t => t.Add(i => i.Value, inputTextVal).Add(i => i.ValueExpression, inputTextExp)));
 

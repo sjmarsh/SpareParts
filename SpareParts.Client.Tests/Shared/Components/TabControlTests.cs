@@ -9,7 +9,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             var ctx = new TestContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-            var cut = ctx.RenderComponent<TabControl>(parameters => parameters
+            var cut = ctx.Render<TabControl>(parameters => parameters
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 1"))
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 2"))
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 3"))
@@ -28,7 +28,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             const string tabContent = "Hello. I'm inside a tab.";
             var ctx = new TestContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-            var cut = ctx.RenderComponent<TabControl>(parameters => parameters
+            var cut = ctx.Render<TabControl>(parameters => parameters
                 .AddChildContent<TabPage>(childParams => childParams
                     .Add(p => p.Text, "Tab 1")
                     .AddChildContent($"<div class='content'>{tabContent}</div>"))
@@ -45,7 +45,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             var ctx = new TestContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-            var cut = ctx.RenderComponent<TabControl>(parameters => parameters
+            var cut = ctx.Render<TabControl>(parameters => parameters
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 1"))
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 2"))
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 3"))
@@ -63,7 +63,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             var ctx = new TestContext();
             ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-            var cut = ctx.RenderComponent<TabControl>(parameters => parameters
+            var cut = ctx.Render<TabControl>(parameters => parameters
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 1"))
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 2"))
                 .AddChildContent<TabPage>(childParams => childParams.Add(p => p.Text, "Tab 3"))

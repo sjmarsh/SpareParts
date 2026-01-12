@@ -17,7 +17,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             };
 
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ChipsList>(parameters => parameters
+            var cut = ctx.Render<ChipsList>(parameters => parameters
                             .Add(p => p.Chips, theChips));
 
             var chipList = cut.FindAll(ChipClass);
@@ -40,7 +40,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             };
 
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ChipsList>(parameters => parameters
+            var cut = ctx.Render<ChipsList>(parameters => parameters
                             .Add(p => p.Chips, theChips));
 
             var chipList = cut.FindAll(ChipClass);
@@ -61,7 +61,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var wasToggled = false;
 
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ChipsList>(parameters => parameters
+            var cut = ctx.Render<ChipsList>(parameters => parameters
                             .Add(p => p.Chips, theChips)
                             .Add(p => p.OnToggleChip, () => { wasToggled = true; }));
 
@@ -92,7 +92,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             const string TheTitle = "The Title";
 
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<ChipsList>(parameters => parameters
+            var cut = ctx.Render<ChipsList>(parameters => parameters
                             .Add(p => p.Chips, theChips)
                             .Add(p => p.Title, TheTitle));
 

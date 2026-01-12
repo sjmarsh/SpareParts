@@ -11,7 +11,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_DisplaySinglePageNumberWhenTotalItemCountLessThanDefaultPageSize()
         {
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 5));
+            var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 5));
 
             var pageItems = cut.FindAll(".page-item");
             pageItems.Should().HaveCount(3); // | << | 1 | >> |
@@ -23,7 +23,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_DisplaySinglePageNumberWhenTotalItemCountLessThanSuppliedPageSize()
         {
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<Pager>(parameters => parameters
+            var cut = ctx.Render<Pager>(parameters => parameters
                 .Add(p => p.TotalItemCount, 5)
                 .Add(p => p.PageSize, 6));
 
@@ -37,7 +37,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_DisplayPageNumbersWhenTotalItemCountMoreThanDefaultPageSize()
         {
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
+            var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
 
             var pageItems = cut.FindAll(".page-item");
             pageItems.Should().HaveCount(4); // | << | 1 | 2 | >> |
@@ -50,7 +50,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_DisplayPageNumbersWhenTotalItemCountMoreThanSuppliedPageSize()
         {
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<Pager>(parameters => parameters
+            var cut = ctx.Render<Pager>(parameters => parameters
                 .Add(p => p.TotalItemCount, 11)
                 .Add(p => p.PageSize, 7));
 
@@ -65,7 +65,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_DefaultFirstPageToActive()
         {
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
+            var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
 
             var pageItems = cut.FindAll(".page-item");
 
@@ -77,7 +77,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_SetActivePageWhenSelectedPageIsDifferentToCurrent()
         {
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
+            var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
                         
             var pageItems = cut.FindAll(".page-item");
             pageItems[2].FirstElementChild!.Click();
@@ -91,7 +91,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_SetActivePageWhenSelectedPageIsSameAsCurrent()
         {
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
+            var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
 
             var pageItems = cut.FindAll(".page-item");
             pageItems[2].FirstElementChild!.Click();
@@ -111,7 +111,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_SetActivePageToFirstPage()
         {
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
+            var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
 
             var pageItems = cut.FindAll(".page-item");
             pageItems[2].FirstElementChild!.Click(); // go to page 2
@@ -130,7 +130,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         public void Should_SetActivePageToLastPage()
         {
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
+            var cut = ctx.Render<Pager>(parameters => parameters.Add(p => p.TotalItemCount, 11));
 
             var pageItems = cut.FindAll(".page-item");
             pageItems[0].FirstElementChild!.Click(); // go to page 1
@@ -150,7 +150,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             int currentPage = 1;
             using var ctx = new TestContext();
-            var cut = ctx.RenderComponent<Pager>(parameters => parameters
+            var cut = ctx.Render<Pager>(parameters => parameters
                 .Add(p => p.TotalItemCount, 11)
                 .Add(p => p.OnPageChanged, pg => { currentPage = pg; }));
 

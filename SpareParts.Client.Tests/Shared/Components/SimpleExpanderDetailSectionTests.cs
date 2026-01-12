@@ -15,7 +15,7 @@ namespace SpareParts.Client.Tests.Shared.Components
             var detailRows = new List<DataRowDetail> { dataRowDetail1 };
 
             var ctx = new TestContext();
-            var cut = ctx.RenderComponent<SimpleExpanderDetailSection>(parameters => parameters
+            var cut = ctx.Render<SimpleExpanderDetailSection>(parameters => parameters
                 .Add(p => p.DetailRows,detailRows));
 
             var table = cut.Find("table");
