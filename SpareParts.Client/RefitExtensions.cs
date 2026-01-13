@@ -8,9 +8,7 @@ namespace SpareParts.Client
     {
         public static IHttpClientBuilder AddRefitClientFor<T>(this IServiceCollection services, string baseUri) where T : class
         {
-            var settings = new RefitSettings(new NewtonsoftJsonContentSerializer());
-
-            return services.AddRefitClient<T>(settings).ConfigureHttpClient(c =>
+            return services.AddRefitClient<T>(new RefitSettings()).ConfigureHttpClient(c =>
             {
                 c.BaseAddress = new Uri(baseUri);
             })
