@@ -111,7 +111,7 @@ namespace SpareParts.API.Int.Tests
         public async Task Post_Should_CreatePartRecord()
         {
             var part = new Part { Name = "Part 1", Description = "One", Category = PartCategory.Software, Weight = 1.1, Price = 2.2, StartDate = DateTime.Today.AddYears(-1), 
-                Attributes = new List<PartAttribute> { new PartAttribute { Name = "Colour", Description = "The colour of the part", Value = "Green" }}
+                Attributes = [new PartAttribute { Name = "Colour", Description = "The colour of the part", Value = "Green" }]
             };
                         
             var result = await _testFixture.PostRequest<Part, PartResponse>("/api/part", part);
@@ -126,6 +126,21 @@ namespace SpareParts.API.Int.Tests
             savedPart.Should().NotBeNull();
             savedPart.Should().BeEquivalentTo(part, opt => opt.Excluding(p => p.ID).Excluding(p => p.Attributes));
             savedPart!.Attributes.Should().BeEquivalentTo(part.Attributes, opt => opt.Excluding(a => a.ID));
+        }
+
+        [Fact]
+        public async Task Post_Should_NotCreateInvalidPartRecord()
+        {
+            // part with no name is invalid
+            var part = new Part { Name = null, Description = "One", Category = PartCategory.Software, Weight = 1.1, Price = 2.2, StartDate = DateTime.Today.AddYears(-1),
+                Attributes = new List<PartAttribute> { new() { Name = "Colour", Description = "The colour of the part", Value = "Green" } }
+            };
+
+            var result = await _testFixture.PostRequest<Part, PartResponse>("/api/part", part);
+
+            result.Should().NotBeNull();
+            result.HasError.Should().BeTrue();
+            result.Message.Should().Contain("'Name' must not be empty.");
         }
 
         [Fact]
@@ -163,6 +178,29 @@ namespace SpareParts.API.Int.Tests
             updatedPart!.Attributes!.Single(a => a.ID != firstAttribute.ID).Should().BeEquivalentTo(partModel.Attributes.Single(a => a.ID != firstAttribute.ID), opt => opt.Excluding(a => a.ID));
             var deletedAttribute = await _testFixture.DbContext.PartAttribute.FindAsync(secondAttribute.ID);
             deletedAttribute.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task Put_Should_NotUpdateInvalidPartRecord()
+        {
+            var savedPart = await _dataHelper.CreatePartInDatabase(0);
+            savedPart!.ID.Should().BeGreaterThan(0);
+            var partModel = new Part
+            {
+                ID = savedPart!.ID,
+                Name = null, //invalid condition
+                Description = "Other Descritpion",
+                Weight = savedPart.Weight,
+                Price = savedPart!.Price!.Value,
+                StartDate = savedPart.StartDate
+            };
+            _testFixture.DbContext.ChangeTracker.Clear();
+
+            var result = await _testFixture.PutRequest<Part, PartResponse>("/api/part", partModel);
+
+            result.Should().NotBeNull();
+            result.HasError.Should().BeTrue();
+            result.Message.Should().Contain("'Name' must not be empty.");
         }
 
         [Fact]

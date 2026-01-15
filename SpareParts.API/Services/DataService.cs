@@ -47,14 +47,17 @@ namespace SpareParts.API.Services
     public class DataService : IDataService
     {
         private readonly IMapper _mapper;
+        private readonly IValidationHandler _validationHandler;
 
-        public DataService(SparePartsDbContext dbContext, IMapper mapper)
+        public DataService(SparePartsDbContext dbContext, IMapper mapper, IValidationHandler validationHandler)
         {
             Guard.Against.Null(dbContext);
             Guard.Against.Null(mapper);
+            Guard.Against.Null(validationHandler);
 
             DbContext = dbContext;
             _mapper = mapper;
+            _validationHandler = validationHandler;
         }
 
         public SparePartsDbContext DbContext { get; private set; }
@@ -67,6 +70,11 @@ namespace SpareParts.API.Services
             if(model == null)
             {
                 return new TResponse { HasError = true, Message = $"{typeof(TModel).Name} must be provided." };
+            }
+            var validationResult = await _validationHandler.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                return new TResponse { HasError = true, Message = $"Unable to create item. Item is invalid with errors: {validationResult.ErrorsString}"};
             }
 
             var entity = _mapper.Map<TEntity>(model);
@@ -84,6 +92,13 @@ namespace SpareParts.API.Services
             {
                 return new TResponse { HasError = true, Message = $"{typeof(TModel).Name} list must be provided." };
             }
+
+            var validationResult = await _validationHandler.ValidateAsync(modelList);
+            if (!validationResult.IsValid)
+            {
+                return new TResponse { HasError = true, Message = $"Unable to create items. Item is invalid with errors: {validationResult.ErrorsString}" };
+            }
+
             var entities = modelList.AsQueryable().ProjectTo<TEntity>(_mapper.ConfigurationProvider);
             foreach(var entity in entities)
             {
@@ -109,6 +124,13 @@ namespace SpareParts.API.Services
             {
                 return new TResponse { HasError = true, Message = $"Unable to find existing {typeof(TModel).Name} record to be updated." };
             }
+
+            var validationResult = await _validationHandler.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                return new TResponse { HasError = true, Message = $"Unable to update item. Item is invalid with errors: {validationResult.ErrorsString}" };
+            }
+
             var dbEntry = DbContext.Entry(existingEntity);
             dbEntry.State = EntityState.Modified;
 

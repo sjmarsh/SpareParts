@@ -133,6 +133,20 @@ namespace SpareParts.API.Int.Tests
         }
 
         [Fact]
+        public async Task Post_Should_NotCreateInvalidInventoryItemRecord()
+        {
+            var parts = await _dataHelper.AddPartsIfNeeded();
+            // invalid item with negative quantity
+            var item = new InventoryItem { PartID = parts[0].ID, Quantity = -1, DateRecorded = DateTime.Today };
+
+            var result = await _testFixture.PostRequest<InventoryItem, InventoryItemResponse>("/api/inventory", item);
+
+            result.Should().NotBeNull();
+            result.HasError.Should().BeTrue();
+            result.Message.Should().Contain("'Quantity' must be greater than or equal to '0'");
+        }
+
+        [Fact]
         public async Task PostList_Should_CreateInventoryItemList()
         {
             var parts = await _dataHelper.AddPartsIfNeeded();
@@ -146,6 +160,20 @@ namespace SpareParts.API.Int.Tests
             var savedItems = _testFixture.DbContext.InventoryItems;
             savedItems.Should().HaveCount(items.Count());
             savedItems.OrderBy(i => i.PartID).Should().BeEquivalentTo(items.OrderBy(t => t.PartID), opt => opt.Excluding(o => o.ID));
+        }
+
+        [Fact]
+        public async Task PostList_Should_NotCreateInvalidInventoryItemList()
+        {
+            var parts = await _dataHelper.AddPartsIfNeeded();
+            // invalid items with negative quantity
+            var items = parts.Select(p => new InventoryItem { PartID = p.ID, Quantity = -1, DateRecorded = DateTime.Today }).ToList();
+
+            var result = await _testFixture.PostRequest<List<InventoryItem>, InventoryItemListResponse>("/api/inventory/post-list", items);
+
+            result.Should().NotBeNull();
+            result.HasError.Should().BeTrue();
+            result.Message.Should().Contain("'Quantity' must be greater than or equal to '0'");
         }
 
         [Fact]

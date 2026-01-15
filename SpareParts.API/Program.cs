@@ -1,10 +1,8 @@
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using SpareParts.API.Data;
@@ -101,7 +99,7 @@ try
     });
 
     // Validation
-    builder.Services.AddFluentValidationAutoValidation();
+    builder.Services.AddTransient<IValidationHandler, ValidationHandler>();
     builder.Services.AddValidatorsFromAssemblyContaining<PartValidator>();
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
