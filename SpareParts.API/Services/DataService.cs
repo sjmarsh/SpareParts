@@ -1,6 +1,5 @@
 ﻿using Ardalis.GuardClauses;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using SpareParts.API.Data;
@@ -46,17 +45,14 @@ namespace SpareParts.API.Services
 
     public class DataService : IDataService
     {
-        private readonly IMapper _mapper;
         private readonly IValidationHandler _validationHandler;
 
-        public DataService(SparePartsDbContext dbContext, IMapper mapper, IValidationHandler validationHandler)
+        public DataService(SparePartsDbContext dbContext, IValidationHandler validationHandler)
         {
             Guard.Against.Null(dbContext);
-            Guard.Against.Null(mapper);
             Guard.Against.Null(validationHandler);
 
             DbContext = dbContext;
-            _mapper = mapper;
             _validationHandler = validationHandler;
         }
 
@@ -77,10 +73,10 @@ namespace SpareParts.API.Services
                 return new TResponse { HasError = true, Message = $"Unable to create item. Item is invalid with errors: {validationResult.ErrorsString}"};
             }
 
-            var entity = _mapper.Map<TEntity>(model);
+            var entity = model.Adapt<TEntity>(); //_mapper.Map<TEntity>(model); 
             DbContext.Set<TEntity>().Add(entity);
             await DbContext.SaveChangesAsync(cancellationToken);
-            return new TResponse { Value = _mapper.Map<TModel>(entity) };
+            return new TResponse { Value = entity.Adapt<TModel>() };
         }
 
         public async Task<TResponse> CreateList<TResponse, TEntity, TModel>(List<TModel>? modelList, CancellationToken cancellationToken)
@@ -99,13 +95,13 @@ namespace SpareParts.API.Services
                 return new TResponse { HasError = true, Message = $"Unable to create items. Item is invalid with errors: {validationResult.ErrorsString}" };
             }
 
-            var entities = modelList.AsQueryable().ProjectTo<TEntity>(_mapper.ConfigurationProvider);
+            var entities = modelList.AsQueryable().ProjectToType<TEntity>();
             foreach(var entity in entities)
             {
                 DbContext.Set<TEntity>().Add(entity);
             }
             await DbContext.SaveChangesAsync(cancellationToken);
-            var items = entities.ProjectTo<TModel>(_mapper.ConfigurationProvider).ToList();
+            var items = entities.ProjectToType<TModel>().ToList();
             return new TResponse { Items = items };
         }
 
@@ -136,7 +132,7 @@ namespace SpareParts.API.Services
 
             if (referencedCollectionsToUpdate is null)
             {
-                _mapper.Map(model, existingEntity);
+                model.Adapt(existingEntity);
             }
             else
             {
@@ -178,7 +174,7 @@ namespace SpareParts.API.Services
                 DbContext.ChangeTracker.Clear();
 
                 existingEntity = await DbContext.Set<TEntity>().FindAsync(new object?[] { model.ID }, cancellationToken);
-                _mapper.Map(model, existingEntity);
+                model.Adapt(existingEntity);
             }  
 
             await DbContext.SaveChangesAsync(cancellationToken);
@@ -204,7 +200,7 @@ namespace SpareParts.API.Services
                         await DbContext.Entry(entity).Collection(reference).LoadAsync();
                     }
                 }
-                var model = _mapper.Map<TModel>(entity);
+                var model = entity.Adapt<TModel>();
                 return new TResponse { Value = model };
             }
         }
@@ -218,7 +214,7 @@ namespace SpareParts.API.Services
             var qry = DbContext.Set<TEntity>().Where(filter);
             var totalCount = qry.Count();
             take ??= totalCount;
-            var items = await qry.Skip(skip).Take(take.Value).ProjectTo<TModel>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
+            var items = await qry.Skip(skip).Take(take.Value).ProjectToType<TModel>().ToListAsync(cancellationToken);
             return new TResponse { Items = items, TotalItemCount =  totalCount };
         }
 

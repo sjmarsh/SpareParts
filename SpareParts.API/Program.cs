@@ -10,6 +10,7 @@ using SpareParts.API.Entities;
 using SpareParts.API.Extensions;
 using SpareParts.API.GraphQL;
 using SpareParts.API.Infrastructure;
+using SpareParts.API.Mapping;
 using SpareParts.API.Services;
 using SpareParts.API.Services.PdfService;
 using SpareParts.Shared.Validators;
@@ -109,8 +110,8 @@ try
     // Register MediatR
     builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
-    // AutoMapper
-    builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+    // Mapster
+    builder.Services.RegisterMapsterConfiguration();
 
     // Add required services for Blazor Client (hosted by this WebAPI)
     builder.Services.AddControllersWithViews();
