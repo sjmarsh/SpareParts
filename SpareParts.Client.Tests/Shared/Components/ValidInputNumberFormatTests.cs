@@ -1,4 +1,7 @@
-﻿namespace SpareParts.Client.Tests.Shared.Components
+﻿using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace SpareParts.Client.Tests.Shared.Components
 {
     public class ValidInputNumberFormatTests
     {
@@ -7,6 +10,7 @@
         {
             var testModel = new TestModel();
             var ctx = new BunitContext();
+            ctx.Services.AddSingleton<IValidator<TestModel>, TestModelValidator>();
             var cut = ctx.Render<ValidInputNumberFormatWrapper>(parameters => parameters
                 .Add(p => p.Id, "testNumber")
                 .Add(p => p.DisplayName, "Test Number")
@@ -37,6 +41,7 @@
         {
             var testModel = new TestModel();
             var ctx = new BunitContext();
+            ctx.Services.AddSingleton<IValidator<TestModel>, TestModelValidator>();
             var cut = ctx.Render<ValidInputNumberFormatWrapper>(parameters => parameters
                 .Add(p => p.Id, "testNumber")
                 .Add(p => p.DisplayName, "Test Number")

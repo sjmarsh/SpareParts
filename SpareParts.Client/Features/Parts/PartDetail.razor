@@ -10,7 +10,7 @@
 @if(_part != null)
 {
     <EditForm Model="_part" OnValidSubmit="@SubmitValidForm">
-        <FluentValidationValidator/>
+        <FluentValidator/>
  
         <ValidInputText Id="partName" DisplayName="Name" @bind-Value="_part.Name" />
         <ValidInputText Id="partDescription" DisplayName="Description" @bind-Value="_part.Description" />

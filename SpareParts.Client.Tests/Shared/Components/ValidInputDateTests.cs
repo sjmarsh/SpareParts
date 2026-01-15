@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SpareParts.Client.Tests.Shared.Components
 {
@@ -9,6 +11,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {            
             var testModel = new TestModel();
             var ctx = new BunitContext();
+            ctx.Services.AddSingleton<IValidator<TestModel>, TestModelValidator>();
             var cut = ctx.Render<ValidInputDateWrapper>(parameters => parameters
                 .Add(p => p.Id, "testDate")
                 .Add(p => p.DisplayName, "Test Date")
@@ -38,6 +41,7 @@ namespace SpareParts.Client.Tests.Shared.Components
         {
             var testModel = new TestModel();
             var ctx = new BunitContext();
+            ctx.Services.AddSingleton<IValidator<TestModel>, TestModelValidator>();
             var cut = ctx.Render<ValidInputDateWrapper>(parameters => parameters
                 .Add(p => p.Id, "testDate")
                 .Add(p => p.DisplayName, "Test Date")

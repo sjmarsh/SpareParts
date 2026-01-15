@@ -1,4 +1,5 @@
 using Blazored.Toast;
+using FluentValidation;
 using Fluxor;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -7,6 +8,8 @@ using SpareParts.Client;
 using SpareParts.Client.Services;
 using SpareParts.Client.Services.Authentication;
 using SpareParts.Client.Shared.Components.Filter;
+using SpareParts.Shared.Models;
+using SpareParts.Shared.Validators;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -22,6 +25,14 @@ builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<AuthHeaderHandler>();
 builder.Services.AddScoped<IGraphQLRequestBuilder, GraphQLRequestBuilder>();
+
+builder.Services.AddSingleton<IValidator<AuthenticationRequest>, AuthenticationRequestValidator>();
+builder.Services.AddSingleton<IValidator<Part>, PartValidator>();
+builder.Services.AddSingleton<IValidator<PartAttribute>, PartAttributeValidator>();
+builder.Services.AddSingleton<IValidator<InventoryItem>, InventoryItemValidator>();
+builder.Services.AddSingleton<IValidator<InventoryItemDetail>, InventoryItemDetailValidator>();
+builder.Services.AddSingleton<IValidator<List<InventoryItem>>, InventoryItemListValidator>();
+builder.Services.AddSingleton<IValidator<StocktakeModel>, StocktakeValidator>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

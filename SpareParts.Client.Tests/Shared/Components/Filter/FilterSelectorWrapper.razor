@@ -1,10 +1,10 @@
-﻿@using Blazored.FluentValidation
+﻿@using Blazilla
 @using Microsoft.AspNetCore.Components.Forms
 @using SpareParts.Client.Shared.Components
 @using SpareParts.Client.Shared.Components.Filter;
 
 <EditForm EditContext="_editContext">
-    <FluentValidationValidator/>
+    <FluentValidator/>
     <FilterSelector Fields="Fields" FilterLine="FilterLine" OnRemoveFilter="HandleRemove" />
 </EditForm>
 

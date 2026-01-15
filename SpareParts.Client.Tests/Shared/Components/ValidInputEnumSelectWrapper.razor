@@ -1,9 +1,9 @@
-﻿@using Blazored.FluentValidation
+﻿@using Blazilla
 @using Microsoft.AspNetCore.Components.Forms
 @using SpareParts.Client.Shared.Components
 
 <EditForm EditContext="_editContext">
-    <FluentValidationValidator />
+    <FluentValidator />
     <ValidInputEnumSelect Id="@Id" DisplayName="@DisplayName" @bind-Value="TestModel.EnumVal" />
 </EditForm>
 
