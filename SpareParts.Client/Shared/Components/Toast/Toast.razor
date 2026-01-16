@@ -1,0 +1,60 @@
+﻿@inject IToastService ToastService
+
+@* A very basic implementation of the bootstrap toast component. ref: https://getbootstrap.com/docs/5.1/components/toasts/#overview*@
+<div class="toast-container position-absolute toast-index p-3 top-0 end-0" id="toastPlacement">
+    <div class="toast fade @_toastClass" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header @_headerBorderClass">
+            <strong class="me-auto">@_toastLevel.ToString()</strong>
+            <button type="button" class="btn-close" @onclick="HideToast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <span class="oi oi-media-record circle-layout @_circleColorClass"></span>
+            <span>@_toastMessage</span>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private ToastLevel _toastLevel;
+    private string _toastClass = "hide";
+    private string _toastMessage = string.Empty;
+    private string _headerBorderClass => _toastLevel switch
+    {
+        ToastLevel.Info => "border-primary",
+        ToastLevel.Success => "border-success",
+        ToastLevel.Warning => "border-warning",
+        ToastLevel.Error => "border-danger",
+        _ => "border-primary"
+    };
+    private string _circleColorClass => _toastLevel switch
+    {
+        ToastLevel.Info => "text-primary",
+        ToastLevel.Success => "text-success",
+        ToastLevel.Warning => "text-warning",
+        ToastLevel.Error => "text-danger",
+        _ => "text-primary"
+    };
+    
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += ShowToast;
+        ToastService.OnHide += HideToast;
+    }
+
+    private void ShowToast(string message, ToastLevel level)
+    {
+        _toastClass = "show";
+        _toastMessage = message;
+        _toastLevel = level;
+        StateHasChanged();
+    }
+
+    private void HideToast()
+    {
+        _toastClass = "hide";
+        _toastMessage = string.Empty;
+        _toastLevel = ToastLevel.Info;
+        StateHasChanged();
+    }
+}

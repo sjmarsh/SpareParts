@@ -1,4 +1,3 @@
-using Blazored.Toast;
 using FluentValidation;
 using Fluxor;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -8,6 +7,7 @@ using SpareParts.Client;
 using SpareParts.Client.Services;
 using SpareParts.Client.Services.Authentication;
 using SpareParts.Client.Shared.Components.Filter;
+using SpareParts.Client.Shared.Components.Toast;
 using SpareParts.Shared.Models;
 using SpareParts.Shared.Validators;
 
@@ -18,7 +18,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddServiceWrapper();
 builder.Services.AddLoadingIndicatorService();
 builder.Services.AddMessageBoxService();
-builder.Services.AddBlazoredToast();
+builder.Services.AddToastService();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddInMemoryAuthTokenStore();
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();

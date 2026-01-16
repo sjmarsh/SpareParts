@@ -1,6 +1,6 @@
-﻿using Blazored.Toast.Services;
-using Refit;
+﻿using Refit;
 using SpareParts.Client.Services.Authentication;
+using SpareParts.Client.Shared.Components.Toast;
 
 namespace SpareParts.Client.Services
 {
@@ -59,7 +59,7 @@ namespace SpareParts.Client.Services
                 
                 _logger.LogError(ex, "The service call resulted in an API Error.");
                 _toastService.ShowError(friendlyErrorMessage);
-                
+
             }
             catch(Exception ex)
             {

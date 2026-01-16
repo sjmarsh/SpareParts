@@ -1,0 +1,28 @@
+﻿.toast-index {
+    z-index: 1000;
+}
+
+.circle-layout {
+    margin-right: 5px;
+}
+
+.circle-color-primary {
+    color: var(--bs-primary);
+}
+
+.circle-color-secondary {
+    color: var(--bs-secondary);
+}
+
+.circle-color-success {
+    color: var(--bs-success);
+}
+
+.circle-color-danger {
+    color: var(--bs-danger);
+}
+
+.circle-color-warning {
+    color: var(--bs-warning);
+}
+
