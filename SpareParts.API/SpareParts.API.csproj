@@ -25,12 +25,12 @@
   <ItemGroup>
     <PackageReference Include="Ardalis.GuardClauses" Version="5.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-    <PackageReference Include="HotChocolate" Version="15.1.11" />
-    <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.11" />
-    <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="15.1.11" />
-    <PackageReference Include="HotChocolate.Data" Version="15.1.11" />
-    <PackageReference Include="HotChocolate.Data.EntityFramework" Version="15.1.11" />
-    <PackageReference Include="HotChocolate.Types.OffsetPagination" Version="15.1.11" />
+    <PackageReference Include="HotChocolate" Version="15.1.12" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.12" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="15.1.12" />
+    <PackageReference Include="HotChocolate.Data" Version="15.1.12" />
+    <PackageReference Include="HotChocolate.Data.EntityFramework" Version="15.1.12" />
+    <PackageReference Include="HotChocolate.Types.OffsetPagination" Version="15.1.12" />
     <PackageReference Include="Humanizer" Version="3.0.1" />
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
