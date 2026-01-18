@@ -50,13 +50,13 @@ namespace SpareParts.Browser.Tests.Features
         [Fact]
         public async Task Should_HaveEmptyPartList()
         {
-            (await _partsPage.IsPartTableVisible()).Should().BeFalse();
+            (await _partsPage.IsPartTableVisible(false)).Should().BeFalse();
         }
 
         [Fact]
         public async Task AddPart_Should_AddPartToList()
         {
-            (await _partsPage.IsPartTableVisible()).Should().BeFalse();
+            (await _partsPage.IsPartTableVisible(false)).Should().BeFalse();
             var part = new Shared.Models.Part { Name = "Part 1", Description = "The first one", Category = Shared.Models.PartCategory.Software, Weight = 2.2, Price = 3.33, StartDate = DateTime.Today.AddYears(-2), EndDate = DateTime.Today.AddYears(2),
                 Attributes = new List<Shared.Models.PartAttribute> { new Shared.Models.PartAttribute { Name = "Colour", Description = "The Colour", Value = "Orange" } }
             };
@@ -106,6 +106,8 @@ namespace SpareParts.Browser.Tests.Features
                 Attributes = new List<Shared.Models.PartAttribute> { new Shared.Models.PartAttribute { Name = "Colour", Description = "The Colour", Value = "Orange" } }
             };
             await EnterPart(updatedPart, isEditingExistingAttrutes: true);
+
+            _dbContext.ChangeTracker.Clear(); // clear EF change tracker to ensure we read updated data from DB. Test browser appeared to be faster than EF change tracker updates.
 
             (await _partsPage.IsPartTableVisible()).Should().BeTrue();
             (await _partsPage.PartListItemCount()).Should().Be(1);

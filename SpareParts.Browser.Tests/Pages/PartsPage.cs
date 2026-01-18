@@ -33,8 +33,12 @@ namespace SpareParts.Browser.Tests.Pages
             return await h3.InnerTextAsync();
         }
 
-        public async Task<bool> IsPartTableVisible()
+        public async Task<bool> IsPartTableVisible(bool shouldWait = true)
         {
+            if (shouldWait)
+            {
+                await _page.WaitForSelectorAsync("#partTable");
+            }
             var partTableCount = await _page.Locator("#partTable").CountAsync();
             return partTableCount == 1;
         }
