@@ -12,19 +12,19 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <NavLink class="nav-link px-2" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <AuthorizeView>
                 <Authorized>
-                    <NavLink class="nav-link" href="logout">
+                    <NavLink class="nav-link px-2" href="logout">
                         <span class="oi oi-lock-unlocked" aria-hidden="true"></span> Logout
                     </NavLink>
                 </Authorized>
                 <NotAuthorized>
-                    <NavLink class="nav-link" href="login">
+                    <NavLink class="nav-link px-2" href="login">
                         <span class="oi oi-lock-locked" aria-hidden="true"></span> Login
                     </NavLink>
                 </NotAuthorized>
@@ -34,7 +34,7 @@
         <AuthorizeView Roles="@Role.Administrator">
             <Authorized>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="part-list">
+                <NavLink class="nav-link px-2" href="part-list">
                     <span class="oi oi-list" aria-hidden="true"></span> Parts
                 </NavLink>
             </div>
@@ -44,7 +44,7 @@
         <AuthorizeView Roles="@($"{Role.Administrator}, {Role.StocktakeUser}")">
             <Authorized>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="inventory-home">
+                <NavLink class="nav-link px-2" href="inventory-home">
                     <span class="oi oi-spreadsheet" aria-hidden="true"></span> Inventory
                 </NavLink>
             </div>
@@ -53,7 +53,7 @@
         <AuthorizeView Roles="@Role.Administrator">
             <Authorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="part-search">
+                    <NavLink class="nav-link px-2" href="part-search">
                         <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Search
                     </NavLink>
                 </div>
