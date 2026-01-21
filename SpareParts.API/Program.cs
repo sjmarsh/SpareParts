@@ -10,6 +10,7 @@ using SpareParts.API.Entities;
 using SpareParts.API.Extensions;
 using SpareParts.API.GraphQL;
 using SpareParts.API.Infrastructure;
+using SpareParts.API.Infrastructure.SimpleMediator;
 using SpareParts.API.Mapping;
 using SpareParts.API.Services;
 using SpareParts.API.Services.PdfService;
@@ -107,8 +108,8 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-    // Register MediatR
-    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+    // Register Simple Mediator
+    builder.Services.AddSimpleMediator(Assembly.GetExecutingAssembly());
 
     // Mapster
     builder.Services.RegisterMapsterConfiguration();

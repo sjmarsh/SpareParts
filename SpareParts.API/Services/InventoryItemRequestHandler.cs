@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using SpareParts.API.Infrastructure.SimpleMediator;
 using Microsoft.EntityFrameworkCore;
 using SpareParts.API.Data;
 using SpareParts.Shared.Models;

@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using SpareParts.API.Infrastructure.SimpleMediator;
 using SpareParts.Shared.Models;
 
 namespace SpareParts.API.Services

@@ -1,7 +1,7 @@
 ﻿using Ardalis.GuardClauses;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SpareParts.API.Infrastructure;
+using SpareParts.API.Infrastructure.SimpleMediator;
 using SpareParts.API.Services;
 using SpareParts.Shared.Models;
 
@@ -11,9 +11,9 @@ namespace SpareParts.API.Controllers
     [ApiController]
     public class PartController : ControllerBase
     {
-        private readonly IMediator _mediator;
+        private readonly ISimpleMediator _mediator;
         
-        public PartController(IMediator mediator)
+        public PartController(ISimpleMediator mediator)
         {
             Guard.Against.Null(mediator);
             _mediator = mediator;

@@ -1,6 +1,5 @@
 ﻿using Ardalis.GuardClauses;
-using MediatR;
-using SpareParts.Shared.Models;
+using SpareParts.API.Infrastructure.SimpleMediator;
 
 namespace SpareParts.API.Services
 {
@@ -14,9 +13,9 @@ namespace SpareParts.API.Services
     {
         private readonly IReportService _reportService;
         private readonly IDataService _dataService;
-        private readonly IMediator _mediator;
+        private readonly ISimpleMediator _mediator;
 
-        public CreateReportCommandHandler(IReportService reportService, IDataService dataService, IMediator mediator)
+        public CreateReportCommandHandler(IReportService reportService, IDataService dataService, ISimpleMediator mediator)
         {
             Guard.Against.Null(reportService);
             Guard.Against.Null(dataService);
