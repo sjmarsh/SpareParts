@@ -4,8 +4,10 @@
 @using SpareParts.Shared.Models
 
 <h3>Settings</h3>
-
+<div>
+    <ToggleButton ButtonTitle="Dark Mode Enabled" IsChecked="@_isDarkModeEnabled" />
+</div>  
 
 @code {
-
+    private bool _isDarkModeEnabled = true;
 }
