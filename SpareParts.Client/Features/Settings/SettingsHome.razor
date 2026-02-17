@@ -3,11 +3,32 @@
 
 @using SpareParts.Shared.Models
 
+@inject IJSRuntime jsRuntime;
+
 <h3>Settings</h3>
 <div>
-    <ToggleButton ButtonTitle="Dark Mode Enabled" IsChecked="@_isDarkModeEnabled" />
+    <ToggleButton ButtonTitle="Dark Mode Enabled" IsChecked="@IsDarkModeEnabled" OnCheckedChanged="HandleDarkModeChanged" />
 </div>  
 
 @code {
-    private bool _isDarkModeEnabled = true;
+    private bool IsDarkModeEnabled { get; set; }
+
+    private async Task HandleDarkModeChanged(bool isDarkModeEnabled)
+    {
+        UpdateSetting("DarkModeEnabled", isDarkModeEnabled.ToString());
+        await ToggleDarkMode(isDarkModeEnabled);
+    }
+
+    private void UpdateSetting(string key, string value)
+    {
+        // TODO Implement logic to save the setting to local storage or a database
+    }
+
+    private async Task ToggleDarkMode(bool isDarkModeEnabled)
+    {
+        IJSObjectReference module;
+        module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
+        await module.InvokeAsync<bool>("toggleDarkMode", isDarkModeEnabled);
+    }   
+    
 }

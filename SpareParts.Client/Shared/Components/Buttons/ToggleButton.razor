@@ -1,6 +1,6 @@
 ﻿<div class="form-check form-switch">
     <input class="form-check-input" type="checkbox" role="switch" 
-        id="toggleButton" title="@ButtonTitle" @bind="IsChecked"/>
+        id="toggleButton" title="@ButtonTitle" @bind="IsChecked" @onclick="HandleClick"/>
     <label class="form-check-label" for="toggleButton">@ButtonTitle</label>
 </div>
 
@@ -11,4 +11,15 @@
 
     [Parameter]
     public bool IsChecked { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnCheckedChanged { get; set; }
+    
+    private void HandleClick(MouseEventArgs args)
+    {
+        if(OnCheckedChanged.HasDelegate)
+        {
+            OnCheckedChanged.InvokeAsync(!IsChecked);
+        }
+    }
 }

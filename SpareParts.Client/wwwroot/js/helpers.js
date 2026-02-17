@@ -17,6 +17,11 @@ export function selectTab(elementId) {
     scrollIntoView(elementId);
 }
 
+export function toggleDarkMode(isDarkModeEnabled) {
+    const theme = isDarkModeEnabled ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-bs-theme', theme);
+}
+
 /*
  // This opens the supplied pdf blob data into a new tab.  This has been replaced by the Report.razor component.
 export async function openBlob(data) {    
