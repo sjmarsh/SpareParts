@@ -21,6 +21,11 @@ main {
     align-items: center;
 }
 
+    [data-bs-theme=dark] .top-row {
+        background-color: var(--bs-body-bg);
+        border-bottom: 1px solid var(--bs-border-color);
+    }
+
     .top-row ::deep a, .top-row ::deep .btn-link {
         white-space: nowrap;
         margin-left: 1.5rem;

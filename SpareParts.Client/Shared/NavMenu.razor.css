@@ -7,6 +7,11 @@
     background-color: rgba(0,0,0,0.4);
 }
 
+[data-bs-theme=dark] .top-row {
+    height: 3.5rem;
+    background-color: var(--bs-body-bg);
+}
+
 .navbar-brand {
     font-size: 1.1rem;
 }
