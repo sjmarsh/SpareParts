@@ -1,0 +1,12 @@
+﻿.icon-button {
+}
+
+[data-bs-theme=dark] .icon-button {
+    color: var(--bs-body-color);
+    background-color: var(--bs-secondary-bg);
+}
+
+    [data-bs-theme=dark] .icon-button:hover {
+        color: var(--bs-body-color);
+        background-color: var(--bs-tertiary-color);
+    }
