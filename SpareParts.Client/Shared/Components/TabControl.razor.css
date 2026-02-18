@@ -3,6 +3,16 @@
     background-color: #ddd;
 }
 
+[data-bs-theme=dark] .tab-custom:hover {
+    cursor: pointer;
+    background-color: var(--bs-secondary-bg);
+}
+
+
 .tab-custom a:hover {
     color: #808080;
+}
+
+[data-bs-theme=dark] .tab-custom a:hover {
+    color: var(--bs-body-color);
 }
