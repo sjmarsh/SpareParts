@@ -17,3 +17,12 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@inject IThemeService themeService
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await themeService.InitializeTheme();
+    }
+}

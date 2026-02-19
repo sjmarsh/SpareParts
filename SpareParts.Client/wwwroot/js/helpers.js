@@ -17,9 +17,10 @@ export function selectTab(elementId) {
     scrollIntoView(elementId);
 }
 
-export function toggleDarkMode(isDarkModeEnabled) {
+export function setDarkMode(isDarkModeEnabled) {
     const theme = isDarkModeEnabled ? 'dark' : 'light';
     document.documentElement.setAttribute('data-bs-theme', theme);
+    return;
 }
 
 /*

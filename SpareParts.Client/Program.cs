@@ -17,7 +17,9 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddServiceWrapper();
 builder.Services.AddLoadingIndicatorService();
+builder.Services.AddLocalStorageService();
 builder.Services.AddMessageBoxService();
+builder.Services.AddThemeService();
 builder.Services.AddToastService();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddInMemoryAuthTokenStore();

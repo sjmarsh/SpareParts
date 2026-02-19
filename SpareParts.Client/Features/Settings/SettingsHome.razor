@@ -4,6 +4,8 @@
 @using SpareParts.Shared.Models
 
 @inject IJSRuntime jsRuntime;
+@inject ILocalStorageService localStorageService;
+@inject IThemeService themeService;
 
 <h3>Settings</h3>
 <div>
@@ -13,22 +15,19 @@
 @code {
     private bool IsDarkModeEnabled { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        IsDarkModeEnabled = await themeService.IsDarkModeEnabled();
+    }
+
     private async Task HandleDarkModeChanged(bool isDarkModeEnabled)
     {
-        UpdateSetting("DarkModeEnabled", isDarkModeEnabled.ToString());
-        await ToggleDarkMode(isDarkModeEnabled);
+        await themeService.SetDarkMode(isDarkModeEnabled);
+        await UpdateStoredDarkModeSetting(isDarkModeEnabled);
     }
 
-    private void UpdateSetting(string key, string value)
+    private async Task UpdateStoredDarkModeSetting(bool isDarkModeEnabled)
     {
-        // TODO Implement logic to save the setting to local storage or a database
+        await localStorageService.SaveDataAsync(LocalStorageKey.IsDarkModeEnabled, isDarkModeEnabled);
     }
-
-    private async Task ToggleDarkMode(bool isDarkModeEnabled)
-    {
-        IJSObjectReference module;
-        module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/helpers.js");
-        await module.InvokeAsync<bool>("toggleDarkMode", isDarkModeEnabled);
-    }   
-    
 }
