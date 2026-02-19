@@ -39,8 +39,8 @@ namespace SpareParts.Browser.Tests.Features
         public async Task Should_HaveRequiredNavItems()
         {
             var navItemTitles = await _navBar.GetNavItemTitles();
-            navItemTitles.Should().HaveCount(5);
-            var expectedTitles = new[] { "Home", "Logout", "Parts", "Inventory", "Search" };
+            navItemTitles.Should().HaveCount(6);
+            var expectedTitles = new[] { "Home", "Logout", "Parts", "Inventory", "Search", "Settings" };
             expectedTitles.Should().BeEquivalentTo(navItemTitles);
         }
 
