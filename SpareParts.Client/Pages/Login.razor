@@ -27,7 +27,7 @@
         </Authorized>
         <NotAuthorized>
             <p>You are not logged in.  Please log in below.</p>
-            <EditForm Context="formContext" Model="_authRequest" OnValidSubmit="ExecuteLogin" class="card card-body bg-light mt-5">
+            <EditForm Context="formContext" Model="_authRequest" OnValidSubmit="ExecuteLogin" class="card card-body mt-5">
                 <FluentValidator />
 
                 <ValidInputText Id="userName" DisplayName="User Name" @bind-Value="_authRequest.UserName" />
