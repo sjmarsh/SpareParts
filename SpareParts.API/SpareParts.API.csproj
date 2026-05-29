@@ -31,7 +31,7 @@
     <PackageReference Include="HotChocolate.Data" Version="16.0.9" />
     <PackageReference Include="HotChocolate.Data.EntityFramework" Version="16.0.9" />
     <PackageReference Include="HotChocolate.Types.OffsetPagination" Version="16.0.9" />
-    <PackageReference Include="Humanizer" Version="3.0.1" />
+    <PackageReference Include="Humanizer" Version="3.0.10" />
     <PackageReference Include="Mapster" Version="10.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.8" />
