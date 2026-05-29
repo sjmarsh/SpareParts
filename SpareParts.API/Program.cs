@@ -1,4 +1,5 @@
 using FluentValidation;
+using HotChocolate.Types.Descriptors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.Identity;
@@ -130,7 +131,7 @@ try
         builder.Services.AddTransient<IPdfService, WindowsPdfService>();
     }
     builder.Services.AddTransient<IReportService, ReportService>();
-
+    
     const string ReactAngularPolicy = "React_Angular";
 
     builder.Services.AddCors(options =>
@@ -157,7 +158,7 @@ try
         .AddSorting()
         .RegisterDbContextFactory<SparePartsDbContext>()
         .AddQueryType<Query>()
-        .AddType(new TimeSpanType(TimeSpanFormat.DotNet));
+        .AddConvention<INamingConventions>(new SparePartsNamingConventions());
 
     builder.Services.AddHealthChecks()
         .AddDbContextCheck<SparePartsDbContext>();

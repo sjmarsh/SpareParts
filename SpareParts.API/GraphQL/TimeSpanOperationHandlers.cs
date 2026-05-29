@@ -18,16 +18,16 @@ namespace SpareParts.API.GraphQL
 
         protected abstract int Operation { get; }
 
-        public override bool CanHandle(
-            ITypeCompletionContext context,
-            IFilterInputTypeDefinition typeDefinition,
-            IFilterFieldDefinition fieldDefinition)
+        public override bool CanHandle(ITypeCompletionContext context,
+            IFilterInputTypeConfiguration typeConfiguration,
+            IFilterFieldConfiguration fieldConfiguration)
         {
-            return context.Type is TimeSpanOperationFilterInputType &&
-                fieldDefinition is FilterOperationFieldDefinition operationField &&
+            return context.Type is DurationOperationFilterInputType &&
+                fieldConfiguration is FilterOperationFieldConfiguration operationField &&
                 operationField.Id == Operation;
         }
     }
+
 
     public class TimeSpanGreaterThanOperationHandler : QueryableTimeSpanOperationHandler
     {
@@ -43,19 +43,7 @@ namespace SpareParts.API.GraphQL
 
         public override Expression HandleOperation(QueryableFilterContext context, IFilterOperationField field, IValueNode value, object? parsedValue)
         {
-            if (parsedValue is TimeSpan parsedValueTimeSpan)
-            {
-                var propertyExpression = context.GetInstance();
-                var hasValueExpression = Expression.Property(propertyExpression, "HasValue");
-                var valueExpression = Expression.Property(propertyExpression, "Value");
-                var valueConstant = Expression.Constant(parsedValueTimeSpan);
-
-                var compareToExpression = Expression.Call(_compare, valueExpression, valueConstant);
-                var compareResultGreaterThanZeroExpression = FilterExpressionBuilder.GreaterThan(compareToExpression, 0);
-                return Expression.AndAlso(hasValueExpression, compareResultGreaterThanZeroExpression);
-            }
-
-            throw new ArgumentException("Cannot handle invalid TimeSpan value.", nameof(parsedValue));
+            return TimeSpanOperationHandlerHelpers.GetTimeSpanOperation(context, parsedValue, _compare, Operation);
         }
     }
 
@@ -73,19 +61,7 @@ namespace SpareParts.API.GraphQL
 
         public override Expression HandleOperation(QueryableFilterContext context, IFilterOperationField field, IValueNode value, object? parsedValue)
         {
-            if (parsedValue is TimeSpan parsedValueTimeSpan)
-            {
-                var propertyExpression = context.GetInstance();
-                var hasValueExpression = Expression.Property(propertyExpression, "HasValue");
-                var valueExpression = Expression.Property(propertyExpression, "Value");
-                var valueConstant = Expression.Constant(parsedValueTimeSpan);
-
-                var compareToExpression = Expression.Call(_compare, valueExpression, valueConstant);
-                var compareResultGreaterThanZeroExpression = FilterExpressionBuilder.GreaterThanOrEqual(compareToExpression, 0);
-                return Expression.AndAlso(hasValueExpression, compareResultGreaterThanZeroExpression);
-            }
-
-            throw new ArgumentException("Cannot handle invalid TimeSpan value.", nameof(parsedValue));
+            return TimeSpanOperationHandlerHelpers.GetTimeSpanOperation(context, parsedValue, _compare, Operation);
         }
     }
 
@@ -103,19 +79,7 @@ namespace SpareParts.API.GraphQL
 
         public override Expression HandleOperation(QueryableFilterContext context, IFilterOperationField field, IValueNode value, object? parsedValue)
         {
-            if (parsedValue is TimeSpan parsedValueTimeSpan)
-            {
-                var propertyExpression = context.GetInstance();
-                var hasValueExpression = Expression.Property(propertyExpression, "HasValue");
-                var valueExpression = Expression.Property(propertyExpression, "Value");
-                var valueConstant = Expression.Constant(parsedValueTimeSpan);
-
-                var compareToExpression = Expression.Call(_compare, valueExpression, valueConstant);
-                var compareResultGreaterThanZeroExpression = FilterExpressionBuilder.LowerThan(compareToExpression, 0);
-                return Expression.AndAlso(hasValueExpression, compareResultGreaterThanZeroExpression);
-            }
-
-            throw new ArgumentException("Cannot handle invalid TimeSpan value.", nameof(parsedValue));
+            return TimeSpanOperationHandlerHelpers.GetTimeSpanOperation(context, parsedValue, _compare, Operation);
         }
     }
 
@@ -133,19 +97,7 @@ namespace SpareParts.API.GraphQL
 
         public override Expression HandleOperation(QueryableFilterContext context, IFilterOperationField field, IValueNode value, object? parsedValue)
         {
-            if (parsedValue is TimeSpan parsedValueTimeSpan)
-            {
-                var propertyExpression = context.GetInstance();
-                var hasValueExpression = Expression.Property(propertyExpression, "HasValue");
-                var valueExpression = Expression.Property(propertyExpression, "Value");
-                var valueConstant = Expression.Constant(parsedValueTimeSpan);
-
-                var compareToExpression = Expression.Call(_compare, valueExpression, valueConstant);
-                var compareResultGreaterThanZeroExpression = FilterExpressionBuilder.LowerThanOrEqual(compareToExpression, 0);
-                return Expression.AndAlso(hasValueExpression, compareResultGreaterThanZeroExpression);
-            }
-
-            throw new ArgumentException("Cannot handle invalid TimeSpan value.", nameof(parsedValue));
+            return TimeSpanOperationHandlerHelpers.GetTimeSpanOperation(context, parsedValue, _compare, Operation);
         }
     }
 }

@@ -11,10 +11,10 @@ namespace SpareParts.API.GraphQL
             descriptor.Provider(
                 new QueryableFilterProvider(
                     x => x
-                        .AddFieldHandler<TimeSpanGreaterThanOperationHandler>()
-                        .AddFieldHandler<TimeSpanGreaterThanOrEqualsOperationHandler>()
-                        .AddFieldHandler<TimeSpanLowerThanOperationHandler>()
-                        .AddFieldHandler<TimeSpanLowerThanOrEqualsOperationHandler>()
+                        .AddFieldHandler(ctx => new TimeSpanGreaterThanOperationHandler(ctx.InputParser))
+                        .AddFieldHandler(ctx => new TimeSpanGreaterThanOrEqualsOperationHandler(ctx.InputParser))
+                        .AddFieldHandler(ctx => new TimeSpanLowerThanOperationHandler(ctx.InputParser))
+                        .AddFieldHandler(ctx => new TimeSpanLowerThanOrEqualsOperationHandler(ctx.InputParser))
                         .AddDefaultFieldHandlers()));
         }
     }
