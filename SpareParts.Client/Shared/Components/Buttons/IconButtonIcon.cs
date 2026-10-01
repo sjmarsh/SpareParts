@@ -14,7 +14,9 @@ namespace SpareParts.Client.Shared.Components.Buttons
         [Description("oi oi-plus")]
         Plus,
         [Description("oi oi-print")]
-        Print
+        Print,
+        [Description("oi oi-reload")]
+        Reload
     }
 
     public static class IconButtonIconExtensions
