@@ -1,8 +1,17 @@
-﻿<div>
+﻿@using SpareParts.Shared.Models;
+
+@inject IInventoryService InventoryService
+@inject IServiceWrapper ServiceWrapper
+
+<div>
     <BarChart @ref="_barChart" />
-
+    @if (_hasError)
+    {
+        <div class="alert alert-danger py-1">
+            @_errorMessage
+        </div>
+    }
 </div>
-
 
 
 @code {
@@ -10,12 +19,24 @@
     private BarChartOptions _barChartOptions = default!;
     private ChartData _chartData = default!;
 
+    private bool _hasError;
+    private string? _errorMessage;
+
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        _chartData = new ChartData { Labels = new List<string> { "Part 1", "Part 2" }, Datasets = GetChartDatasets() };
+        var inventoryItems = await GetInventoryItems();
+        if (inventoryItems == null || !inventoryItems.Any())
+        {
+            _hasError = true;
+            _errorMessage = "No inventory items found.";
+            return;
+        }
+        var labels = GetChartLabels(inventoryItems);
+        var datasets = GetChartDatasets(inventoryItems);
+        _chartData = new ChartData { Labels = labels, Datasets = datasets };
         _barChartOptions = new BarChartOptions { Responsive = true, Interaction = new Interaction { Mode = InteractionMode.Index } };
-
+        await _barChart.InitializeAsync(_chartData, _barChartOptions);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -27,18 +48,55 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private List<IChartDataset> GetChartDatasets()
+    private List<String> GetChartLabels(List<InventoryItemDetail> inventoryItems)
     {
+        return inventoryItems.Select(i => i.PartName ?? $"Part ID: {i.ID}").Distinct().ToList() ?? new List<string>();
+    }   
+
+    private List<IChartDataset> GetChartDatasets(List<InventoryItemDetail> inventoryItems)
+    {        
         var barChartDataSet = new BarChartDataset
         {
             Label = "Stock Levels",
-            Data = new List<double?> { 50, 75 },
-            BackgroundColor = new List<string> { "rgba(75, 192, 192, 0.2)", "rgba(255, 99, 132, 0.2)" },
-            BorderColor = new List<string> { "rgba(75, 192, 192, 1)", "rgba(255, 99, 132, 1)" },
-            BorderWidth = new List<double> { 1, 1 }
+            Data = inventoryItems.Select(i => (double?)i.Quantity).ToList(),
+            BackgroundColor = inventoryItems.Select(i => "rgba(75, 192, 192, 0.2)").ToList(),
+            BorderColor = inventoryItems.Select(i => "rgba(75, 192, 192, 1)").ToList(),
+            BorderWidth = inventoryItems.Select(i => 1.0).ToList()
         };
-        var dataSet = new List<IChartDataset>();
-        dataSet.Add(barChartDataSet);
-        return dataSet;
+        return new List<IChartDataset> { barChartDataSet };
+    }
+
+    private async Task<List<InventoryItemDetail>> GetInventoryItems()
+    {
+        bool isCurrentOnly = true; // todo add a toggle for this
+        int totalItemCount = 0;
+        int pageSize = 20; // todo adjust this based on total item count
+        List<InventoryItemDetail> inventoryItems = new List<InventoryItemDetail>();
+
+        var response = await ServiceWrapper.ServiceCall(() => InventoryService.IndexDetail(isCurrentOnly, 0, pageSize), "An error occurred retrieving inventory items.");
+
+        if (response == null)
+        {
+            _hasError = true;
+        }
+        else
+        {
+            if (response.HasError)
+            {
+                _hasError = true;
+                _errorMessage = response.Message;
+            }
+
+            inventoryItems = response.Items?
+                .Where(r => r.PartName != null)
+                .OrderBy(i => i.PartName)
+                .ThenByDescending(i => i.DateRecorded)
+                .ToList()
+                ?? new List<InventoryItemDetail>();
+
+            totalItemCount = response.TotalItemCount;
+        }
+
+        return inventoryItems;
     }
 }
