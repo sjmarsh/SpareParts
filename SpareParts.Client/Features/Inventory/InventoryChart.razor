@@ -1,0 +1,44 @@
+﻿<div>
+    <BarChart @ref="_barChart" />
+
+</div>
+
+
+
+@code {
+    private BarChart _barChart = default!;
+    private BarChartOptions _barChartOptions = default!;
+    private ChartData _chartData = default!;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _chartData = new ChartData { Labels = new List<string> { "Part 1", "Part 2" }, Datasets = GetChartDatasets() };
+        _barChartOptions = new BarChartOptions { Responsive = true, Interaction = new Interaction { Mode = InteractionMode.Index } };
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _barChart.InitializeAsync(_chartData, _barChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private List<IChartDataset> GetChartDatasets()
+    {
+        var barChartDataSet = new BarChartDataset
+        {
+            Label = "Stock Levels",
+            Data = new List<double?> { 50, 75 },
+            BackgroundColor = new List<string> { "rgba(75, 192, 192, 0.2)", "rgba(255, 99, 132, 0.2)" },
+            BorderColor = new List<string> { "rgba(75, 192, 192, 1)", "rgba(255, 99, 132, 1)" },
+            BorderWidth = new List<double> { 1, 1 }
+        };
+        var dataSet = new List<IChartDataset>();
+        dataSet.Add(barChartDataSet);
+        return dataSet;
+    }
+}

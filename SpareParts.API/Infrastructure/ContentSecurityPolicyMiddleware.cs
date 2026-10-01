@@ -15,6 +15,8 @@
         {
             context.Response.Headers.Append("Feature-Policy", "accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; payment 'none'; usb 'none'");
             const string frameworkBlazorWebassemblyJs = "sha256-v8v3RKRPmN4odZ1CWM5gw80QKPCCWMcpNeOmimNL2AA=";
+            const string chartJs = "sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3ZSTk7kajkaj4D292NLuduDCO1c/NT8Id+jE58KYLKT7hXnbtryGmMg==";
+            const string chartJsDataLabels = "sha512-JPcRR8yFa8mmCsfrw4TNte1ZvF1e3+1SdGMslZvmrzDYxS69J7J49vkFL8u6u8PlPJK+H3voElBtUCzaXj+6ig==";
             const string wasmEvalNotSupportedYet = "unsafe-eval";
             const string experimentalRecommendedCsp = "block-all-mixed-content; upgrade-insecure-requests; "; //see: https://docs.microsoft.com/en-us/aspnet/core/blazor/security/content-security-policy?view=aspnetcore-5.0#policy-directives
             const string embeddedPdfs = "'unsafe-inline'"; // 'sha256-jpJOxTrdc58x4woq2mVygDDIvjIAGNkLZ2yfx4ppdXo=' 'sha256-C7vpsE1KLI7RuUgCprJTQZin6dWK+ccynbOx+OqjVow=' 'sha256-C7vpsE1KLI7RuUgCprJTQZin6dWK+ccynbOx+OqjVow='
@@ -26,7 +28,7 @@
                 + "object-src 'none'; "
                 + "default-src 'self'; "
                 + $"script-src '{wasmEvalNotSupportedYet}' 'self'; "
-                + $"script-src-elem 'self' '{frameworkBlazorWebassemblyJs}';"
+                + $"script-src-elem 'self' '{frameworkBlazorWebassemblyJs}' '{chartJs}' '{chartJsDataLabels}';"
                 + $"style-src 'self' {embeddedPdfs}; "  // TODO: resolve issue with PDF viewer and CSP.   Using the 'unsafe-inline' is not ideal/safe and is not supported by Firefox.
                 + "style-src-elem 'self'; "
                 + $"connect-src 'self'{localWebSocket}; "
