@@ -12,7 +12,7 @@ namespace SpareParts.Client.Services
         Task<InventoryItemListResponse> Index();
 
         [Get("/api/inventory/index-detail")]
-        Task<InventoryItemDetailListResponse> IndexDetail(bool isCurrentOnly, int skip = 0, int? take = null);
+        Task<InventoryItemDetailListResponse> IndexDetail(bool isCurrentOnly, int? partIDFilter = null, int skip = 0, int? take = null);
 
         [Get("/api/inventory/report")]
         Task<HttpResponseMessage> Report(bool isCurrentOnly);

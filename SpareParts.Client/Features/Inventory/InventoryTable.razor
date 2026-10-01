@@ -66,7 +66,7 @@
         var selectedPage = IsCurrentOnly ? InventoryState.Value.CurrentInventoryPage : InventoryState.Value.HistoryPage;
         var skip = (selectedPage - 1) * PageSize;
 
-        var response = await ServiceWrapper.ServiceCall(() => InventoryService.IndexDetail(IsCurrentOnly, skip, PageSize), "An error occurred retrieving inventory items.");
+        var response = await ServiceWrapper.ServiceCall(() => InventoryService.IndexDetail(IsCurrentOnly, null, skip, PageSize), "An error occurred retrieving inventory items.");
 
         if (response == null)
         {

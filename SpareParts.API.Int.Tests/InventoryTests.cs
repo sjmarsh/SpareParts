@@ -114,6 +114,42 @@ namespace SpareParts.API.Int.Tests
         }
 
         [Fact]
+        public async Task GetIndexDetail_Should_ReturnListOfItemsForGivenPartID()
+        {
+            var parts = _dataHelper.GetPartsFakerConfig().Generate(3);
+            parts[0].StartDate = DateTime.Today.AddYears(-1); // current
+            parts[0].EndDate = null;
+            parts[1].StartDate = DateTime.Today.AddYears(-1); // current
+            parts[1].EndDate = null;
+            parts[2].StartDate = DateTime.Today.AddYears(1); // not current
+            parts[2].EndDate = DateTime.Today.AddDays(2);
+
+            foreach (var part in parts)
+            {
+                _testFixture.DbContext.Parts.Add(part);
+            }
+            await _testFixture.DbContext.SaveChangesAsync();
+
+            var inventoryItems = _dataHelper.GetInventoryItemFakerConfig().Generate(3);
+            for (int i = 0; i < parts.Count(); i++)
+            {
+                inventoryItems[i].PartID = parts[i].ID;
+                _testFixture.DbContext.InventoryItems.Add(inventoryItems[i]);
+            }
+
+            await _testFixture.DbContext.SaveChangesAsync();
+
+            var secondPartID = parts[1].ID;
+
+            var result = await _testFixture.GetRequest<InventoryItemDetailListResponse>($"/api/inventory/index-detail?isCurrentOnly=false&partIDFilter={secondPartID}");
+
+            result.Should().NotBeNull();
+            result.Items.Should().NotBeNull();
+            result.Items.Should().HaveCount(1);
+            result?.Items?[0].Should().BeEquivalentTo(inventoryItems[1]);
+        }
+
+        [Fact]
         public async Task Post_Should_CreateInventoryItemRecord()
         {
             var parts = await _dataHelper.AddPartsIfNeeded();

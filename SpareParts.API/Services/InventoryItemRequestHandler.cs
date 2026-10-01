@@ -60,6 +60,7 @@ namespace SpareParts.API.Services
     public record GetInventoryItemDetailListRequest : IRequest<InventoryItemDetailListResponse>
     {
         public bool IsCurrentOnly { get; set; }
+        public int? PartIDFilter { get; set; }
         public int Skip { get; set; }
         public int? Take { get; set; }
     }
@@ -82,6 +83,11 @@ namespace SpareParts.API.Services
                 if(request.IsCurrentOnly)
                 {
                     parts = parts.Where(p => p.StartDate.Date <= DateTime.Today && (!p.EndDate.HasValue || p.EndDate.Value.Date >= DateTime.Today));
+                }
+
+                if (request.PartIDFilter.HasValue)
+                {
+                    parts = parts.Where(p => p.ID == request.PartIDFilter.Value);
                 }
 
                 var inventoryItems = _dbContext.InventoryItems.OrderByDescending(i => i.DateRecorded).AsQueryable();

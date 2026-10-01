@@ -4,7 +4,7 @@
 @inject IServiceWrapper ServiceWrapper
 
 <div>
-    <BarChart @ref="_barChart" />
+    <BarChart @ref="_barChart" OnClick="HandleBarChartClick" />
     @if (_hasError)
     {
         <div class="alert alert-danger py-1">
@@ -18,6 +18,7 @@
     private BarChart _barChart = default!;
     private BarChartOptions _barChartOptions = default!;
     private ChartData _chartData = default!;
+    private List<InventoryItemDetail> _inventoryItems = new List<InventoryItemDetail>();
 
     private bool _hasError;
     private string? _errorMessage;
@@ -25,15 +26,15 @@
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        var inventoryItems = await GetInventoryItems();
-        if (inventoryItems == null || !inventoryItems.Any())
+        _inventoryItems = await GetInventoryItems(true, null);
+        if (_inventoryItems == null || !_inventoryItems.Any())
         {
             _hasError = true;
             _errorMessage = "No inventory items found.";
             return;
         }
-        var labels = GetChartLabels(inventoryItems);
-        var datasets = GetChartDatasets(inventoryItems);
+        var labels = GetChartLabels(_inventoryItems);
+        var datasets = GetChartDatasets(_inventoryItems);
         _chartData = new ChartData { Labels = labels, Datasets = datasets };
         _barChartOptions = new BarChartOptions { Responsive = true, Interaction = new Interaction { Mode = InteractionMode.Index } };
         await _barChart.InitializeAsync(_chartData, _barChartOptions);
@@ -57,7 +58,7 @@
     {        
         var barChartDataSet = new BarChartDataset
         {
-            Label = "Stock Levels",
+            Label = "Stock Level",
             Data = inventoryItems.Select(i => (double?)i.Quantity).ToList(),
             BackgroundColor = inventoryItems.Select(i => "rgba(75, 192, 192, 0.2)").ToList(),
             BorderColor = inventoryItems.Select(i => "rgba(75, 192, 192, 1)").ToList(),
@@ -66,14 +67,13 @@
         return new List<IChartDataset> { barChartDataSet };
     }
 
-    private async Task<List<InventoryItemDetail>> GetInventoryItems()
+    private async Task<List<InventoryItemDetail>> GetInventoryItems(bool isCurrentOnly, int? partIDFilter = null)
     {
-        bool isCurrentOnly = true; // todo add a toggle for this
         int totalItemCount = 0;
-        int pageSize = 20; // todo adjust this based on total item count
+        int pageSize = 20; // todo adjust this based on total distinct part count
         List<InventoryItemDetail> inventoryItems = new List<InventoryItemDetail>();
 
-        var response = await ServiceWrapper.ServiceCall(() => InventoryService.IndexDetail(isCurrentOnly, 0, pageSize), "An error occurred retrieving inventory items.");
+        var response = await ServiceWrapper.ServiceCall(() => InventoryService.IndexDetail(isCurrentOnly, partIDFilter, 0, pageSize), "An error occurred retrieving inventory items.");
 
         if (response == null)
         {
@@ -98,5 +98,35 @@
         }
 
         return inventoryItems;
+    }
+
+    private async Task HandleBarChartClick(ChartClickEventArgs chartClickArgs)
+    {
+        if (chartClickArgs == null || chartClickArgs.DatasetLabel == null)
+        {
+            return;
+        }
+        var inventoryItem = _inventoryItems.FirstOrDefault(i => i.PartName == chartClickArgs.Label);
+        if (inventoryItem != null)
+        {
+            _inventoryItems = await GetInventoryItems(false, inventoryItem.PartID);
+            var labels = _inventoryItems.Select(i => i.DateRecorded.ToString("yyyy-MM-dd")).ToList();
+            var datasets = new List<IChartDataset>
+            {
+                new BarChartDataset
+                {
+                    Label = inventoryItem.PartName,
+                    Data = _inventoryItems.Select(i => (double?)i.Quantity).ToList(),
+                    BackgroundColor = _inventoryItems.Select(i => "rgba(75, 192, 192, 0.2)").ToList(),
+                    BorderColor = _inventoryItems.Select(i => "rgba(75, 192, 192, 1)").ToList(),
+                    BorderWidth = _inventoryItems.Select(i => 1.0).ToList()
+                }
+            };
+            _chartData = new ChartData { Labels = labels, Datasets = datasets };
+            _barChartOptions = new BarChartOptions { Responsive = true, Interaction = new Interaction { Mode = InteractionMode.Index } };
+            await _barChart.UpdateAsync(_chartData, _barChartOptions);
+            
+        }
+        
     }
 }
