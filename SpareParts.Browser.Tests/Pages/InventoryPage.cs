@@ -30,6 +30,8 @@
 
         public InventoryTable History => new(_page);
 
+        public InventoryChart Chart => new(_page);
+
         public async Task<string> PageHeader()
         {
             var header = _page.Locator("h3");
@@ -131,6 +133,35 @@
                 Quantity = Convert.ToInt32(await cells.Nth(1).InnerTextAsync()),
                 DateRecorded = Convert.ToDateTime(await cells.Nth(2).InnerTextAsync())
             };
+        }
+    }
+
+    public class InventoryChart
+    {
+        private readonly IPage _page;
+        public InventoryChart(IPage page)
+        {
+            _page = page;
+        }
+       
+        public async Task<bool> IsCurrentStockHeaderVisible()
+        {
+            var pageTitles = await _page.QuerySelectorAllAsync("h3");
+            foreach (var title in pageTitles)
+            {
+                var text = await title.InnerTextAsync();
+                if (text == "Current Stock")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public async Task<bool> IsChartVisible()  // Chart.js renders a canvas element, so we can only check for its visibility
+        {
+            var chart = _page.Locator("canvas");
+            return await chart.IsVisibleAsync();
         }
     }
 }

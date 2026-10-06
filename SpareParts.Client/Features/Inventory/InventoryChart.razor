@@ -11,6 +11,16 @@
         }
         
     </div>
+    @if(_isFiltered)
+    {
+        <h3>Part History</h3>
+    }
+    else
+    {
+        <h3>Current Stock</h3>
+        <p>Click on a part bar to drill into part inventory history.</p>
+    }
+    
     <BarChart @ref="_barChart" OnClick="HandleBarChartClick" />
     
     @if (_hasError)
